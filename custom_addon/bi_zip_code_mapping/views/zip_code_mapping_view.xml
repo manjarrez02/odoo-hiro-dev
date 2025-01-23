@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="bi_zip_code_mapping_form" model="ir.ui.view">
+			<field name="name">bi.zip.code.mapping.form</field>
+			<field name="model">zip.code.mapping</field>
+			<field name="arch" type="xml">
+				<form string="Zip Code Mapping">
+					<sheet>
+						<group>
+							<field name="name"/>
+							<field name="city" requierd="1"/>
+							<field name="state_id" requierd="1"/>
+							<field name="country_id" requierd="1"/>					
+							<field name="neighborhood_ids" widget="many2many_tags" requierd="1"/>					
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id="bi_zip_code_mapping_tree" model="ir.ui.view">
+			<field name="name">bi.zip.code.mapping.tree</field>
+			<field name="model">zip.code.mapping</field>
+			<field name="arch" type="xml">
+				<tree string="Zip Code Mapping">
+					<field name="name"/>
+					<field name="city"/>
+					<field name="state_id"/>
+					<field name="country_id"/>
+					<field name="neighborhood_ids" widget="many2many_tags"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="action_zip_code_mapping" model="ir.actions.act_window">
+			<field name="name">Zip Code Mapping</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">zip.code.mapping</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+
+		<menuitem id="menu_custom_sequence" name="Zip Code Mapping"
+			parent="sale.menu_sale_config" sequence="80"
+			action="action_zip_code_mapping" />
+
+	</data>
+</odoo>

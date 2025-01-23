@@ -1,0 +1,391 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ks_list_view_manager
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-24 01:11+0000\n"
+"PO-Revision-Date: 2024-03-24 01:11+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__ks_action_id
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__ks_action_id
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__ks_action_id
+msgid "Action Id"
+msgstr "ID de Acción"
+
+#. module: ks_list_view_manager
+#: model:res.groups,name:ks_list_view_manager.ks_list_view_manager_advance_Search
+msgid "Advance Search"
+msgstr "Búsqueda Avanzada"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/js/ks_lvm_controller.js:0
+#, python-format
+msgid "Are you sure you want to restore to Odoo default View?"
+msgstr "¿Estás seguro de que deseas restaurar a la Vista predeterminada de Odoo?"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_list_templates.xml:0
+#, python-format
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_list_templates.xml:0
+#, python-format
+msgid "Cancel Changes"
+msgstr ""
+
+#. module: ks_list_view_manager
+#: model_terms:ir.ui.view,arch_db:ks_list_view_manager.res_config_settings_view_form
+msgid "Color Settings"
+msgstr "Cancelar Cambios"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__ks_columns_name
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__ks_columns_name
+msgid "Columns Name"
+msgstr "Nombre de las Columnas"
+
+#. module: ks_list_view_manager
+#: model:ir.model,name:ks_list_view_manager.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ajustes de Configuración"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__create_uid
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__create_uid
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__create_uid
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__create_uid
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__create_date
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__create_date
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__create_date
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__create_date
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__editable
+msgid "Define user editable mode"
+msgstr "Definir modo editable por el usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__display_name
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__display_name
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__display_name
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__display_name
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__display_name
+msgid "Display Name"
+msgstr "Nombre para Mostrar"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_lvm_button.xml:0
+#, python-format
+msgid "Duplicate Records"
+msgstr "Duplicar Registros"
+
+#. module: ks_list_view_manager
+#: model:res.groups,name:ks_list_view_manager.ks_list_view_manager_dynamic_list
+msgid "Dynamic List"
+msgstr "Lista Dinámica"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_lvm_button.xml:0
+#, python-format
+msgid "Dynamic List Settings"
+msgstr "Ajustes de Lista Dinámica"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__ks_editable
+msgid "Editable List Mode"
+msgstr "Modo de Lista Editable"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__field_name
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__field_name
+msgid "Field Name"
+msgstr "Nombre del Campo"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__ks_width
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__ks_width
+msgid "Field Width"
+msgstr "Ancho del Campo"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__fields
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__fields
+msgid "Fields Information"
+msgstr "Información de Campos"
+
+#. module: ks_list_view_manager
+#: model:ir.model,name:ks_list_view_manager.model_ir_http
+msgid "HTTP Routing"
+msgstr "Enrutamiento HTTP"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_res_config_settings__ks_header_text_color_field_change
+msgid "Header Text Color"
+msgstr "Color del Texto del Encabezado"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_cancel_edit_template.xml:0
+#: code:addons/ks_list_view_manager/static/src/xml/ks_cancel_edit_template.xml:0
+#: code:addons/ks_list_view_manager/static/src/xml/ks_list_templates.xml:0
+#: code:addons/ks_list_view_manager/static/src/xml/ks_list_templates.xml:0
+#, python-format
+msgid "Hide/Show Columns"
+msgstr "Ocultar/Mostrar Columnas"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__id
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__id
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__id
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__id
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_res_config_settings__ks_header_color_field_change
+msgid "LVM Header Color"
+msgstr "Color del Encabezado de LVM"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields____last_update
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific____last_update
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields____last_update
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode____last_update
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific____last_update
+msgid "Last Modified on"
+msgstr "Última Modificación el"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__write_uid
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__write_uid
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__write_uid
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__write_uid
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__write_uid
+msgid "Last Updated by"
+msgstr "Última Actualización por"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__write_date
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__write_date
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__write_date
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__write_date
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__write_date
+msgid "Last Updated on"
+msgstr "Última Actualización el"
+
+#. module: ks_list_view_manager
+#: model:ir.module.category,name:ks_list_view_manager.ks_list_view_manger_category
+msgid "List View Manager Rights"
+msgstr "Derechos de List View Manager"
+
+#. module: ks_list_view_manager
+#: model_terms:ir.ui.view,arch_db:ks_list_view_manager.res_config_settings_view_form
+msgid "List View Manager Settings"
+msgstr "Configuración de List View Manager"
+
+#. module: ks_list_view_manager
+#: model:ir.ui.menu,name:ks_list_view_manager.menu_config
+msgid "List View Settings"
+msgstr "Ajustes de List View"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__ks_field_order
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__model_name
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__ks_field_order
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__model_name
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__model_name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/js/ks_lvm_renderer.js:0
+#: code:addons/ks_list_view_manager/static/src/js/ks_lvm_renderer.js:0
+#, python-format
+msgid "Notification"
+msgstr "Notificación"
+
+#. module: ks_list_view_manager
+#: model:ir.model,name:ks_list_view_manager.model_res_partner_category
+msgid "Partner Tags"
+msgstr "Etiquetas de Proveedor"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/js/ks_lvm_renderer.js:0
+#: code:addons/ks_list_view_manager/static/src/js/ks_lvm_renderer.js:0
+#, python-format
+msgid "Please enter a valid number"
+msgstr "Por favor, ingresa un número válido"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_lvm_button.xml:0
+#: model:res.groups,name:ks_list_view_manager.ks_list_view_manager_edit_and_read
+#, python-format
+msgid "Read/Edit Mode"
+msgstr "Modo de Lectura/Edición"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_lvm_button.xml:0
+#, python-format
+msgid "Refresh Data"
+msgstr "Actualizar Datos"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_cancel_edit_template.xml:0
+#: code:addons/ks_list_view_manager/static/src/xml/ks_cancel_edit_template.xml:0
+#: code:addons/ks_list_view_manager/static/src/xml/ks_list_templates.xml:0
+#, python-format
+msgid "Reorder Columns"
+msgstr "Reordenar Columnas"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_lvm_button.xml:0
+#, python-format
+msgid "Restore to Default View"
+msgstr "Restaurar a Vista Predeterminada"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/rownumber.xml:0
+#, python-format
+msgid "S.No"
+msgstr ""
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_lvm_button.xml:0
+#, python-format
+msgid "Search For Columns"
+msgstr "Buscar Columnas"
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_lvm_button.xml:0
+#, python-format
+msgid "Search for Columns.."
+msgstr "Buscar columnas..."
+
+#. module: ks_list_view_manager
+#. odoo-javascript
+#: code:addons/ks_list_view_manager/static/src/xml/ks_advance_search.xml:0
+#: code:addons/ks_list_view_manager/static/src/xml/ks_advance_search.xml:0
+#, python-format
+msgid "Search..."
+msgstr "Búsqueda..."
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_res_config_settings__ks_serial_number
+msgid "Serial Number"
+msgstr "Número de Serie"
+
+#. module: ks_list_view_manager
+#: model_terms:ir.ui.view,arch_db:ks_list_view_manager.res_config_settings_view_form
+msgid "Serial Number Settings"
+msgstr "Ajustes de Número de Serie"
+
+#. module: ks_list_view_manager
+#: model:ir.actions.act_window,name:ks_list_view_manager.action_general_configuration
+msgid "Settings"
+msgstr "Ajustes"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__ksShowField
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__ksShowField
+msgid "Show Field in list"
+msgstr "Mostrar Campo en la Lista"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__ks_invisible
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__ks_invisible
+msgid "Show invisible columns"
+msgstr "Mostrar columnas invisibles"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__ks_tag
+msgid "Tag"
+msgstr "Etiqueta"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_res_config_settings__ks_toggle_color_field_change
+msgid "Toggle Color"
+msgstr ""
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__user_id
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_mode__user_id
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__user_id
+msgid "User"
+msgstr "Usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.module.category,description:ks_list_view_manager.ks_list_view_manger_category
+msgid "User Access Level"
+msgstr "Nivel de Acceso del Usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.model,name:ks_list_view_manager.model_user_mode
+msgid "User Mode"
+msgstr "Modo de Usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.model,name:ks_list_view_manager.model_user_fields
+msgid "User Specfic Fields"
+msgstr "Campos Específicos del Usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.model,name:ks_list_view_manager.model_user_specific
+msgid "User Specfic Information"
+msgstr "Información Específica del Usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_fields__fields_list
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_fields__fields_list
+msgid "User Specific Fields"
+msgstr "Campos Específicos del Usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.model,name:ks_list_view_manager.model_ks_user_standard_fields
+msgid "User Specific Standard fields"
+msgstr "Campos Estándar Específicos del Usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.model,name:ks_list_view_manager.model_ks_user_standard_specific
+msgid "User Standards Specfic Information"
+msgstr "Información Específica Estándar del Usuario"
+
+#. module: ks_list_view_manager
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_ks_user_standard_specific__ks_table_width
+#: model:ir.model.fields,field_description:ks_list_view_manager.field_user_specific__ks_table_width
+msgid "table Width"
+msgstr "Ancho de la Tabla"

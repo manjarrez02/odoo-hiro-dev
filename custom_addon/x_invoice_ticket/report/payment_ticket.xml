@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- QWeb Reports -->
+    <record id="report_invoice_payment_all_print_thermal_so_action" model="ir.actions.report">
+        <field name="name">Ticket de pago</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">x_invoice_ticket.payment_ticket</field>
+        <field name="report_file">x_invoice_ticket.payment_ticket</field>
+        <field name="print_report_name">'Recibo de pago - %s' % (object.name)
+        </field>
+        <field name="binding_model_id" ref="account.model_account_payment"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_roll_paper"/>
+    </record>
+    <!-- Template of Thermal invoice report -->
+    <template id="payment_ticket">
+        <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="lang" t-value="doc.partner_id.lang"/>
+                    <div class="thermal-report-page">
+                        <div style = "text-align: center;">
+                            <img style="margin-top:0; text-align: center; max-width: 288px; max-height: 144px; width: auto; height: auto;" src='/web/binary/company_logo'/>
+                        </div>
+                        <div style="text-align: center; font-size: 13px; margin-top: 0px">
+                                <span style = "line-height: 14px;" t-field="doc.company_id.name"/><br/>
+                                <span style = "line-height: 14px;" t-field="doc.company_id.company_registry"/><br/>
+                                <span style = "line-height: 14px;" t-field="doc.company_id.vat"/><br/>                               
+                                <span style = "line-height: 14px;" t-field="doc.company_id.street"/>
+                        		<t t-if = "doc.company_id.city">
+                                 	,
+                                	<span style = "line-height: 14px;" t-field="doc.company_id.city"/>
+                                </t>
+                                <t t-if = "doc.company_id.state_id.name">
+                                	 ,
+                                	<span style = "line-height: 14px;" t-field="doc.company_id.state_id.name"/>
+                        		</t>
+                                <t t-if = "doc.company_id.zip">
+                                 	, C.P 
+                                	<span style = "line-height: 14px;" t-field="doc.company_id.zip"/>                                
+                                </t>
+                        </div>
+                        <t t-if = "doc.state == 'draft'">
+                            <div style="text-align: center; font-size: 20px; font-weight: bold;"> BORRADOR </div>
+                        </t>
+                        <t t-if = "doc.state == 'cancel'">
+                            <div style="text-align: center; font-size: 20px; font-weight: bold;"> CANCELADA </div>
+                        </t>
+                        <t t-else = "">
+                            <div style="text-align: center; font-size: 20px; font-weight: bold;"> <br/> RECIBO DE PAGO </div>
+                        </t>                        
+                        <br/>              
+                        <t t-if = "doc.payment_type == 'inbound'">                                    
+                            <div style="font-size: 13px; text-align: left; width:100%;"><b>Cliente:</b></div> 
+                        </t>
+                        <t t-if = "doc.payment_type == 'outbound'">                                    
+                            <div style="font-size: 13px; text-align: left; width:100%;"><b>Proveedor:</b></div> 
+                        </t>                        
+                        <div style="font-size: 13px; text-align: left; width:100%;"><t t-esc="doc.partner_id.name"/></div>     
+                        <div style="text-align: left; font-size: 13px;">
+
+                                <span style = "line-height: 14px;" t-field="doc.partner_id.street"/>
+                                 ,
+                                <span style = "line-height: 14px;" t-field="doc.partner_id.neighborhood_id.name"/>
+                                 ,                                 
+                                <span style = "line-height: 14px;" t-field="doc.partner_id.city"/>
+                                 ,
+                                <span style = "line-height: 14px;" t-field="doc.partner_id.state_id"/>
+                                 , C.P 
+                                <span style = "line-height: 14px;" t-field="doc.partner_id.custom_zip"/>                                
+                        </div>
+
+                        <div style="font-size: 14px; text-align: left; width: 100%; ">                                                
+                            <br/>
+                            <b>Folio de pago:</b> <t t-esc = "doc.name"/>
+                            <br/>         
+                            <b>Método de pago:</b> <span t-field = "doc.journal_id"/>
+                            <br/>         
+                            <b>Fecha de pago:</b> <t t-esc = "doc.date and doc.date.strftime('%d/%m/%Y')"/>
+                            <br/>        
+                            <b>Memo:</b> <t t-esc = "doc.ref"/>
+                            <br/>
+                            <b>Monto de pago: $</b> <t t-esc = "'{0:,.2f}'.format(doc.amount)"/>
+                            <br/>
+                        </div>
+
+                        <div style="margin-top: 0px;">
+                            <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                            </svg>
+                        </div>                               
+						
+                        <t t-set = "line_number" t-value = "0"/>
+                        <t t-set = "used_balance" t-value = "0"/>
+                    		
+                        
+                        <table style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; border: none;">                
+                            <tr>
+                                <th style="width: 9%; padding: 1px; font-size: 13px; text-align: center; border: none; border-collapse: collapse; border-style: hidden;"><b>#</b></th>
+                                <th style="width: 29%; padding: 1px; font-size: 13px; text-align: center; border: none; border-collapse: collapse; border-style: hidden;"><b>FECHA NOTA</b></th>
+                                <th style="width: 29%; padding: 1px; font-size: 13px; text-align: center; border: none; border-collapse: collapse; border-style: hidden;"><b>NOTA</b></th>                        
+                                <th style="width: 29%; padding: 1px; font-size: 13px; text-align: right; border: none; border-collapse: collapse; border-style: hidden;"><b>MONTO APLICADO</b></th>
+                            </tr>
+                        </table>
+
+                        <div style="margin-top: -5px;">
+                            <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                            </svg>
+                        </div>
+
+                        <t t-set="partials" t-value="doc.move_id._get_reconciled_invoices_partials()[0]"/>
+                        <t t-set="invoices" t-value="{partial[2].move_id for partial in partials}"/>
+
+                        <t t-foreach="invoices" t-as="inv">
+                            <tr t-foreach="inv._get_reconciled_invoices_partials()[0]" t-as="par">
+                                <t t-set="payment" t-value="par[2].move_id"/>                                
+                                <t t-if = "payment.name == doc.name" >
+                                    <t t-set = "line_number" t-value = "line_number + 1"/>
+                                    <table class="payment-first-row" style="width: 100%; border-collapse: collapse; border-style: hidden; margin-top:0px; ">                
+                                        <tr>
+                                            <th style="width: 9%;  padding: 1px; font-size: 12px; border: none; text-align: center;" t-esc="line_number"></th>
+                                            <th style="width: 25%; padding: 1px; font-size: 12px; border: none; text-align: center;" t-esc="inv.invoice_date"></th>
+                                            <th style="width: 39%; padding: 1px; font-size: 12px; border: none; text-align: center;" t-esc="inv.name"></th>
+                                            <th style="width: 25%; padding: 1px; font-size: 12px; border: none; text-align: right;" t-esc="'{0:,.2f}'.format(par[1])"></th>
+                                            <t t-set = "used_balance" t-value = "used_balance + par[1]"/>
+                                        </tr>                                                        
+                                    </table>
+                                </t>
+                            </tr>
+                        </t>
+                        <div style="margin-top: -5px;">
+                            <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                            </svg>
+                        </div>
+
+                        <t t-if="used_balance &lt; doc.amount">
+                            <t t-if = "doc.payment_type == 'inbound'">
+                                <div style="text-align: center; font-size: 14px;">                            	
+                                    <br/>
+                                    SU SALDO DISPONIBLE ES: 
+                                    $ <span t-esc="'{0:,.2f}'.format(doc.amount - used_balance)"/>
+                                </div>   
+                            </t>
+                            <t t-if = "doc.payment_type == 'outbound'">
+                                <div style="text-align: center; font-size: 14px;">                            	
+                                    <br/>
+                                    EXISTE UN SALDO DISPONIBLE DE: 
+                                    $ <span t-esc="'{0:,.2f}'.format(doc.amount - used_balance)"/>
+                                </div>   
+                            </t>                          
+                        </t>
+                        
+                        <t t-if = "doc.payment_type == 'inbound'">       
+                            <div style="font-size: 13px; text-align: center; width: 100%; white-space:pre-line; font-weight: bold;  line-height: 15px;">
+                                CONSERVE SU COMPROBANTE PARA ACLARACIONES.
+                            </div>
+                        </t>
+                        <div style="font-size: 14px; text-align: center; width: 100%;">
+                            <br/>
+                            Fecha y hora de impresión: 
+                            <t t-esc="datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-6))).strftime('%d/%m/%Y %H:%M:%S')"/>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

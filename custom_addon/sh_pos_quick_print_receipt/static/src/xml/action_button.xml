@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="QuickPrintButton" owl="1">
+        <div class="control-button">
+            <a style="color: #55555; display: block;" class="btn btn-primary" t-on-click="() => this.trigger('click-print-receipt')">
+                <i class="fa fa-print" aria-hidden="true"></i>
+                Print Receipt
+            </a>
+        </div>
+    </t>
+</templates>

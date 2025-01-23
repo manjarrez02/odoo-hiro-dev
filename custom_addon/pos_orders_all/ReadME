@@ -1,0 +1,31 @@
+Version 16.0.0.1 : (13/02/2023)
+		- When we open pos at that time get an error fixed that issue.
+
+
+Version 16.0.0.2 : (25/04/2023)
+	- Solved issue while install the module. That issue coming from arabic translation.
+
+Version 16.0.0.3 : (07/06/2023)
+	-- In the pos if we allow for the show product stock but if product image is not available than stock is not showing on the product debug for that and fixed that issue.
+
+Version 16.0.0.4 : (28/07/2023)
+	-- fixed the issue of pos all in one module related.
+
+Version 16.0.0.5 : (02/08/2023)
+	-- Improvement point now we can see on hand quantity based on the seleted location.
+	
+Version 16.0.0.6 : (03/08/2023)
+  	-- Spanish (es_MX) Translation Added
+
+Version 16.0.0.7 : (07/08/2023)
+	-- Update code for the create sale order.
+
+Version 16.0.0.8 : (08/08/2023)
+	-- removed dependency of bi_remove_pos_lines.
+
+Version 16.0.0.9 : (11/08/2023)
+	-- Removed an extra button of delete orderline.
+
+Version 16.0.1.0 : (05/04/2024)
+	Customization
+	- Change the icon and control button icon title and remove the span according to customization.

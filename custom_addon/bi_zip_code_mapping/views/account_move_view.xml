@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rental_account_invoice_form_view" model="ir.ui.view">
+        <field name="name">account.invoice.form.rental.view</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="neighborhood_id" invisible="1"/>
+                <field name="neighborhood_text" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="view_users_form_reports_preview" model="ir.ui.view">
+            <field name="name">res.users.form.reports_preview</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form" />
+            <field name="arch" type="xml">
+                <page name="preferences" position="inside">
+                    <group>
+                        <field name="show_report_preview" string="Reports Preview" />
+                    </group>
+                </page>
+            </field>
+        </record>
+
+        <record id="view_users_form_simple_modif_reports_preview" model="ir.ui.view">
+            <field name="name">res.users.form.simple.reports_preview</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form_simple_modif" />
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='preferences']/group[2]" position="inside">
+                    <field name="show_report_preview" string="Reports Preview" />
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

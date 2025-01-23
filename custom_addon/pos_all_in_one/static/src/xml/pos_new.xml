@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<template>
+
+
+	<t t-name="ProductTemplatePopupWidget" owl="1">
+		<Draggable>
+			<div class="popup">
+				<header class="title drag-handle">
+					<span style="color: #714b67;font-weight: bold;">Products Variants</span>                    
+				</header>
+				<main class="body">
+					<div style="overflow : auto">
+						<div t-if="props.variant_ids.length != 0" class="product-list" style="max-height: 360px;overflow: auto;">
+							<t t-foreach="props.variant_ids" t-as="product" t-key="product.id">
+								<ProductProduct product="product"/>
+							</t>
+						</div>
+						<t t-if="env.pos.config.allow_alternative_products">
+							<t t-if="props.alternative_prod">
+								<t t-if="props.alternative_prod.length != 0">
+									<p style="color: #714b67;font-weight: bold;font-size: 20px;">Select Your Alternative Products</p>
+									<div t-if="props.variant_ids.length != 0" class="product-list" style="max-height: 270px;overflow: auto;">
+											<t t-foreach="props.alternative_prod" t-as="product" t-key="product.id">
+												<ProductProduct product="product"/>
+											</t>
+									</div>
+								</t>
+							</t>
+						</t>
+					</div>
+				</main>
+				<footer class="footer">
+					<div class="button cancel" t-on-click="cancel">
+						Ok
+					</div>
+				</footer>
+			</div>
+		</Draggable>
+	</t>
+
+	<t t-name="ProductItem" t-inherit="point_of_sale.ProductItem" t-inherit-mode="extension" owl="1">
+		
+		<xpath expr="//div[hasclass('product-content')]" position="replace">
+			<t t-if="env.pos.config.allow_product_variants">
+				<t t-if="props.product.product_variant_count == 1">
+					<t t-if="props.product.type != 'consu' and props.product.type != 'service'">
+						<t t-if="env.pos.config.show_stock_location == 'specific'">
+							<t t-if="env.pos.config.pos_display_stock">
+								<t t-if="env.pos.config.pos_stock_type == 'onhand'">
+									<t t-if="props.product.qty_available > 0">
+										<span class="qty-label">
+											<t t-esc="props.product.qty_available"/>
+										</span>
+									</t>
+									<t t-else="">
+										<span class="qty-label out-of-stock-qty">
+											<t t-esc="props.product.qty_available"/>
+										</span>
+									</t>
+								</t>
+								<t t-if="env.pos.config.pos_stock_type == 'virtual'">
+									<t t-if="props.product.virtual_available > 0">
+										<span class="qty-label">
+											<t t-esc="props.product.virtual_available"/>
+										</span>
+									</t>
+									<t t-else="">
+										<span class="qty-label out-of-stock-qty">
+											<t t-esc="props.product.virtual_available"/>
+										</span>
+									</t>
+								</t>
+								<t t-if="env.pos.config.pos_stock_type == 'both'">
+									<t t-if="props.product.qty_available > 0">
+										<span class="qty-label">
+											<t t-esc="props.product.qty_available"/>
+										</span>
+									</t>
+									<t t-else="">
+										<span class="qty-label out-of-stock-qty">
+											<t t-esc="props.product.qty_available"/>
+										</span>
+									</t>
+									<t t-if="props.product.virtual_available > 0">
+										<span class="qty-label1">
+											<t t-esc="props.product.virtual_available"/>
+										</span>
+									</t>
+									<t t-else="">
+										<span class="qty-label1 out-of-stock-qty">
+											<t t-esc="props.product.virtual_available"/>
+										</span>
+									</t>
+								</t>
+							</t>
+						</t>
+						<t t-else="">
+							<t t-if="env.pos.config.pos_stock_type == 'onhand'">
+								<t t-if="props.product.bi_qty_available > 0">
+									<span class="qty-label">
+										<t t-esc="props.product.bi_qty_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label out-of-stock-qty">
+										<t t-esc="props.product.bi_qty_available"/>
+									</span>
+								</t>
+							</t>
+						</t>
+					</t>
+				</t>
+			</t>
+			<t t-else="">
+				<t t-if="props.product.type != 'consu' and props.product.type != 'service'">
+					<t t-if="env.pos.config.pos_display_stock">
+						<t t-if="env.pos.config.show_stock_location == 'specific'">
+							<t t-if="env.pos.config.pos_stock_type == 'onhand'">
+								<t t-if="props.product.qty_available > 0">
+									<span class="qty-label">
+										<t t-esc="props.product.qty_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label out-of-stock-qty">
+										<t t-esc="props.product.qty_available"/>
+									</span>
+								</t>
+							</t>
+							<t t-if="env.pos.config.pos_stock_type == 'virtual'">
+								<t t-if="props.product.virtual_available > 0">
+									<span class="qty-label">
+										<t t-esc="props.product.virtual_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label out-of-stock-qty">
+										<t t-esc="props.product.virtual_available"/>
+									</span>
+								</t>
+							</t>
+							<t t-if="env.pos.config.pos_stock_type == 'both'">
+								<t t-if="props.product.qty_available > 0">
+									<span class="qty-label">
+										<t t-esc="props.product.qty_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label out-of-stock-qty">
+										<t t-esc="props.product.qty_available"/>
+									</span>
+								</t>
+								<t t-if="props.product.virtual_available > 0">
+									<span class="qty-label1">
+										<t t-esc="props.product.virtual_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label1 out-of-stock-qty">
+										<t t-esc="props.product.virtual_available"/>
+									</span>
+								</t>
+							</t>
+						</t>
+						<t t-else="">
+							<t t-if="env.pos.config.pos_stock_type == 'onhand'">
+								<t t-if="props.product.bi_qty_available > 0">
+									<span class="qty-label">
+										<t t-esc="props.product.bi_qty_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label out-of-stock-qty">
+										<t t-esc="props.product.bi_qty_available"/>
+									</span>
+								</t>
+							</t>
+
+							<t t-if="env.pos.config.pos_stock_type == 'virtual'">
+								<t t-if="props.product.bi_virtual_available > 0">
+									<span class="qty-label">
+										<t t-esc="props.product.bi_virtual_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label out-of-stock-qty">
+										<t t-esc="props.product.bi_virtual_available"/>
+									</span>
+								</t>
+							</t>
+							<t t-if="env.pos.config.pos_stock_type == 'both'">
+								<t t-if="props.product.bi_qty_available > 0">
+									<span class="qty-label">
+										<t t-esc="props.product.bi_qty_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label out-of-stock-qty">
+										<t t-esc="props.product.bi_qty_available"/>
+									</span>
+								</t>
+								<t t-if="props.product.bi_virtual_available > 0">
+									<span class="qty-label1">
+										<t t-esc="props.product.bi_virtual_available"/>
+									</span>
+								</t>
+								<t t-else="">
+									<span class="qty-label1 out-of-stock-qty">
+										<t t-esc="props.product.bi_virtual_available"/>
+									</span>
+								</t>
+							</t>
+						</t>
+					</t>
+				</t>
+			</t>
+
+			<t t-if="env.pos.config.allow_product_variants">
+				<t t-if="props.product.product_variant_count > 1">
+					<div class="product-content">
+		                <div class="product-name" t-attf-id="article_product_{{props.product.id}}">
+		                    <t t-esc="props.product.name" />
+		                </div>
+		                <span class="price-tag">
+		                    <t t-esc="props.product.product_variant_count"/> Variants
+		                </span>
+		            </div>
+					
+				</t>
+				<t t-else="">
+					<div class="product-content">
+		                <div class="product-name" t-attf-id="article_product_{{props.product.id}}">
+		                    <t t-esc="props.product.display_name" />
+		                </div>
+		                <span class="price-tag">
+		                    <t t-esc="price" />
+		                </span>
+		            </div>
+				</t>
+			</t>
+			<t t-else="">
+				<div class="product-content">
+	                <div class="product-name" t-attf-id="article_product_{{props.product.id}}">
+	                    <t t-esc="props.product.display_name" />
+	                </div>
+	                <span class="price-tag">
+	                    <t t-esc="price" />
+	                </span>
+	            </div>
+			</t>
+		</xpath>
+
+
+		<!-- <xpath expr="//div[hasclass('product-content')]" position="replace">
+
+			<t t-if="env.pos.config.allow_product_variants">
+				<t t-if="props.product.product_variant_count > 1">
+					<div class="product-content">
+		                <div class="product-name" t-attf-id="article_product_{{props.product.id}}">
+		                    <t t-esc="props.product.name" />
+		                </div>
+		                <span class="price-tag">
+		                    <t t-esc="props.product.product_variant_count"/> Variants
+		                </span>
+		            </div>
+					
+				</t>
+				<t t-else="">
+					<div class="product-content">
+		                <div class="product-name" t-attf-id="article_product_{{props.product.id}}">
+		                    <t t-esc="props.product.display_name" />
+		                </div>
+		                <span class="price-tag">
+		                    <t t-esc="price" />
+		                </span>
+		            </div>
+				</t>
+			</t>
+			<t t-else="">
+				<div class="product-content">
+	                <div class="product-name" t-attf-id="article_product_{{props.product.id}}">
+	                    <t t-esc="props.product.display_name" />
+	                </div>
+	                <span class="price-tag">
+	                    <t t-esc="price" />
+	                </span>
+	            </div>
+			</t>
+		</xpath> -->
+		
+	</t>
+
+	<t t-name="ProductTemplateListWidget" owl="1">
+		<div class='productt-list-container'>
+			<div class="productt-list-scroller touch-scrollable  scrollable-y">
+				<div class="productt-list">
+				</div>
+			</div>
+			<span class="placeholder-ScrollbarWidget" />
+		</div>
+	</t>
+
+	<t t-name="ProductProduct" owl="1">
+		<article style="background: #eeeeee;" class="product" tabindex="0"
+				t-on-click="() => this.trigger('click-product-template', props.product)"
+				t-att-data-product-id="props.product.id"
+				t-attf-aria-labelledby="article_product_{{props.product.id}}">
+            <div class="product-img">
+                <img t-att-src="imageUrl" t-att-alt="props.product.display_name" />
+				<t t-if="props.product.type != 'consu' and props.product.type != 'service'">
+					<t t-if="env.pos.config.pos_display_stock">
+						<t t-if="env.pos.config.pos_stock_type == 'onhand'">
+							<t t-if="props.product.qty_available > 0">
+								<span class="qty-label">
+									<t t-esc="props.product.qty_available"/>
+								</span>
+							</t>
+							<t t-else="">
+								<span class="qty-label out-of-stock-qty">
+									<t t-esc="props.product.qty_available"/>
+								</span>
+							</t>
+						</t>
+						<t t-if="env.pos.config.pos_stock_type == 'virtual'">
+							<t t-if="props.product.virtual_available > 0">
+								<span class="qty-label">
+									<t t-esc="props.product.virtual_available"/>
+								</span>
+							</t>
+							<t t-else="">
+								<span class="qty-label out-of-stock-qty">
+									<t t-esc="props.product.virtual_available"/>
+								</span>
+							</t>
+						</t>
+						<t t-if="env.pos.config.pos_stock_type == 'both'">
+							<t t-if="props.product.qty_available > 0">
+								<span class="qty-label">
+									<t t-esc="props.product.qty_available"/>
+								</span>
+							</t>
+							<t t-else="">
+								<span class="qty-label out-of-stock-qty">
+									<t t-esc="props.product.qty_available"/>
+								</span>
+							</t>
+							<t t-if="props.product.virtual_available > 0">
+								<span class="qty-label1">
+									<t t-esc="props.product.virtual_available"/>
+								</span>
+							</t>
+							<t t-else="">
+								<span class="qty-label1 out-of-stock-qty">
+									<t t-esc="props.product.virtual_available"/>
+								</span>
+							</t>
+						</t>
+					</t>
+				</t>
+            </div>
+            <div class="product-content">
+				<div class="product-name" t-attf-id="article_product_{{props.product.id}}">
+					<t t-esc="props.product.display_name" />
+				</div>
+				<span class="price-tag">
+					<t t-esc="price" />
+				</span>
+			</div>
+        </article>
+	</t>
+
+</template>

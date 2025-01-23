@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<odoo>
+	<record id="view_res_users_form_new" model="ir.ui.view">
+		<field name="name">view.users.warehouse.add</field>
+		<field name="model">res.users</field>
+		<field name="inherit_id" ref="base.view_users_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='active']" position="after">
+				<field name="warehouses_id"/>
+			</xpath>
+		</field>
+	</record>
+</odoo>

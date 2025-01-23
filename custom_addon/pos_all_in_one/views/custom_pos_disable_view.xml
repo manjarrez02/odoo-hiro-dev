@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+
+		
+
+		<!-- custom fields in res_users view -->
+		<record id="inherit_view_bi_res_users_form" model="ir.ui.view">
+			<field name="name">inherit_view_res_users_form</field>
+			<field name="model">res.users</field>
+			<field name="inherit_id" ref="base.view_users_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//page" position="after">
+					<page name="pos" string="Point Of Sale">
+						<group>
+							<group>
+								<field name="allow_configs" widget="many2many_tags"/>
+								<field name="is_allow_numpad"/>
+								<field name="is_allow_payments"/>
+								<field name="is_allow_discount"/>
+								<field name="is_allow_qty"/>
+								<field name="is_edit_price"/>
+								<field name="is_allow_remove_orderline"/>
+								<field name="is_allow_customer_selection"/>
+								<field name="is_allow_plus_minus_button"/>
+								<field name="is_allow_loc_summery"/>
+								<field name="is_allow_order_summery"/>
+								<field name="is_allow_product_summery"/>
+								<field name="is_allow_product_categ_summery"/>
+								<field name="is_allow_payment_summery"/>								
+								<field name="is_allow_return_order_barcode"/>
+								<field name="is_allow_internal_transfer"/>
+								<field name="is_allow_reset_programs"/>
+							</group>
+							<group>								
+								<field name="allow_customer_limit_exceeded"/>
+								<field name="add_pin" attrs="{'invisible': [('allow_customer_limit_exceeded','=',False)]}"/>
+								<field name="is_allow_refund"/>
+								<field name="is_allow_info"/>
+								<field name="is_allow_customer_note"/>							
+								<field name="is_allow_quotation_order"/>							
+								<field name="is_allow_sales_order"/>							
+								<field name="is_allow_coupon"/>
+								<field name="is_allow_orders"/>
+								<field name="is_allow_sale_orders"/>
+								<field name="is_allow_draft_order"/>
+								<field name="is_allow_find_order"/>
+								<field name="is_allow_products"/>
+								<field name="is_allow_payment_action"/>
+								<field name="is_allow_invoice"/>
+								<field name="is_allow_enter_code"/>
+								<field name="is_allow_reward"/>
+							</group>
+						</group>
+					</page>
+				</xpath>
+			</field>
+		</record>
+
+		<record id="inherit_view_bi_hr_employee_form" model="ir.ui.view">
+			<field name="name">inherit_view_bi_hr_employee_form</field>
+			<field name="model">hr.employee</field>
+			<field name="inherit_id" ref="hr.view_employee_form"/>
+			<field name="arch" type="xml">
+				<page name="hr_settings" position="after">
+					<page name="pos_access" string='Point Of Sale' groups='hr.group_hr_manager'>
+						<group attrs="{'invisible': [('user_id','!=',False)]}">
+							<group>
+								<field name="is_allow_numpad"/>
+								<field name="is_allow_payments"/>
+								<field name="is_allow_discount"/>
+								<field name="is_allow_qty"/>
+								<field name="is_edit_price"/>
+								<field name="is_allow_remove_orderline"/>
+								<field name="is_allow_customer_selection"/>
+								<field name="is_allow_plus_minus_button"/>
+								<field name="is_allow_loc_summery"/>
+								<field name="is_allow_order_summery"/>
+								<field name="is_allow_product_summery"/>
+								<field name="is_allow_product_categ_summery"/>
+								<field name="is_allow_payment_summery"/>
+								<field name="is_allow_return_order_barcode"/>
+								<field name="is_allow_internal_transfer"/>
+								<field name="is_allow_reset_programs"/>
+							</group>
+							<group>												
+								<field name="is_allow_refund"/>
+								<field name="is_allow_info"/>
+								<field name="is_allow_customer_note"/>
+								<field name="is_allow_quotation_order"/>							
+								<field name="is_allow_sales_order"/>							
+								<field name="is_allow_coupon"/>
+								<field name="is_allow_orders"/>
+								<field name="is_allow_sale_orders"/>
+								<field name="is_allow_draft_order"/>
+								<field name="is_allow_find_order"/>
+								<field name="is_allow_products"/>
+								<field name="is_allow_payment_action"/>
+								<field name="is_allow_invoice"/>
+								<field name="is_allow_enter_code"/>
+								<field name="is_allow_reward"/>
+							</group>
+						</group>
+						<group attrs="{'invisible': [('user_id','=',False)]}">
+							<div>
+								<p>POS-related settings are managed on <button name="open_employee_user" type="object" string="The related user" class="oe_link"/></p>
+							</div>
+						</group>
+					</page>
+				</page>
+			</field>
+		</record>
+
+	</data>
+</odoo>

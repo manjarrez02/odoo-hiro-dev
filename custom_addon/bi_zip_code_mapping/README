@@ -1,0 +1,7 @@
+Version 16.0.0.1 : (07/04/2024)
+   Phase3-Customization Changes
+   - Change field many2many to many2one and customer select zip it added only one record on neighborhood.
+
+Version 16.0.0.2 : (07/17/2024)
+   Phase3-Customization Changes
+   - Refresh the partner page and check the neighborhood field it does not apply any filter fixed the issue.

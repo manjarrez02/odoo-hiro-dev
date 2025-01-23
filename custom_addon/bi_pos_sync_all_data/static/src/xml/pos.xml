@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <templates id="bi_pos_sync_all_data_template" inherit_id="point_of_sale.template" xml:space="preserve">
+
+		<t t-name="ProductItem" t-inherit="point_of_sale.ProductItem" t-inherit-mode="extension" owl="1">
+			<xpath expr="//div[hasclass('product-content')]" position="before">
+				<t t-if="env.pos.config.allow_pos_sync_data">
+					<t t-if="props.product.quant_text > 0">
+						<span class="qty-label" id="stockqty"  >
+							<t t-esc="props.product.quant_text"/>
+						</span>
+					</t>
+					<t t-else="">
+						<span class=" qty-label out-of-stock-qty" id="stockqty"  >
+							<t t-esc="props.product.quant_text"/>
+						</span>
+					</t>
+				</t>
+			</xpath>
+		</t> 
+    
+  	</templates>
+  	
+  	

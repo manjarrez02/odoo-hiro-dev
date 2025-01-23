@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="ProductInfoButton" owl="1">
+        <!-- <t t-if="env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_info"> -->
+            <div class="control-button">
+                <i class="fa fa-info-circle" role="img" aria-label="Info" title="Info"/>
+            </div>
+        <!-- </t> -->
+    </t>
+
+</templates>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record model="ir.ui.view" id="pos_product_view">
+        <field name="name">pos.product.view</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='pos_categ_id']" position="after">
+                <field name="allow_discount"/>              
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_automate_sale_order_sales_person_field" model="ir.ui.view">
+        <field name="name">sale.order.sales_person.field</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="cust_saleper_id" readonly="1" />
+                <field name="cust_saleper_due_id" readonly="1" />
+           </xpath>
+        </field>
+    </record>
+</odoo>

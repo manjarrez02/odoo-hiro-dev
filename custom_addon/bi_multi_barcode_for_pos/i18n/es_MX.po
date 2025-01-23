@@ -1,0 +1,33 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* bi_multi_barcode_for_pos
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-03 05:51+0000\n"
+"PO-Revision-Date: 2023-08-03 11:21+0530\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_MX\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.3.2\n"
+
+#. module: bi_multi_barcode_for_pos
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_pos.field_product_product__product_barcodes
+msgid "Barcodes"
+msgstr "códigos de barras"
+
+#. module: bi_multi_barcode_for_pos
+#: model:ir.model,name:bi_multi_barcode_for_pos.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesión de punto de venta"
+
+#. module: bi_multi_barcode_for_pos
+#: model:ir.model,name:bi_multi_barcode_for_pos.model_product_product
+msgid "Product Variant"
+msgstr "Variantes de producto"

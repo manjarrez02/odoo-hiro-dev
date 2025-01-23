@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="account_journal_form_view" model="ir.ui.view">
+            <field name="name">account.journal.form.inherit</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.view_account_journal_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='advanced_settings']" position="after">
+                    <page string="Sequence">
+                        <group>
+                            <group string="Sequence">
+                                <field name="next_number"/>
+                                <field name="entry_sequence_id"/>
+                                <field name="refund" invisible="1"/>
+                                <button name="create_sequence"
+                                        string="Set Sequence"
+                                        type="object"
+                                        class="oe_highlight"
+                                attrs="{'invisible':[('entry_sequence_id','!=',False)]}" />
+                                </group>
+                            <group string="Refund Sequence">
+                                <field name="credit_notes"/>
+                                <field name="credit_notes_entry_sequence_id"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

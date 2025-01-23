@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="view_user_pin" model="ir.ui.view">
+			<field name="name">user.pin</field>
+			<field name="model">user.pin</field>
+			<field name="arch" type="xml">
+				<form string="Pin">
+					<group>
+						<field name="user_pin" password='True' />
+					</group>
+					<footer>
+						<button string="Cancel" class="btn-primary" special="cancel"/>
+						<button name="check_user_pin" string="Ok" type="object" class="btn-primary"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+	</data>
+</odoo>
+

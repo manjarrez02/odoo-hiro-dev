@@ -400,7 +400,7 @@ class ResPartner(models.Model):
         m = self.__check_vat_mx_re.match(vat)
         if not m:
             #No valid format
-            return False
+            return True
         try:
             ano = int(m.group('ano'))
             if ano > 30:
@@ -409,7 +409,7 @@ class ResPartner(models.Model):
                 ano = 2000 + ano
             datetime.date(ano, int(m.group('mes')), int(m.group('dia')))
         except ValueError:
-            return False
+            return True
 
         # Valid format and valid date
         return True

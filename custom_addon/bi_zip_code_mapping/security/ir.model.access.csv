@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+bi_zip_code_mapping.access_zip_code_mapping,access_zip_code_mapping,bi_zip_code_mapping.model_zip_code_mapping,base.group_user,1,1,1,1
+bi_zip_code_mapping.access_neighborhood_mapping,access_neighborhood_mapping,bi_zip_code_mapping.model_neighborhood_mapping,base.group_user,1,1,1,1

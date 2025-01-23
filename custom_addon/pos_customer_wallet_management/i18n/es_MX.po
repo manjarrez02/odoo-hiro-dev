@@ -1,0 +1,373 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pos_customer_wallet_management
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-02 18:08+0000\n"
+"PO-Revision-Date: 2024-10-02 18:08+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/xml/wallet_templates.xml:0
+#, python-format
+msgid "ADD"
+msgstr "AGREGAR"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__amount
+msgid "Amount"
+msgstr "Monto"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/js/CustomRegisterInvoicePaymentPopupWidget.js:0
+#, python-format
+msgid "Amount Error"
+msgstr "Error De Monto"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_wallet_transaction__amount
+msgid "Amount of wallet transaction"
+msgstr "Monto de la transacción del wallet"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/xml/wallet_templates.xml:0
+#, python-format
+msgid "BALANCE AMOUNT"
+msgstr "Saldo disponible"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/xml/wallet_templates.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.recharge_wallet_view_form
+#, python-format
+msgid "CANCEL"
+msgstr "CANCELAR"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/js/wallet_recharge.js:0
+#, python-format
+msgid "Confirm Popup"
+msgstr "Popup de Confirmación"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model,name:pos_customer_wallet_management.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_res_partner__wallet_count
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_res_users__wallet_count
+msgid "Count of each wallet recharge"
+msgstr "Cantidad de cada recarga de la e-wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model,name:pos_customer_wallet_management.model_recharge_wallet
+msgid "Create Wallet Recharge Of Each Customer"
+msgstr "Crear recarga de wallet de cada cliente"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model,name:pos_customer_wallet_management.model_wallet_transaction
+msgid "Create Wallet Transaction Details"
+msgstr "Crear detalles de transacción de la e-wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet__create_uid
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet__create_date
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.wallet_transaction_view_search
+msgid "Credit"
+msgstr "Crédito"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__currency
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_wallet_transaction__currency
+msgid "Currency of wallet transaction"
+msgstr "Moneda de la transacción de la e-wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__customer
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.wallet_transaction_view_search
+msgid "Customer Wise"
+msgstr "Por Cliente"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_wallet_transaction__customer
+msgid "Customer of wallet transaction"
+msgstr "Cliente de la transacción de la e-wallet"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.wallet_transaction_view_search
+msgid "Debit"
+msgstr "Débito"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet__display_name
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/js/CustomRegisterInvoicePaymentPopupWidget.js:0
+#, python-format
+msgid "Entered amount is larger then due amount. please enter valid amount"
+msgstr "El monto ingresado es mayor que el monto adeudado. Por favor, ingrese un monto válido"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/js/payment_method.js:0
+#: code:addons/pos_customer_wallet_management/static/src/js/payment_method.js:0
+#, python-format
+msgid "Exact Payment Required"
+msgstr "Se requiere el pago exacto"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.wallet_transaction_view_search
+msgid "Group By"
+msgstr "Agrupado por"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet__id
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__id
+msgid "ID"
+msgstr "ID"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model,name:pos_customer_wallet_management.model_account_journal
+msgid "Journal"
+msgstr "Diario"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_account_journal__wallet_journal
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_pos_payment_method__wallet_journal
+msgid "Journal for wallet"
+msgstr "Diaro para la e-wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet____last_update
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction____last_update
+msgid "Last Modified on"
+msgstr "Última vez modificado el"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet__write_uid
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet__write_date
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_wallet_transaction__pos_order
+msgid "Order reference of wallet transaction"
+msgstr "Referencia de orden de la transacción de la e-wallet"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/xml/wallet_templates.xml:0
+#, python-format
+msgid "PARTNER NAME"
+msgstr "NOMBRE DEL CLIENTE"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/xml/wallet_templates.xml:0
+#, python-format
+msgid "PAYMENT JOURNAL"
+msgstr "DIARIO DE PAGOS"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__pos_order
+msgid "POS Order"
+msgstr "Orden del PdV"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet__journal_id
+msgid "Payment Journal"
+msgstr "Diario de Pagos"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model,name:pos_customer_wallet_management.model_pos_payment_method
+msgid "Point of Sale Payment Methods"
+msgstr "Métodos de pago del Punto de Venta"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model,name:pos_customer_wallet_management.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesión del Punto de Venta"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/js/payment_method.js:0
+#, python-format
+msgid "Product"
+msgstr "Producto"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/xml/wallet_templates.xml:0
+#, python-format
+msgid "RECHARGE AMOUNT"
+msgstr "MONTO DE RECARGA"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_recharge_wallet__recharge_amount
+msgid "Recharge Amount"
+msgstr "MONTO DE RECARGA"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_recharge_wallet__recharge_amount
+msgid "Recharge amount in e-wallet"
+msgstr "Monto de recarga en cartera"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.recharge_wallet_view_form
+msgid "SUBMIT"
+msgstr "ENVIAR"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.wallet_transaction_view_search
+msgid "Search Transaction"
+msgstr "Buscar Transacción"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_recharge_wallet__journal_id
+msgid "Select journal type"
+msgstr "Selecciona tipo de diario"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_wallet_transaction__name
+msgid "Sequence of wallet transaction"
+msgstr "Secuencia de transacción de la e-wallet"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/js/wallet_recharge.js:0
+#, python-format
+msgid "Successfully Recharged Your Wallet"
+msgstr "Recarga exitosa de la e-wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_wallet_transaction__type
+msgid "Type"
+msgstr "Tipo"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_wallet_transaction__type
+msgid "Type of wallet transaction"
+msgstr "Tipo de transacción de la e-wallet"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/js/CustomRegisterInvoicePaymentPopupWidget.js:0
+#: code:addons/pos_customer_wallet_management/static/src/js/CustomRegisterInvoicePaymentPopupWidget.js:0
+#: code:addons/pos_customer_wallet_management/static/src/js/payment_method.js:0
+#: code:addons/pos_customer_wallet_management/static/src/js/payment_method.js:0
+#: code:addons/pos_customer_wallet_management/static/src/js/payment_method.js:0
+#, python-format
+msgid "Unknown"
+msgstr "Desconocido"
+
+#. module: pos_customer_wallet_management
+#. odoo-javascript
+#: code:addons/pos_customer_wallet_management/static/src/xml/wallet_templates.xml:0
+#, python-format
+msgid "WALLET RECHARGE"
+msgstr "RECARGA DE LA E-WALLET"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_res_partner__wallet_count
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_res_users__wallet_count
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.view_partner_form
+msgid "Wallet"
+msgstr "e-Wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_res_partner__wallet_balance
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_res_users__wallet_balance
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.view_partner_form
+msgid "Wallet Balance"
+msgstr "Saldo de e-Wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_account_journal__wallet_journal
+#: model:ir.model.fields,field_description:pos_customer_wallet_management.field_pos_payment_method__wallet_journal
+msgid "Wallet Journal"
+msgstr "Diario de e-Wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.ui.menu,name:pos_customer_wallet_management.wallet_transaction_menu
+msgid "Wallet Management"
+msgstr "Administración de e-Wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.actions.act_window,name:pos_customer_wallet_management.recharge_wallet_action
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.view_partner_form
+msgid "Wallet Recharge"
+msgstr "Recarga de e-Wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.actions.act_window,name:pos_customer_wallet_management.wallet_transaction_action
+#: model:ir.ui.menu,name:pos_customer_wallet_management.wallet_transaction_menu_action
+msgid "Wallet Transaction"
+msgstr "Transacción de e-Wallet"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.wallet_transaction_view_search
+msgid "Wallet Type Wise"
+msgstr "Por tipo de e-Wallet"
+
+#. module: pos_customer_wallet_management
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_res_partner__wallet_balance
+#: model:ir.model.fields,help:pos_customer_wallet_management.field_res_users__wallet_balance
+msgid "Wallet balance of each employee"
+msgstr "Saldo de e-Wallet de cada empleado"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.wallet_transaction_view_form
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.wallet_transaction_view_tree
+msgid "wallet transaction"
+msgstr "transacción de e-wallet"
+
+#. module: pos_customer_wallet_management
+#: model_terms:ir.ui.view,arch_db:pos_customer_wallet_management.recharge_wallet_view_form
+msgid "wizard_view"
+msgstr ""

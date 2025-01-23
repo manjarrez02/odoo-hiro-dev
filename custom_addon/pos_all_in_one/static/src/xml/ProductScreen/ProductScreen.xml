@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates id="pos_new_view_template" inherit_id="point_of_sale.template" xml:space="preserve">
+	<t t-name="BiProductScreen" t-inherit="point_of_sale.ProductScreen" t-inherit-mode="extension" owl="1">
+		<xpath expr="//div[hasclass('screen-full-width')]" position="replace">
+			<div class="screen-full-width">
+				<div style="width: auto;overflow: auto;background: #c9ccd2;border-right: solid 3px #787878;">
+					<div class="control-buttons" style="display: grid;">
+						<t t-if="env.isMobile and controlButtons.length > 3">
+							<div class="control-button" t-on-click="_displayAllControlPopup">More...</div>
+						</t>
+						<t t-else="">
+							<t t-foreach="controlButtons" t-as="cb" t-key="cb.name">
+								<t t-component="cb.component" t-key="cb.name"/>
+							</t>
+						</t>
+					</div>
+				</div>	
+				<div class="leftpane pane-border" t-if="!env.isMobile || state.mobile_pane === 'left'">
+                    <OrderWidget/>
+                    <div class="actn-btn-div">
+						<span class="action-btn" t-on-click="_onClickHideButtons">
+							<t t-if="show_buttons">Hide Action Buttons</t>
+							<t t-else="">Show Action Buttons</t>
+						</span>
+					</div>
+                    <div class="pads">
+                        <div class="subpads">
+                            <t t-set="_actionName">Payment</t>
+                            <ActionpadWidget partner="partner" actionName="_actionName" onSwitchPane.bind="switchPane" />
+                            <CustomNumpadWidget activeMode="env.pos.numpadMode" />
+                        </div>
+                    </div>
+                </div>						
+				<div class="rightpane" t-if="!env.isMobile || state.mobile_pane === 'right'">
+					<ProductsWidget mobileSearchBarIsShown="props.mobileSearchBarIsShown"/>
+					<MobileOrderWidget t-if="env.isMobile" pane="state.mobile_pane" onSwitchPane.bind="switchPane"/>
+				</div>
+			</div>
+		</xpath>
+	</t>
+</templates>

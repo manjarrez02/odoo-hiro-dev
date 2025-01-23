@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="res_config_settings_inherited_view" model="ir.ui.view">
+        <field name="name">res.config.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='sale_management']" position="inside">
+                <h2>Out Of Stock Product Restriction</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-lg-6 col-12 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="stock_restriction" class="o_light_label"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="stock_restriction"/>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-12 o_setting_box">
+                            <div class="o_setting_left_pane">
+                            </div>
+                            <div class="o_setting_right_pane" attrs="{'invisible': [('stock_restriction', '=', False)]}">
+                                <label for="stock_check_type"/>
+                                <field name="stock_check_type" attrs="{
+                                'required': [('stock_restriction', '=', True)]}"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-lg-6 col-12 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="low_stock" class="o_light_label"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="low_stock"/>
+                            </div>
+                        </div>
+                    </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

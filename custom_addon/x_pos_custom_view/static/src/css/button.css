@@ -1,0 +1,4 @@
+.pos .control-button {
+    line-height: 10px !important;  /* Reducir interlineado */
+    font-size: 5px;  /* Mantener el tamaño de la fuente */
+}

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- QWeb Reports -->
+    <record id="report_stock_print_thermal_so_action" model="ir.actions.report">
+        <field name="name">Ticket de operación</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">x_inventories_ticket.requirement_ticket</field>
+        <field name="report_file">x_inventories_ticket.requirement_ticket</field>
+        <field name="print_report_name">'Operaciones de recolección - %s' % (object.name)
+        </field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_roll_paper"/>
+    </record>
+    <!-- Template of Thermal invoice report -->
+    <template id="requirement_ticket">
+        <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="lang" t-value="doc.partner_id.lang"/>
+                    <div class="thermal-report-page">
+                        <div style = "text-align: center;">
+                            <img style="margin-top:0; text-align: center; max-width: 288px; max-height: 144px; width: auto; height: auto;" src='/web/binary/company_logo'/>
+                        </div>
+                        <div style="text-align: center; font-size: 20px; font-weight: bold;">
+                            <t t-if = "doc.location_id == doc.location_dest_id">
+                                MOVIMIENTO INTERNO
+                            </t>
+                            <t t-else = "">
+                                SOLICITUD DE TRASLADO
+                            </t>
+                        </div>
+                        <div style="text-align: center; font-size: 15px; font-weight: bold;">
+                            <br/>
+                            ESTADO: 
+                            <t t-if="doc.state == 'draft'">BORRADOR</t>
+                            <t t-elif="doc.state == 'waiting'">EN ESPERA DE OTRA OPERACIÓN</t>
+                            <t t-elif="doc.state == 'confirmed'">EN ESPERA</t>
+                            <t t-elif="doc.state == 'assigned'">POR HACER </t>
+                            <t t-elif="doc.state == 'done'">FINALIZADO</t>
+                            <t t-elif="doc.state == 'cancel'">CANCELADO</t>
+                            <t t-else=""></t>
+                        </div>                   
+                        <br/>                                      
+
+                        <div style="font-size: 13px; text-align: right; width:100%;"><b>Referencia:</b></div> 
+                        <div style="text-align: right; width:100%;"> <t t-esc = "doc.name"/></div>                                                          
+                        <div style="font-size: 13px; text-align: right; width:100%;"><b>Fecha y hora de solicitud:</b></div> 
+                        <div  style="text-align: right; width:100%;"> <t t-esc="doc.date and doc.date.replace(tzinfo=datetime.timezone.utc).astimezone(datetime.timezone(datetime.timedelta(hours=-6))).strftime('%d/%m/%Y %H:%M:%S')"/></div>                                                                
+                        <div style="font-size: 13px; text-align: left; width:100%;"><b>Ubicación Origen:</b></div> 
+                        <div> <t t-esc = "doc.location_id.display_name"/></div>                                                          
+                        <div style="font-size: 13px; text-align: left; width:100%;"><b>Ubicación Destino:</b></div> 
+                        <div> <t t-esc = "doc.location_dest_id.display_name"/></div>                               
+                        <div style="font-size: 13px; text-align: left; width:100%;"><b>Solicita:</b></div> 
+                        <div> <t t-esc = "doc.partner_id.name"/></div>           
+                        <br/>                                        
+
+                        <div style="margin-top: 0px;">
+                            <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                            </svg>
+                        </div>                               
+						
+                        <t t-set = "line_number" t-value = "0"/>                    		
+                        
+                            <table style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; border: none; margin-top: -5px;">
+                                <!-- Primera fila -->
+                                <tr>
+                                    <th style="width: 30%; padding: 1px; font-size: 13px; border: none; border-collapse: collapse; border-style: hidden;"><b>CLAVE</b></th>
+                                    <th style="width: 70%; padding: 1px; font-size: 13px; border: none; border-collapse: collapse; border-style: hidden;"><b>DESCRIPCIÓN</b></th>
+                                </tr>
+                            </table>
+                            <!-- Segunda fila -->
+                            <table style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; border: none;">                
+                                <tr>
+                                    <th style="width: 20%; padding: 1px; font-size: 13px; text-align: left; border: none; border-collapse: collapse; border-style: hidden;"><b>CANT.</b></th>
+                                    <th style="width: 50%; padding: 1px; font-size: 13px; text-align: left; border: none; border-collapse: collapse; border-style: hidden;"><b>EMPAQUE</b></th>                        
+                                    <th style="width: 30%; padding: 1px; font-size: 13px; text-align: right; border: none; border-collapse: collapse; border-style: hidden;"><b>CANT.EMP.</b></th>
+                                </tr>
+                            </table>
+
+                        <div style="margin-top: -5px;">
+                            <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                            </svg>
+                        </div>
+
+                        <tr t-foreach="doc.move_ids_without_package" t-as="ml">
+                            <t t-set = "line_number" t-value = "line_number + 1"/>
+                            <table style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; border: none;">
+                                <!-- Primera fila -->
+                                <tr>
+                                    <th style="width: 30%; padding: 1px; font-size: 13px; border: none; border-collapse: collapse; border-style: hidden;" t-field="ml.product_id.barcode"></th>
+                                    <th style="width: 70%; padding: 1px; font-size: 13px; border: none; border-collapse: collapse; border-style: hidden;" t-field="ml.product_id"></th>
+                                </tr>
+                            </table>
+                            <!-- Segunda fila -->
+                            <table style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; border: none;">                
+                                <tr>
+                                    <th style="width: 15%; padding: 1px; font-size: 13px; text-align: left; border: none; border-collapse: collapse; border-style: hidden;" t-field="ml.product_uom_qty"></th>
+                                    <th style="width: 70%; padding: 1px; font-size: 13px; text-align: right; border: none; border-collapse: collapse; border-style: hidden;">
+                                        <t t-if="ml.product_packaging_id">
+                                            <span t-field="ml.product_packaging_id"/>
+                                        </t>
+                                    </th>                        
+                                    <th style="width: 15%; padding: 1px; font-size: 13px; text-align: right; border: none; border-collapse: collapse; border-style: hidden;">
+                                        <t t-if="ml.product_packaging_id">
+                                            <t t-esc="round(ml.product_uom_qty/ml.product_packaging_id.qty, 2)"/>
+                                        </t>
+                                    </th>
+                                </tr>
+                            </table>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="2">
+                                <line x1="0" y1="1" x2="100%" y2="1" stroke="black" stroke-width="2" stroke-dasharray="5,5"/>
+                            </svg>
+                        </tr>
+                        <div style="margin-top: -5px;">
+                            <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <br/>
+                        <div style="font-size: 13px; text-align: right; width:100%; display: inline;"><b>Fecha y hora programada:</b></div> 
+                        <div  style="font-size: 13px; text-align: left; width:100%; display: inline;"> <t t-esc="doc.scheduled_date and doc.scheduled_date.replace(tzinfo=datetime.timezone.utc).astimezone(datetime.timezone(datetime.timedelta(hours=-6))).strftime('%d/%m/%Y %H:%M:%S')"/></div>                                                                              
+                        <div style="font-size: 14px; text-align: center; width: 100%;">
+                            <br/>
+                            Fecha y hora de impresión: 
+                            <t t-esc="datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-6))).strftime('%d/%m/%Y %H:%M:%S')"/>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <templates id="x_POSticket_mod_template" inherit_id="point_of_sale.template" xml:space="preserve">
+
+        <t t-name="OrderReprintScreen" t-inherit="pos_orders_all.OrderReprintScreen" t-inherit-mode="extension" owl="1">        
+            <xpath expr = "//div[@class='pos-receipt-container']" position = "replace">
+                <div class="pos-receipt-container" t-ref="order-receipt">
+                    <OrderReprintReceipt 
+                        order="props.order"
+                        barcode = "props.barcode"
+                        discount = "props.discount"
+                        orderlines = "props.orderlines"
+                        paymentlines = "props.paymentlines"
+                        change = "props.change"
+                        subtotal = "props.subtotal"	
+                        tax = "props.tax"	
+                        user_name = "props.user_name"				
+                        cust_saleper_id = "props.cust_saleper_id"
+                        customer_street = "props.customer_street"
+                        customer_neighborhood_id = "props.customer_neighborhood_id"
+                        customer_city = "props.customer_city"
+                        customer_state_id = "props.customer_state_id"
+                        state = "props.state"
+                        account_move = "props.account_move"
+                        current_time = "props.current_time"
+                    />
+                </div>
+            </xpath>
+        </t>
+
+        <t t-name="OrderRecOrderReprintReceipteipt" t-inherit="pos_orders_all.OrderReprintReceipt" t-inherit-mode="extension" owl="1">        
+            
+             <xpath expr="//div[@class='pos-receipt-contact']" position="replace">
+                <div class="pos-receipt-contact" style = "margin-top:-50px">
+                    <t t-if='env.pos.company.name'>
+                        <t t-esc='env.pos.company.name' />
+                    </t>
+                    <br/> 
+                    <t t-if='env.pos.company.company_registry'>
+                        <t t-esc='env.pos.company.company_registry' />
+                    </t>
+                    <br/>            
+                    <t t-if='env.pos.company.vat'>
+                        <t t-esc='env.pos.company.vat' />
+                    </t>
+                    <br/>            
+                    <t t-if='env.pos.company.street'>
+                        <t t-esc='env.pos.company.street' />
+                    </t>
+                    <t t-if='env.pos.company.city'>
+                        , 
+                        <t t-esc='env.pos.company.city' />
+                    </t>                                               
+                    <t t-if='env.pos.company.state_id'>
+                        ,   
+                        <t t-esc='env.pos.company.state_id[1]' />
+                    </t>                           
+                    <t t-if='env.pos.company.zip'>
+                        , C.P.: 
+                        <t t-esc='env.pos.company.zip' />
+                    </t>
+                    <br/>                          
+                    <div style="font-weight: bold; font-size: 16px;">
+                        REIMPRESIÓN
+                    </div>
+                </div>
+
+                <t t-if = "props.order.amount_total &lt; 0">
+                    <br/>
+                    <div style="font-weight: bold; font-size: 16px; text-align: center;">
+                        DEVOLUCIÓN
+                    </div>
+                    <br/>
+                </t>
+
+                <t t-if="props.state == 'draft'">
+                    <br/>
+                    <div style="border: 2px solid black; padding: 10px; text-align: center; font-size: 12px">
+                        <b>POR FAVOR PASE A CAJA</b><br/>
+                        <b>PARA COMPLETAR SU PAGO</b>
+                    </div>
+                    <br/>
+                </t>
+
+                <t t-if="props.order['partner_id']">
+                    <div style="font-size: 12px; text-align: left; width:100%;"><b>Cliente:</b></div> 
+                    <div style="font-size: 12px; text-align: left; width:100%;"><t t-esc="props.order.partner_id[1]"/></div>
+                    <div style="font-size: 12px; text-align: left; width:100%;">
+                        <t t-if = "props.customer_street">                        
+                            <t t-esc="props.customer_street"/>
+                        </t>
+                        <t t-if = "props.customer_neighborhood_id">
+                            ,                      
+                            <t t-esc="props.customer_neighborhood_id"/>
+                        </t>
+                        <t t-if = "props.customer_city">
+                            , 
+                            <t t-esc="props.customer_city"/>
+                        </t>
+                        <t t-if = "props.customer_state_id">                        
+                            ,
+                            <t t-esc="props.customer_state_id"/>
+                        </t>                                                                                
+                    </div>
+                </t>
+   
+            </xpath>
+
+            <xpath expr = "//t[@t-esc='props.order.name']" position = "replace">
+                <div></div>
+            </xpath>
+
+            <xpath expr="//div[@class='orderlines']" position="before">
+                <!-- Añadir el encabezado -->  
+                <div style="margin-top: -50px;">
+                    <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                    </svg>
+                </div>
+                <table class="pos-receipt-header" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
+                    <!-- Primera fila -->
+                    <tr>
+                        <th style="width: 30%; padding: 1px; font-size: 11px"><b>CLAVE</b></th>
+                        <th style="width: 70%; padding: 1px; font-size: 11px"><b>DESCRIPCIÓN</b></th>
+                    </tr>
+                </table>
+                <!-- Segunda fila -->
+                <table class="pos-receipt-header" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top: 0px; ">                
+                    <tr>
+                        <th style="width: 60%; padding: 1px; font-size: 11px; text-align: left;"><b>CANTIDAD</b></th>
+                        <th style="width: 10%; padding: 1px; font-size: 11px; text-align: right;"><b>P.U.</b></th>                        
+                        <th style="width: 30%; padding: 1px; font-size: 11px; text-align: right;"><b>IMPORTE</b></th>
+                    </tr>
+                </table>
+                <div style="margin-top: -10px;">
+                    <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                    </svg>
+                </div>    
+            </xpath>
+
+            <xpath expr="//div[@class='orderlines']" position="after">
+                <!-- Añadir el encabezado -->  
+                <div style="margin-top: -10px;">
+                    <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                    </svg>
+                </div>
+            </xpath>
+
+            <xpath expr = "//div[contains(text(), '-')]" position = "replace">
+                <div></div>
+            </xpath>
+
+            <xpath expr = "//div[@class='pos-receipt-amount receipt-change']" position = "replace">
+
+                <t t-if = "(props.state != 'draft') and (props.change > '0')">
+                    <div class="pos-receipt-amount receipt-change">
+                        CHANGE
+                        <t t-esc = "props.change"/>
+                        <span t-esc='env.pos.format_currency(-props.change)' class="pos-receipt-right-align"/>
+                    </div>
+                </t>
+            </xpath>
+
+            <xpath expr = "//t[@t-if='discount_total']" position = "replace">
+
+                <t t-if = "!props.paymentlines.length">
+                    <div style="margin-top: -80px"> </div>
+                </t>
+                <t t-if="props.discount and (props.discount > 0)">
+                    <div class="pos-receipt-amount">
+                        <br/>
+                        USTED AHORRÓ
+                        <span t-esc="env.pos.format_currency(props.discount)" class="pos-receipt-right-align"/>
+                    </div>
+                </t>
+            </xpath>
+
+            <xpath expr = "//div[contains(text(), 'Total Taxes')]" position = "replace">
+                <div></div>
+            </xpath>
+
+            <xpath expr = "//div[@class='before-footer']" position ="before">
+                <div style = "font-size: 14px; text-align: left; width: 100%;">
+                    <br/>                    
+                    Vendedor: 
+                    <t t-if = "props.cust_saleper_id">                                            
+                    <t t-set="full_name" t-value="props.cust_saleper_id"/>                    
+                    <t t-if="full_name">
+                        <t t-set="name_parts" t-value="full_name.split(' ')"/>
+                        <t t-if="name_parts.length &gt; 2">
+                            <t t-esc="name_parts[0]"/> <t t-esc="name_parts[1][0]"/>. <t t-esc="name_parts[2][0]"/>.
+                        </t>                        
+                        <t t-elif="name_parts.length &gt; 1">
+                            <t t-esc="name_parts[0]"/> <t t-esc="name_parts[1][0]"/>.
+                        </t>
+                        <t t-else="">
+                            <t t-esc="full_name"/>
+                        </t>
+                    </t>
+                    </t>
+                    <t t-else="">
+                        
+                        <t t-esc="' '"/>
+                    </t>
+                    <br/>
+                    Entregó: ___________________________________
+                </div>
+                <div style="font-size: 12px; text-align: center; width: 100%; font-weight: bold;">
+                    <br/>
+                    REVISE SU MERCANCÍA. NO SE ACEPTAN RECLAMOS POR FALTANTES DESPUÉS DE LA ENTREGA.
+                    <br/>
+                    <br/>
+                    RECIBÍ MERCANCÍA COMPLETA
+                    <br/>
+                </div>        
+                <div style="margin-top: 20px;">
+                    <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                    </svg>
+                </div>  
+                <div style="font-size: 14px; text-align: center; width: 100%; ">
+                    <t t-esc = "props.order.partner_id[1]"/>
+                </div>
+                <div style="font-size: 14px; text-align: center; width: 100%; ">                    
+                    
+                    <t t-if = "props.account_move">
+                        <br/>
+                        <b>Folio:</b> <t t-esc = "props.account_move"/>
+                        <br/>
+                        <b>Fecha:</b> <t t-esc='props.order.date_order' />
+                        <br/>
+                    </t>
+         
+                </div>
+            </xpath>            
+
+            <xpath expr="//div[@class='before-footer']" position = "after">
+                <div style="font-size: 12px; text-align: center; width: 100%; white-space:pre-line; font-weight: bold; ">
+                    <br/>
+                    <t t-esc="env.pos.config.receipt_footer"/>
+                </div>
+            </xpath>   
+
+            <xpath expr = "//t[@t-if='env.pos.config.show_barcode']" position = "after">
+                <div style="font-size: 14px; text-align: center; width: 100%;">
+                    <br/>
+                    Fecha y hora de impresión: 
+                    <t t-esc="props.current_time"/>
+                </div>
+            </xpath>
+
+        </t>
+    </templates>            
