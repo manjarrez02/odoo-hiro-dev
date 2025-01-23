@@ -13,9 +13,9 @@ class Product(models.Model):
     def all_scan_search(self, barcode):
         product_id = self
         if barcode:
-            if self.env.company.sh_search_char_field_product:
+            if self.env.company.sh_search_char_field_product.sudo():
                 state = True
-                for char_fields in self.env.company.sh_search_char_field_product:
+                for char_fields in self.env.company.sh_search_char_field_product.sudo():
                     field_name = char_fields.name
                     field_value = barcode
                     if state:
