@@ -276,7 +276,7 @@ class SequenceMixin(models.AbstractModel):
         )
         return format, format_values
 
-    def _set_next_sequence(self):
+    def _set_(self):
         """Set the next sequence.
 
         This method ensures that the field is set both in the ORM and in the database.

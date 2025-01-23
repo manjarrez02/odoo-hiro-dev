@@ -587,7 +587,7 @@ class PosGlobalState extends PosModel {
                 this.config.id],
             kwargs: {context: this.env.session.user_context},
         });
-
+        console.log('Los valores de get_product_info son ', productInfo)
         const priceWithoutTax = productInfo['all_prices']['price_without_tax'];
         const margin = priceWithoutTax - product.standard_price;
         const orderPriceWithoutTax = order.get_total_without_tax();

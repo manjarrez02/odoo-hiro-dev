@@ -29,7 +29,7 @@ QUnit.module("Barcodes", (hooks) => {
                         line_ids: {
                             string: "Order lines",
                             type: "one2many",
-                            relation: "order_line",
+                            relation: "",
                         },
                     },
                     records: [{ id: 1, line_ids: [1, 2] }],
