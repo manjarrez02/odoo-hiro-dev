@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gen_invoice,access_gen_invoice,model_gen_invoice,base.group_user,1,1,1,1
+import_gen_salepayment,import_gen_salepayment,model_gen_salepayment,base.group_user,1,1,1,1

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="sale_order_inherited_view" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/tree/field[@name='product_uom_qty']" position="after">
+                <field name="qty_available"/>
+                <field name="virtual_available"/>
+                <field name="type" invisible="1"/>
+            </xpath>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-danger">type == 'product' and virtual_available&lt;=0</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

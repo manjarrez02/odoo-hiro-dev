@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+    <templates id="x_pos_custom_views" xml:space="preserve">
+
+        <t t-name="ActionpadWidget" t-inherit="point_of_sale.ActionpadWidget" t-inherit-mode="extension" owl="1">
+            <xpath expr="//t[@t-if='env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_payments']" position="replace">
+                <t t-if="env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_payments and props.actionToTrigger != 'do-refund'">	
+                    <button class="button pay validation" t-on-click="() => this.trigger(props.actionToTrigger or 'click-pay')">
+                        <div class="pay-circle" t-att-class="{ 'highlight': props.isActionButtonHighlighted }">
+                            <i class="fa fa-chevron-right" role="img" aria-label="Pay" title="Pay" />
+                        </div>
+                        <t t-esc="props.actionName" />
+                    </button>
+                </t>
+                <t t-elif="env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_refund and props.actionToTrigger == 'do-refund'">	
+                    <button class="button pay validation" t-on-click="() => this.trigger(props.actionToTrigger or 'click-pay')">
+                        <div class="pay-circle" t-att-class="{ 'highlight': props.isActionButtonHighlighted }">
+                            <i class="fa fa-chevron-right" role="img" aria-label="Pay" title="Pay" />
+                        </div>
+                        <t t-esc="props.actionName" />
+                    </button>
+                </t>
+
+            </xpath>
+
+                <xpath expr = "//t[@t-if='env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_customer_selection']" position = "replace">
+                    <t t-if="env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_customer_selection">
+                        <button class="button set-partner" t-att-class="{'decentered': isLongName}"
+                                t-on-click="() => this.trigger('click-partner')">
+                            <t t-if="!env.isMobile"><i class="fa fa-user" role="img" aria-label="Customer" title="Customer" /></t>
+                            <t t-if="props.partner">
+                                <t t-esc="props.partner.name" />
+                                <span>
+                                    <t t-if="props.partner.allow_over_limit">
+                                        <t t-set = "available_credit" t-value = "(props.partner.limit_credit - props.partner.bi_total_credit_amount)"/>
+                                        <t t-if = "available_credit > 0">
+                                            <br/>
+                                            [Credit: 
+                                            <t t-esc="available_credit.toFixed(2)"/>
+                                            ]
+                                        </t>
+                                        <t t-else="">
+                                            <br/>
+                                            [Credit: 
+                                            <t t-esc="'0'"/>
+                                            ]
+                                        </t>
+                                    </t>
+                                    <t t-if = "props.partner.wallet_balance">
+                                        <br/>
+                                        [e-Wallet:
+                                        <t t-esc="(props.partner.wallet_balance).toFixed(2)"/>
+                                        ]
+                                    </t>
+
+                                </span>
+                            </t>
+                            <t t-else="">
+                                Customer
+                            </t>
+                        </button>
+                    </t>                
+            </xpath>
+        </t>
+
+        <t t-name="Chrome" t-inherit="point_of_sale.Chrome" t-inherit-mode="extension" owl="1">  
+              <xpath expr = "//div[@class = 'pos-branding']//img[@class = 'pos-logo']" position = "replace">
+                <img t-if="!env.isMobile" class="pos-logo" t-on-click="() => this.trigger('toggle-debug-widget')"
+                    src="/x_pos_custom_view/static/img/hiro-logo.png" alt="Logo" />
+            </xpath>                   
+        </t>
+
+        <t t-name="CashierName" t-inherit="point_of_sale.CashierName" t-inherit-mode="extension" owl="1">  
+            <xpath expr = "//div[@class = 'oe_status']//span[1]" position = "before">
+                Usuario: 
+            </xpath>  
+        </t>
+
+        <t t-name="TicketScreen" t-inherit="point_of_sale.TicketScreen" t-inherit-mode="extension" owl="1">  
+            <xpath expr = "//div[@class = 'pads']" position = "replace">
+                <t t-if="env.pos.get_cashier().is_allow_refund">
+                <div class="subpads" style="display: flex;">
+                    <div style="flex: 1;">
+                        <ActionpadWidget partner="getSelectedPartner()" actionName="constructor.numpadActionName" actionToTrigger="'do-refund'" isActionButtonHighlighted="getHasItemsToRefund()" />
+                    </div>
+                    <div style="flex: 1;">
+                        <NumpadWidget disabledModes="['price', 'discount']" activeMode="_selectedOrderlineId and 'quantity'" disableSign="true" />
+                    </div>
+                </div>
+                </t>                
+            </xpath>  
+        </t>
+
+        <t t-name="PartnerLine" t-inherit="point_of_sale.PartnerLine" t-inherit-mode="extension" owl="1">  
+            <xpath expr = "//button[@class = 'edit-partner-button']" position = "replace">
+
+            </xpath>  
+         
+            <xpath expr = "//td[@class = 'order-partner-order']" position = "replace">
+
+            </xpath>  
+        </t>
+
+        <t t-name="ProductItem" t-inherit="point_of_sale.ProductItem" t-inherit-mode="extension" owl="1">
+
+            <xpath expr = "//t[@t-if='props.product.image_128']" position = "replace">
+                <t t-if="props.product.image_128">
+                    <div class="product-img">
+                        <img t-att-src="imageUrl" t-att-alt="props.product.display_name" />
+                    </div>
+                </t>
+                <t t-else ="">
+                    <div class="product-img">
+                        <img src="/x_pos_custom_view/static/img/papeleria.webp" t-att-alt="props.product.display_name" />
+                    </div>
+                </t>                
+            </xpath>
+            <xpath expr = "//t[@t-else=''][3]//div//span//t[@t-esc='price']" position = "replace">
+                    <span class="price-tag">
+                    	<t t-set="price_string" t-value="price"/>
+	                    <t t-set="integer_part" t-value="price_string.split('.')[0]" />
+                        <t t-set="decimal_part1" t-value="price_string.split('.')[1][0]" />
+                        <t t-set="decimal_part2" t-value="price_string.split('.')[1][1]" />
+	                    <t t-esc="integer_part"/>.<t t-esc="decimal_part1"/><t t-esc="decimal_part2"/>
+	                </span>
+            </xpath>
+
+        </t>        
+
+        <t t-name="POSOrdersScreen" t-inherit="pos_orders_all.POSOrdersScreen" t-inherit-mode="extension" owl="1">  
+            <xpath expr = "//th[@class='returnorder']" position = "replace">
+                <t t-if = "env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_refund">
+                    <th class="returnorder">Return-Order</th>
+                </t>
+            </xpath>
+
+            <xpath expr = "//t[@t-if='env.pos.config.allow_partical_payment']" position = 'replace'>
+                <t t-if="env.pos.config.allow_partical_payment">
+					<th>Amount Due</th>
+                    <t t-if="env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_payments">                   
+    					<th>Pay</th>
+                    </t>
+				</t>
+            </xpath>   
+        </t>
+
+        <t t-name="POSOrders" t-inherit="pos_orders_all.POSOrders" t-inherit-mode="extension" owl="1">  
+            <xpath expr = "//td[@class='Return-order']" position = "replace">
+                <t t-if = "env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_refund">
+                    <t t-if="props.order.state != 'draft'">
+                        <td class="Return-order">
+                            <button class="odoo-theme-button" t-on-click.stop="() => this.props.onClickReturnOrder(props.order)"><i class="fa fa-sign-in"></i>  Return Order</button>
+                        </td>
+                    </t>
+                    <t t-else="">
+                        <span> - </span>
+                    </t>
+                </t>
+            </xpath>
+
+            <xpath expr = "//td[@class='order-pay']" position = "replace">
+                <t t-if = "env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_payments">
+					<td  class='order-pay' t-att-data-id='props.order.id' 
+					t-on-click.stop="() => this.trigger('click-pay', props.order)">
+						<t t-if="props.order.state == 'draft'">
+							<button class="odoo-theme-button" t-att-id='props.order.id' ><i class="fa fa-credit-card"></i> Pay</button>
+						</t>
+						<t t-else="">
+							<span> - </span>
+						</t>
+					</td>
+                </t>
+            </xpath>            
+        </t>
+<!--
+        <t t-name="Orderline" t-inherit="point_of_sale.Orderline" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//ul[@class='info-list']" position = "replace">
+                <ul class="info-list">
+                    <t t-if="props.line.get_quantity_str() !== '1' || props.line.selected ">
+                        <li class="info">
+                            <em>
+                                <t t-esc="props.line.get_quantity_str()" />
+                            </em>
+                            <t t-esc="props.line.get_unit().name" />
+                             at 
+                            <t t-if="props.line.display_discount_policy() == 'without_discount' and
+                                env.pos.round_decimals_currency((props.line.get_unit_display_price() / props.line.get_quantity_str())) &lt; env.pos.round_decimals_currency(props.line.get_taxed_lst_unit_price())">
+                                <s>
+                                    <t t-esc="env.pos.format_currency(props.line.get_taxed_lst_unit_price())" />
+                                </s>
+                                <t t-esc="env.pos.format_currency(props.line.get_unit_display_price() / props.line.get_quantity_str())" />
+                            </t>
+                            <t t-else="">
+                                <t t-esc="env.pos.format_currency(props.line.get_unit_display_price() / props.line.get_quantity_str())" />
+                            </t>
+                            /
+                            <t t-esc="props.line.get_unit().name" />
+                        </li>
+                    </t>
+                    <t t-if="props.line.get_discount_str() !== '0'">
+                        <t t-if='props.line.discount_type'>
+                            <t t-if="props.line.discount_type == 'Percentage'">
+                                <li class="info">
+                                    With a
+                                    <em>
+                                        <t t-esc="props.line.get_discount_str()" />%
+                                    </em>
+                                    discount
+                                </li>
+                            </t>
+
+                            <t t-if="props.line.discount_type == 'Fixed'">
+                                <li class="info">
+                                    With a
+                                    <em>
+                                            <t t-esc="env.pos.format_currency(props.line.get_discount_str())"/>
+                                </em>
+                                    discount
+                                </li>
+                            </t>
+                        </t>
+
+                        <t t-else="">
+                            <t t-if="env.pos.config.discount_type == 'percentage'">
+                                <li class="info">
+                                    With a
+                                    <em>
+                                        <t t-esc="props.line.get_discount_str()" />%
+                                    </em>
+                                    discount
+                                </li>
+                            </t>
+
+                            <t t-if="env.pos.config.discount_type == 'fixed'">
+                                <li class="info">
+                                    With a
+                                    <em>
+                                            <t t-esc="env.pos.format_currency(props.line.get_discount_str())"/>
+                                </em>
+                                    discount
+                                </li>
+                            </t> 
+                        </t>
+                    </t>
+
+                    <t t-if="customerNote">
+                        <li class="info orderline-note">
+                            <i class="fa fa-sticky-note" role="img" aria-label="Customer Note" title="Customer Note"/>
+                            <t t-esc="customerNote" />
+                        </li>
+                    </t>
+                </ul>
+            </xpath>
+        </t>
+-->
+<!--
+		<t t-name="PayPOSOrdersScreen" t-inherit="point_of_sale.PaymentScreen" t-inherit-mode="extension" owl="1">
+
+Lo siguiente solo es para reparar el comportamient del botón de pago del módulo pos_all_in_one
+			<xpath expr="//t[@t-if='env.pos.config.allow_partical_payment']" position="replace">
+            
+				<t t-if="env.pos.config.allow_partical_payment">
+					<t t-if = "currentOrder.get_partner()">
+						<t t-if="currentOrder.get_partner().bi_not_allow_partial_payment">	
+							<div class="button pay-partial" t-on-click="clickPayLater"
+								t-att-class="{ highlight: !currentOrder.is_paid() }">
+								<span class="next_text">Partial Payment</span>
+								<i class="fa fa-angle-double-right fa-fw"></i>
+							</div>
+						</t>
+					</t>
+				</t>
+
+			</xpath>        
+
+        </t> 
+-->        
+
+<!--Continuan los cambios -->
+
+        <t t-name="RegisterInvoicePaymentPopupWidget" t-inherit="pos_all_in_one.RegisterInvoicePaymentPopupWidget" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//div[@class='body']" position = "replace">
+				<div class="body">
+					<p>Enter Payment Details Here</p><br/>
+					<div style="text-align: left; margin-left: 37px;">
+						<label style="text-align:left"> Payment Journal:  </label>
+						<select id="payment_type1" class='detail' name='type' style="height: 35px;width: 59%;float: right;   margin-right: 6%;">
+
+								<t t-foreach='payment_methods_from_config' t-as='payment_method' t-key="payment_method.id">
+									<t t-if="payment_method.user_ids.includes(env.pos.user.id)">
+										<option t-att-value='payment_method.journal_id[0]'> 
+											<t t-esc='payment_method.journal_id[1]'/>
+										</option>
+									</t>
+								</t>
+
+						</select>
+					</div><br/>
+					<div style="text-align: left; margin-left: 37px;">
+						<label style="text-align:left"> Amount:  </label><input id ="entered_amount1" type="text" class="input-field" name="code" style="height: 35px;width: 59%;float: right;   margin-right: 6%;" t-att-value="env.pos.format_currency_no_symbol(invoice.amount_residual)"> </input>
+					</div><br/>
+					<div style="text-align: left; margin-left: 37px;margin-top: 2%;">
+						<label style="text-align:left"> Payment Note:  </label><input id ="entered_note1" type="text" class="input-field" name="code" style="height: 35px;width: 59%;float: right;   margin-right: 6%;"></input>
+					</div>
+				</div>                
+            </xpath>
+        </t>
+
+        <t t-name="PartnerListScreen" t-inherit="point_of_sale.PartnerListScreen" t-inherit-mode="extension" owl="1">
+            <xpath expr="//div[@class='button new-customer highlight']" position="replace">
+                <div></div>
+            </xpath>
+        </t>
+
+        <t t-name="ProductInfoPopup" t-inherit="point_of_sale.ProductInfoPopup" t-inherit-mode="extension" owl="1">
+            <xpath expr="//div[@class='popup product-info-popup']" position="replace">
+                <div class="popup product-info-popup">
+                    <header class="title">
+                        Product information
+                    </header>
+                    <main class="body">
+                        <div class="section-product-info-title">
+                            <div class="column flex-start">
+                                <span t-esc="props.product.display_name" class="global-info-title product-name"/>
+                                <span><t t-if="props.product.default_code" t-esc="props.product.default_code"/> <t t-if="props.product.default_code and props.product.barcode"> - </t> <t t-if="props.product.barcode" t-esc="props.product.barcode"/></span>
+                            </div>
+                            <div class="column flex-end">
+                                <span t-esc="env.pos.format_currency(productInfo.all_prices.price_with_tax)" class="global-info-title" />
+                                <t t-foreach="productInfo.all_prices.tax_details" t-as="tax" t-key="tax.name">
+                                    <div><t t-esc="tax.name"/>: <t t-esc="env.pos.format_currency(tax.amount)"/></div>
+                                </t>
+                            </div>
+                        </div>
+                        <div class="section-financials">
+                            <div class="section-title">
+                                <span>Financials</span>
+                                <div class="section-title-line"></div>
+                            </div>
+                            <div class="section-financials-body">
+                                <table>
+                                    <tr>
+                                        <td>Precio de lista:</td>
+                                        <td><t t-esc="env.pos.format_currency(productInfo.all_prices.price_with_tax)"/></td>
+                                    </tr>
+                                </table>
+                                <t t-if = "productInfo.pricelists.length > 0">
+                                    <table>
+                                        <t t-foreach="productInfo.pricelists" t-as="pricelist" t-key = "pricelist">
+                                            <tr>                         
+                                                <td>
+                                                    A partir de <t t-esc = "pricelist.min_quantity"/>: 
+                                                </td>
+                                                <td>
+                                                    <t t-esc = "env.pos.format_currency(pricelist.fixed_price)"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </table>
+                                </t>
+                            </div>
+                        </div>
+                        <div class="section-inventory" t-if="productInfo.warehouses.length > 0">
+                            <div class="section-title">
+                                <span>Inventory <t t-if="env.pos.pos_session.update_stock_at_closing">(as of opening)</t></span>
+                                <div class="section-title-line"></div>
+                            </div>
+                            <div class="section-inventory-body">
+                                <table class="mobile-table">
+                                    <t t-foreach="productInfo.locations" t-as="location" t-key="location.name">
+                                        <tr>
+                                            <td><span class="table-name"><t t-esc="location.warehouse_name"/> / <t t-esc="location.name"/></span>:</td>
+                                            <td><t t-esc="location.available_quantity"/> <t t-esc="location.uom"/> available,</td>
+                                        </tr>
+                                    </t>
+                                </table>
+                            </div>
+                        </div>  
+                    </main>
+                    <footer class="footer">
+                        <div class="button cancel" t-on-click="cancel">
+                            Close
+                        </div>
+                    </footer>
+                </div>
+            </xpath>
+        </t>
+
+        <t t-name="CreateSale" t-inherit="pos_all_in_one.CreateSale" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//span[@class='control-button create_so odoo-theme-color']" position = "replace">            
+                <span class="control-button create_so odoo-theme-color">
+                    <i class="fa fa-shopping-cart" title="Create Sales Order"></i> 
+                    <br/><span>Crear Orden</span>
+                </span>
+            </xpath>
+        </t>
+
+        <t t-name="CreateDraftPOS" t-inherit="pos_all_in_one.CreateDraftPOS" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//span[@class='control-button pos_bag odoo-theme-color']" position = "replace">            
+                <span class="control-button pos_bag odoo-theme-color">
+                    <i class="fa fa-file" title="Draft Order"></i>
+                    <br/><span>Crear Pedido</span>
+                </span>
+            </xpath>
+        </t>
+
+        <t t-name="OpenSOButton" t-inherit="pos_all_in_one.OpenSOButton" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//span[@class='control-button import_so odoo-theme-color']" position = "replace">            
+                <span class="control-button import_so odoo-theme-color" >
+                    <i class="fa fa-university" title="Sale Orders"></i>
+                    <br/><span>Ver Ordenes</span>
+                </span>
+            </xpath>
+        </t>
+
+        <t t-name="OrderlineCustomerNoteButton" t-inherit="pos_all_in_one.OrderlineCustomerNoteButton" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//div[@class='control-button']" position = "replace">            
+                <div class="control-button">
+                    <i class="fa fa-sticky-note" title="Customer Note"/>
+                    <br/><span>Notas</span>
+                </div>
+            </xpath>
+        </t>
+
+        <t t-name="ProductInfoButton" t-inherit="pos_all_in_one.ProductInfoButton" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//div[@class='control-button']" position = "replace">            
+                <div class="control-button">
+                    <i class="fa fa-info-circle" role="img" aria-label="Info" title="Info"/>
+                    <br/><span>Info</span>
+                </div>
+            </xpath>
+        </t>        
+
+        <t t-name="FastRemoveOrderline" t-inherit="bi_remove_pos_lines.FastRemoveOrderline" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//span[@class='control-button js_fastremoveorderline']" position = "replace">         
+                <span class="control-button js_fastremoveorderline">
+                    <i class="fa fa-trash-o"></i>
+                    <br/><span>Borrar Todo</span>
+                </span>
+            </xpath>
+        </t>     
+
+        <t t-name="UnpaidOrderSearchButton" t-inherit="pos_all_in_one.UnpaidOrderSearchButton" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//span[@class='control-button pos_bag odoo-theme-color']" position = "replace">         
+                <span class="control-button pos_bag odoo-theme-color">
+                    <i class="fa fa-search" title="Find Order"></i>
+                    <br/><span>Pagar Orden</span>
+                </span>
+            </xpath>
+        </t>       
+
+        <t t-name="SeeAllInvoicesButtonWidget" t-inherit="pos_all_in_one.SeeAllInvoicesButtonWidget" t-inherit-mode="extension" owl="1">
+            <xpath expr = "//div[@class='control-button odoo-theme-color']" position = "replace">         
+                <div class="control-button odoo-theme-color">
+                    <i class="fa fa-credit-card-alt" title="Invoice"></i>
+                    <br/><span>Facturas</span>
+                </div>
+            </xpath>
+        </t>       
+
+    </templates> 
+
+    

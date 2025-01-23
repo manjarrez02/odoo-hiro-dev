@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="view_warning_show_due_amount" model="ir.ui.view">
+			<field name="name">warning.show.due.amount</field>
+			<field name="model">warning.show.due.amount</field>
+			<field name="arch" type="xml">
+				<form string="Warning">
+					<h6>The previous payment for this customer is not paid</h6>				
+					<footer>
+						<button string="Cancel" class="btn-primary" special="cancel"/>
+						<button name="show_dropdown_uses_list" string="Ok" type="object" class="btn-primary"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+	</data>
+</odoo>
+

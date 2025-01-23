@@ -1,0 +1,9 @@
+Version 16.0.0.1 : (02/08/2023)
+	-- For the removeline if coupon option is check true in the config at that time get an error while removing the orderlines fixed that issue.
+	
+Version 16.0.0.2 : (03/08/2023)
+  	-- Spanish (es_MX) Translation Added
+
+
+Version 16.0.0.3 : (07/08/2023)
+	-- Update code for the remove orderline from the cart.

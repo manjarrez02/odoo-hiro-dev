@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="view_warning_show_register" model="ir.ui.view">
+			<field name="name">warning.show.register</field>
+			<field name="model">warning.show.register</field>
+			<field name="arch" type="xml">
+				<form string="Warning">
+					<h6>Maximum Credit Limit for this customer reached</h6>				
+					<footer>
+						<button string="Cancel" class="btn-primary" special="cancel"/>
+						<button name="show_dropdown_uses_list" string="Ok" type="object" class="btn-primary"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+	</data>
+</odoo>
+

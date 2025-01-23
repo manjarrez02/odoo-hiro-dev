@@ -1,0 +1,27 @@
+
+16.0.0.1 ==>Improved filter functionality according to name as product search functionality with barcode in base.
+
+=> 16.0.0.2 : Improved an index as per latest changes..
+
+=> 16.0.0.3 : => Improvement : new fields and column and added particular barcodes to search products for appropriate models.
+
+=> 16.0.0.4 : (issue solve)product variants only for sale orders and the same barcode when i have 	 
+ search for purchase and other objects at that time product are search with same barcode of sale order.
+ 
+ => 16.0.0.5 : Improved an index as per latest improvements.
+
+=> 16.0.0.6 : Issue fixed of if any barcode in added in the product variant page then it should also be added in the product page and visa versa.
+
+=> 16.0.0.7: Add a Boolean in sale configuration(31/07/2023)
+
+=> 16.0.0.8 : Improved an index as per latest improvements.
+
+=> 16.0.0.9 : Issue fixed of the search result comes twice.(24/01/2024)
+            : Fixed Warning two field have same label.(24/01/2024)
+
+Version : 16.0.1.0 (25/04/2024)
+    - Fixed issue related to search product by vendor product code in purchase.
+
+16.0.1.1 ==> Fixed issue of when we added multiple barcode in product variants at that time barcode auto added extra variants and also unquie product barcode warning will be raised.
+
+=> 16.0.1.2 : Improved an index as per latest improvement points.

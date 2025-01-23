@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="pos_orders_reprint_template" inherit_id="point_of_sale.template" xml:space="preserve">
+
+	<t t-name="RegisterInvoicePaymentRecipetScreen" owl="1">
+		<div class="receipt-screen screen">
+			<div class="screen-content">
+				<div class="top-content">
+					<span class="button back" t-on-click="back">
+						<i class="fa fa-angle-double-left"></i>
+						<span> </span>
+						<span>Back</span>
+					</span>
+					<div class="top-content-center">
+						<h1>Register Invoice Payment Recipet</h1>
+					</div>
+					<span class="button next highlight" t-on-click="back">
+						<span>Ok</span>
+						<span> </span>
+						<i class="fa fa-angle-double-right"></i>
+					</span>
+				</div>
+				<div class="centered-content">
+					<div class="button print" t-on-click="printReceipt">
+						<i class="fa fa-print"></i>
+						<span> </span>
+						<span>Print</span>
+					</div>
+					<div class="pos-receipt-container" t-ref="order-receipt">
+						<RegisterInvoiceReceipt 
+							partner_id="props.partner_id"				
+							order_ref="props.order_ref"				
+							invoice_ref="props.invoice_ref"				
+							payment_type="props.payment_type"				
+							amount="props.amount"
+							invoice="props.invoice"
+							note="props.note"				
+						/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</t>
+
+	<t t-name="RegisterInvoiceReceipt" owl="1">
+		<div class="pos-receipt">
+			<img class="pos-receipt-logo" t-att-src='env.pos.company_logo_base64' alt="Logo"/>
+			<br/>
+			<div class="pos-receipt-contact">
+				<t t-if='env.pos.company.contact_address'>
+					<div><t t-esc='env.pos.company.contact_address' /></div>
+				</t>
+				<t t-if='env.pos.company.phone'>
+					<div>Tel:<t t-esc='env.pos.company.phone' /></div>
+				</t>
+				<t t-if='env.pos.company.vat'>
+					<div>VAT:<t t-esc='env.pos.company.vat' /></div>
+				</t>
+				<t t-if='env.pos.company.email'>
+					<div><t t-esc='env.pos.company.email' /></div>
+				</t>
+				<t t-if='env.pos.company.website'>
+					<div><t t-esc='env.pos.company.website' /></div>
+				</t>
+				<br/>			
+				
+				<t t-if='env.pos.get_cashier()'>
+					<div class='cashier'>
+						<div>--------------------------------</div>
+						<div>Served by <t t-esc='env.pos.get_cashier().name'/></div>
+					</div>
+				</t>
+			</div>
+			<br /><br />
+			<div class="pos-center-align">
+			<strong>Register Invoice Payment Details</strong>
+			</div>
+			<div class="pos-center-align">
+				<strong>
+					<div t-if="props.order_ref">
+						Order Ref: <t t-esc="props.order_ref"/>
+					</div>
+					<div t-if="props.invoice_ref">
+						Invoice Ref: <t t-esc="props.invoice_ref"/>
+					</div>
+				</strong>
+			</div>
+			<br/>
+			<div>
+				<table class='receipt-orderlines' style="margin:0px auto;width: 100%;">
+					<colgroup>
+						<col width='50%'/>
+						<col width='50%'/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<th>Payment Entry</th>
+							<td class="pos-right-align">
+								<t t-esc="props.payment_type || ''"/>
+							</td>
+						</tr>
+						<tr>
+							<th>Partner</th>
+							<td class="pos-right-align">
+								<t t-esc="props.partner_id || ''"/>
+							</td>
+						</tr>
+						<tr>
+							<th>Payment Method</th>
+							<td class="pos-right-align">
+								<t t-esc="props.invoice || ''"/>
+							</td>
+						</tr>
+						<tr>
+							<th>Amount</th>
+							<td class="pos-right-align">
+								<t t-esc="env.pos.format_currency(props.amount)"/>
+							</td>
+						</tr>
+						<tr>
+							<th>Payment Note</th>
+							<td class="pos-right-align">
+								<t t-esc="props.note || ''"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<br/>
+		</div>
+	</t>
+</templates>

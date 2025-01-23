@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="view_show_dropdown_user" model="ir.ui.view">
+			<field name="name">show.dropdown.user</field>
+			<field name="model">show.dropdown.user</field>
+			<field name="arch" type="xml">
+				<form string="Dropdown">
+					<group>
+						<field name="user_id" options="{'no_create': True}"/>
+					</group>
+					<footer>
+						<button string="Cancel" class="btn-primary" special="cancel"/>
+						<button name="check_pin" string="Ok" type="object" class="btn-primary"/>
+					</footer>
+				</form>
+			</field>
+		</record>
+	</data>
+</odoo>
+

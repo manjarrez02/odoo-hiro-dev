@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="web.Dialog" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('o_dialog')]" position="attributes">
+            <attribute name="t-att-class">{ o_ReportViewer: props.pdfPreview }</attribute>
+        </xpath>
+    </t>
+
+    <t t-inherit="web.Dialog.header" t-inherit-mode="extension" owl="1">
+        <xpath expr="//button[hasclass('btn-close')]" position="before">
+            <button t-if="props.pdfPreview" type="button" class="o_ReportViewer_fullscreen" title="Fullscreen">
+                <i class="fa fa-arrows-alt" />
+            </button>
+        </xpath>
+    </t>
+
+    <t t-name="reports_pdf_preview.ReportViewer" owl="1">
+        <Dialog size="size" title="title" footer="false" pdfPreview="true" withBodyPadding="false">
+            <iframe t-att-src="url" class="o_ReportViewer_iframe"/>
+        </Dialog>
+    </t>
+</templates>

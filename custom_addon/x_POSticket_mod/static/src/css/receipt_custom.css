@@ -1,0 +1,15 @@
+.pos-receipt .pos-receipt-logo {
+    width: 100%;
+    display: block;
+    margin: 0px;
+    margin-top: -40px;
+}
+
+.pos-receipt .pos-receipt-contact {
+    font-size: 12px;
+}
+
+.pos-receipt .pos-receipt-amount {
+    font-size: 16px;
+    padding-left: 6em;
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="bi_view_res_partner_form" model="ir.ui.view">
+		<field name="name">inherit.view.res_partner.form</field>
+		<field name="model">res.partner</field>
+		<field name="inherit_id" ref="base.view_partner_form" />
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='zip']" position="replace">    
+				<field name="zip" placeholder="ZIP" class="o_address_zip" invisible="1" attrs="{'readonly': [('type', '=', 'contact'),('parent_id', '!=', False)]}"/>
+				<field name="custom_zip" placeholder="ZIP" class="o_address_zip"/>
+			</xpath>
+			<xpath expr="//div[@name='partner_address_country']" position="after">    
+				<field name="neighborhood_ids" placeholder="Neighborhoodssss" invisible='1'/>
+				<field name="neighborhood_id" placeholder="Neighborhood" domain="[('id', 'in', neighborhood_ids)]"/>
+			</xpath>
+		</field>
+	</record>
+</odoo>

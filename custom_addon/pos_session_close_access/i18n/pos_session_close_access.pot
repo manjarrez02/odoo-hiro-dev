@@ -1,0 +1,55 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* pos_session_close_access
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-06-25 00:17+0000\n"
+"PO-Revision-Date: 2024-06-25 00:17+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pos_session_close_access
+#. odoo-javascript
+#: code:addons/pos_session_close_access/static/src/js/pos_user_access.js:0
+#, python-format
+msgid "Access Denied"
+msgstr "Acceso denegado"
+
+#. module: pos_session_close_access
+#: model:ir.model.fields,field_description:pos_session_close_access.field_res_users__pos_session_access_close
+msgid "Access for Closing POS"
+msgstr "Acceso para cerrar el PdV"
+
+#. module: pos_session_close_access
+#: model:ir.model.fields,help:pos_session_close_access.field_res_users__pos_session_access_close
+msgid "Enabling this will allow user to close POS"
+msgstr "Habilitar esto permitirá al usuario cerrar el PdV"
+
+#. module: pos_session_close_access
+#: model_terms:ir.ui.view,arch_db:pos_session_close_access.view_res_users_pos_access_form
+msgid "POS Session Access"
+msgstr "Acceso a la sesión del PdV"
+
+#. module: pos_session_close_access
+#: model:ir.model,name:pos_session_close_access.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesión del Punto de Venta"
+
+#. module: pos_session_close_access
+#: model:ir.model,name:pos_session_close_access.model_res_users
+msgid "User"
+msgstr "Usuario"
+
+#. module: pos_session_close_access
+#. odoo-javascript
+#: code:addons/pos_session_close_access/static/src/js/pos_user_access.js:0
+#, python-format
+msgid "You do not have access to close a POS"
+msgstr "No tienes permiso para cerrar el PdV"

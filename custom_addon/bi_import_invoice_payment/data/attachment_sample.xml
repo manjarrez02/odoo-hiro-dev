@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="invoice_with_pay_xls" model="ir.attachment">
+            <field name="name">invoice_with_payment.xls</field>
+            <field name="type">binary</field>
+            <field name="datas" type="base64"
+                   file="bi_import_invoice_payment/Sample XLS-CSV File/invoice_with_payment.xls"/>
+        </record>
+
+        <record id="sample_invoice_with_payment_csv" model="ir.attachment">
+            <field name="name">invoice_with_payment.csv</field>
+            <field name="type">binary</field>
+            <field name="datas" type="base64"
+                   file="bi_import_invoice_payment/Sample XLS-CSV File/invoice_with_payment.csv"/>
+        </record>
+        <record id="sample_invoice_xls" model="ir.attachment">
+            <field name="name">invoice.xls</field>
+            <field name="type">binary</field>
+            <field name="datas" type="base64" file="bi_import_invoice_payment/Sample XLS-CSV File/invoice.xls"/>
+        </record>
+
+        <record id="sample_invoice_with_account_xls" model="ir.attachment">
+            <field name="name">invoice_with_account.xls</field>
+            <field name="type">binary</field>
+            <field name="datas" type="base64"
+                   file="bi_import_invoice_payment/Sample XLS-CSV File/invoice_with_account.xls"/>
+        </record>
+
+        <record id="sample_invoice_csv" model="ir.attachment">
+            <field name="name">invoice.csv</field>
+            <field name="type">binary</field>
+            <field name="datas" type="base64" file="bi_import_invoice_payment/Sample XLS-CSV File/import_invoice.csv"/>
+        </record>
+
+        <record id="sample_invoice_with_account_csv" model="ir.attachment">
+            <field name="name">invoice_with_account.csv</field>
+            <field name="type">binary</field>
+            <field name="datas" type="base64"
+                   file="bi_import_invoice_payment/Sample XLS-CSV File/import_invoice_with_account.csv"/>
+        </record>
+
+
+        <record id="sample_only_payment_xls" model="ir.attachment">
+            <field name="name">payment.xls</field>
+            <field name="type">binary</field>
+            <field name="datas" type="base64" file="bi_import_invoice_payment/Sample XLS-CSV File/payment.xls"/>
+        </record>
+
+    </data>
+</odoo>

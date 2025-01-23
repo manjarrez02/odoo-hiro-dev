@@ -1,0 +1,120 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* product_brand_sale
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-05-20 19:56+0000\n"
+"PO-Revision-Date: 2024-05-20 19:56+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: product_brand_sale
+#: model_terms:ir.ui.view,arch_db:product_brand_sale.product_brand_view
+msgid "Avatar"
+msgstr "Avatar"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_product__brand_id
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_template__brand_id
+#: model:ir.model.fields,field_description:product_brand_sale.field_sale_report__brand_id
+#: model_terms:ir.ui.view,arch_db:product_brand_sale.brand_group_by
+#: model_terms:ir.ui.view,arch_db:product_brand_sale.view_order_product_search_inherit
+msgid "Brand"
+msgstr "Marca"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__brand_image
+msgid "Brand Image"
+msgstr "Imagen de la marca"
+
+#. module: product_brand_sale
+#: model_terms:ir.ui.view,arch_db:product_brand_sale.product_brand_view
+msgid "Brand Name"
+msgstr "Nombre de la marca"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__create_uid
+msgid "Created by"
+msgstr "Creada por"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__id
+msgid "ID"
+msgstr "ID"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand____last_update
+msgid "Last Modified on"
+msgstr "Última modificación el"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__write_uid
+msgid "Last Updated by"
+msgstr "Actualizado por"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__write_date
+msgid "Last Updated on"
+msgstr "Actualizado el"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__member_ids
+msgid "Member"
+msgstr "Miembro"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: product_brand_sale
+#: model:ir.model,name:product_brand_sale.model_product_template
+msgid "Product"
+msgstr "Producto"
+
+#. module: product_brand_sale
+#: model:ir.actions.act_window,name:product_brand_sale.product_brand_action
+msgid "Product Brand"
+msgstr "Marca del producto"
+
+#. module: product_brand_sale
+#: model:ir.ui.menu,name:product_brand_sale.brand_product_sale
+msgid "Product Brands"
+msgstr "Marcas de productos"
+
+#. module: product_brand_sale
+#: model:ir.model.fields,field_description:product_brand_sale.field_product_brand__product_count
+msgid "Product Count"
+msgstr "Cantidad de productos"
+
+#. module: product_brand_sale
+#: model_terms:ir.ui.view,arch_db:product_brand_sale.product_brand_view
+msgid "Products"
+msgstr "Productos"
+
+#. module: product_brand_sale
+#: model:ir.model,name:product_brand_sale.model_sale_report
+msgid "Sales Analysis Report"
+msgstr "Reporte de análisis de ventas"
+
+#. module: product_brand_sale
+#: model:ir.model,name:product_brand_sale.model_product_brand
+msgid "product.brand"
+msgstr ""

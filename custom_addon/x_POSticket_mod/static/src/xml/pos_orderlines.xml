@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <templates id="x_POSticket_mod_template" xml:space="preserve">    
+        <t t-name="OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension" owl="1">
+            <xpath expr="//div[hasclass('orderlines')]//t[@t-foreach][1]" position="replace">
+                <t t-foreach="receipt.orderlines" t-as="line" t-key="line.id">               
+                    <table class="product-first-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
+                        <tr>
+                            <th style="width: 30%; padding: 1px; font-size: 10px" t-esc="line.barcode"></th>
+                            <th style="width: auto; padding: 1px; font-size: 10px" t-esc="line.product_name"></th>
+                        </tr>                    
+                    </table> 
+                    <table class="product-second-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; ">                
+                        <tr>
+                            <th style="width: 25%; padding: 1px; font-size: 10px" t-esc="env.pos.formatProductQty(line.quantity)"></th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: center;">
+                                <t t-if="line.discount != 0">
+                                    Desct: <t t-esc="line.discount"/>%
+                                </t>
+                            </th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: center;">
+                                <t t-if="line.discount != 0">
+                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_unit)"/>
+                                    >
+                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_display / line.quantity)"/>
+                                </t>
+                                <t t-else=''>
+                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_unit)"/>
+                                </t>
+                            </th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: right;">
+                                <t t-esc="env.pos.format_currency_no_symbol(line.price_display)"/>
+                            </th>
+                        </tr>
+                    </table> 
+                    <t t-if="line.customer_note">
+                        <table class="product-third-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; ">
+                            <th style="width: 100%; padding: 1px; font-size: 10px; text-align: left;">
+                                <t t-esc="line.customer_note"/>
+                            </th>                                        
+                        </table>                                    
+                    </t>                              
+                </t>
+            </xpath>
+        </t>
+
+        <t t-name="OrderReprintReceipt" t-inherit="pos_orders_all.OrderReprintReceipt" t-inherit-mode="extension" owl="1">
+            <xpath expr="//div[hasclass('orderlines')]//t[@t-foreach][1]" position="replace">
+                <t t-foreach="props.orderlines" t-as="line" t-key="line.id">                                    
+                    <table class="product-first-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
+                        <tr>
+                            <th style="width: 30%; padding: 1px; font-size: 10px" t-esc="line.barcode"></th>
+                            <th style="width: auto; padding: 1px; font-size: 10px" t-esc="line.product_id"></th>
+                        </tr>                    
+                    </table> 
+                    <table class="product-second-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; ">                
+                        <tr>
+                            <th style="width: 25%; padding: 1px; font-size: 10px" t-esc="(line.qty).toFixed(2)"></th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: center;">
+                                <t t-if="line.discount != 0">
+                                    Desct: <t t-esc="line.discount"/>%
+                                </t>
+                            </th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: center;">
+                                <t t-if="line.discount != 0">
+                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_unit)"/>
+                                    >
+                                    <t t-esc="env.pos.format_currency_no_symbol((line.price_unit)*(100-line.discount)/100)"/>
+                                </t>
+                                <t t-else=''>
+                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_unit)"/>
+                                </t>
+                            </th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: right;">
+                                <t t-esc="env.pos.format_currency_no_symbol(line.total_price)"/>
+                            </th>
+                        </tr>
+                    </table> 
+                    <t t-if="line.customer_note">
+                        <table class="product-third-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; ">
+                            <th style="width: 100%; padding: 1px; font-size: 10px; text-align: left;">
+                                <t t-esc="line.customer_note"/>
+                            </th>                                        
+                        </table>                                    
+                    </t>                              
+                </t>
+            </xpath>
+        </t>        
+
+    </templates>

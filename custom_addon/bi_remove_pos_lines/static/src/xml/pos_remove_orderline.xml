@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="FastRemoveOrderline" owl="1">
+        <span class="control-button js_fastremoveorderline">
+            <i class="fa fa-trash-o"></i>
+            <span> </span>
+        </span>
+    </t>
+
+    <t t-inherit="point_of_sale.Orderline" t-inherit-mode="extension">
+        <xpath expr="//span[hasclass('price')]" position="before">
+            <t t-if="env.pos.config.iface_fast_remove_orderline">
+                <button class="remove-selected-line-button" t-on-click="removeSelectedLine">
+                    <i class="oe_link_icon fa fa-trash-o oe_icon oe_red" />
+                </button>
+            </t>
+        </xpath>
+    </t>
+
+
+</templates>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="pos_orders_reprint_template" inherit_id="point_of_sale.template" xml:space="preserve">
+
+	<t t-name="CashMoveReciept" owl="1">
+		<div class="receipt-screen screen">
+			<div class="screen-content">
+				<div class="top-content">
+					<span class="button back" t-on-click="back">
+						<i class="fa fa-angle-double-left"></i>
+						<span> </span>
+						<span>Back</span>
+					</span>
+					<div class="top-content-center">
+						<h1>Cash Move Recipet</h1>
+					</div>
+					<span class="button next highlight" t-on-click="back">
+						<span>Ok</span>
+						<span> </span>
+						<i class="fa fa-angle-double-right"></i>
+					</span>
+				</div>
+				<div class="centered-content">
+					<div class="button print" t-on-click="printReceipt">
+						<i class="fa fa-print"></i>
+						<span> </span>
+						<span>Print</span>
+					</div>
+					<div class="pos-receipt-container" t-ref="order-receipt">
+						<CashDataReceipt 
+							type="props.type"				
+							amount="props.amount"				
+							reason="props.reason"				
+							extras="props.extras"
+							date="props.date"				
+						/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</t>
+
+	<t t-name="CashDataReceipt" owl="1">
+		<div>
+			<t t-esc="env.pos.company.name"/><br />
+			<div class="receipt-phone">
+				Phone: <t t-esc="env.pos.company.phone || ''"/><br />
+			</div>
+			<div class="receipt-user">
+				Cashier: <t t-esc="env.pos.get_cashier().name"/><br />
+			</div>
+			
+			<div class="receipt-user">
+				Email: <t t-esc="env.pos.company.email || ''"/><br />
+			</div>
+			<div class="receipt-user">
+				Sesión: <t t-esc="env.pos.config.current_session_id[1] || ''"/><br />
+			</div>
+			<div class="receipt-user">
+				Fecha y hora: <t t-esc="props.date || ''"/><br />
+			</div>			
+			<div class="receipt-user">
+				Operation: Cash <t t-esc="props.type"/><br />
+			</div>
+			<div class="receipt-user">
+				Reason: <t t-esc="props.reason || ''"/><br />
+			</div>
+
+			<div class="receipt-user">
+				Amount: <t t-esc="props.extras.formattedAmount || ''"/><br />
+			</div>
+			<br/>
+			<div style="margin-top:70px;text-align: center;">
+				<p style="border-top: 2px dashed black;"></p>
+				<b><span>Signature</span></b>
+			</div>
+		</div>
+		<div style="text-align: center;">
+			<table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+				<!-- Encabezados de la tabla -->
+				<thead>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%; font-size: 10px;">DENOMINACIÓN</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;">CANTIDAD</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;">TOTAL</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%;">$ 1000.00</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+					</tr>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%;">$ 500.00</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+					</tr>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%;">$ 200.00</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+					</tr>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%;">$ 100.00</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+					</tr>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%;">$ 50.00</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+					</tr>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%;">$ 20.00</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+					</tr>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%;">MORRALLA</th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+						<th style="border: 1px solid black; padding: 5px; width: 40%;"></th>
+					</tr>
+					<tr>
+						<th style="border: 1px solid black; padding: 5px; width: 20%;">TOTAL</th>
+    					<th style="border: 1px solid black; padding: 5px; width: 80%;" colspan="2"></th>
+					</tr>																													
+				</tbody>
+			</table>
+		</div>
+		<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+		<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+		<svg width="100%" height="50" xmlns="http://www.w3.org/2000/svg">
+			<line x1="10" y1="25" x2="90%" y2="25" stroke="black" stroke-width="0.5" stroke-dasharray="10,5"/>
+		</svg>
+
+	</t>
+</templates>

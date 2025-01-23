@@ -1,0 +1,84 @@
+
+.control-button{
+    background: #875a7b !important;
+    color: white !important;
+}
+
+.odoo-theme-color{
+    background: #875a7b !important;
+    color: white !important;
+}
+
+.bi-popup-width{
+    min-width: 70%;
+}
+
+.popup-tr{
+    line-height: 30px !important;
+    font-size: 15px !important;
+}
+
+.pos .popup .body.traceback{
+    font-family: 'Lato-Reg';
+}
+
+.orderline-table-head{
+    border: 1px solid black;
+    line-height: 30px;
+    font-size: 16px;
+}
+
+.orderline-table{
+    border: 1px solid black;
+    line-height: 30px;
+    font-size: 14px;
+}
+
+.screen .orders-screen {
+  max-width: 95%;
+}
+
+.odoo-theme-button{
+    background: #875a7b !important;
+    color: white !important;
+    font-size: 14px !important;
+}
+
+.qty-label{
+    position: absolute;
+    top: 1px !important;
+    left: 1px;
+    font-size: 11px;
+    border-radius: 2px;
+    background-color: #4caf50;
+    color: white;
+    width: 16px;
+    height: 15px;
+    display: inline-table;
+    justify-content: center;
+    align-items: center;
+    vertical-align: top;
+    line-height: 13px;
+    padding: 2px 5px;
+}
+.qty-label1{
+    position: absolute;
+    top: 1px !important;
+    right: 1px;
+    font-size: 11px;
+    border-radius: 2px;
+    background-color: #4caf50;
+    color: white;
+    width: 16px;
+    height: 15px;
+    display: inline-table;
+    justify-content: center;
+    align-items: center;
+    vertical-align: top;
+    line-height: 13px;
+    padding: 2px 5px;
+}
+
+.out-of-stock-qty{
+    background-color: #f44336 !important;
+}

@@ -1,0 +1,140 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* bi_zip_code_mapping
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-07-05 21:55+0000\n"
+"PO-Revision-Date: 2024-07-05 21:55+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__city
+msgid "City"
+msgstr "Ciudad"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model,name:bi_zip_code_mapping.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__country_id
+msgid "Country"
+msgstr "País"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_neighborhood_mapping__create_uid
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_neighborhood_mapping__create_date
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__create_date
+msgid "Created on"
+msgstr "Creado en"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_res_partner__custom_zip
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_res_users__custom_zip
+msgid "Custom Zip"
+msgstr "C.P. Personalizado"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_neighborhood_mapping__display_name
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__display_name
+msgid "Display Name"
+msgstr "Mostrar nombre"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_neighborhood_mapping__id
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__id
+msgid "ID"
+msgstr "ID"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model,name:bi_zip_code_mapping.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento de diario"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_neighborhood_mapping____last_update
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping____last_update
+msgid "Last Modified on"
+msgstr "Última modificación en"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_neighborhood_mapping__write_uid
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_neighborhood_mapping__write_date
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__write_date
+msgid "Last Updated on"
+msgstr "Última actualización en"
+
+#. module: bi_zip_code_mapping
+#: model:ir.actions.act_window,name:bi_zip_code_mapping.action_neighborhood_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_account_bank_statement_line__neighborhood_id
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_account_move__neighborhood_id
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_account_payment__neighborhood_id
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_neighborhood_mapping__name
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_res_partner__neighborhood_id
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_res_users__neighborhood_id
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_sale_order__neighborhood_id
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__neighborhood_ids
+#: model:ir.ui.menu,name:bi_zip_code_mapping.menu_custom_sequence_map
+#: model_terms:ir.ui.view,arch_db:bi_zip_code_mapping.bi_neighborhood_mapping_form
+#: model_terms:ir.ui.view,arch_db:bi_zip_code_mapping.bi_neighborhood_mapping_tree
+#: model_terms:ir.ui.view,arch_db:bi_zip_code_mapping.bi_view_res_partner_form
+msgid "Neighborhood"
+msgstr "Colonia"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model,name:bi_zip_code_mapping.model_neighborhood_mapping
+msgid "Neighborhood Mapping"
+msgstr "Mapeo de colonias"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model,name:bi_zip_code_mapping.model_sale_advance_payment_inv
+msgid "Sales Advance Payment Invoice"
+msgstr "Factura de anticipo de ventas"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model,name:bi_zip_code_mapping.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__state_id
+msgid "State"
+msgstr "Estado"
+
+#. module: bi_zip_code_mapping
+#: model_terms:ir.ui.view,arch_db:bi_zip_code_mapping.bi_view_res_partner_form
+msgid "ZIP"
+msgstr "C.P."
+
+#. module: bi_zip_code_mapping
+#: model:ir.model.fields,field_description:bi_zip_code_mapping.field_zip_code_mapping__name
+msgid "Zip"
+msgstr "C.P."
+
+#. module: bi_zip_code_mapping
+#: model:ir.actions.act_window,name:bi_zip_code_mapping.action_zip_code_mapping
+#: model:ir.model,name:bi_zip_code_mapping.model_zip_code_mapping
+#: model:ir.ui.menu,name:bi_zip_code_mapping.menu_custom_sequence
+#: model_terms:ir.ui.view,arch_db:bi_zip_code_mapping.bi_zip_code_mapping_form
+#: model_terms:ir.ui.view,arch_db:bi_zip_code_mapping.bi_zip_code_mapping_tree
+msgid "Zip Code Mapping"
+msgstr "Mapeo de C.P."

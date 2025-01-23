@@ -1,0 +1,95 @@
+Version 16.0.0.1 : (18/01/2023)
+   -- when we create customer from pos at that time get an error fixed that issue.
+
+Version 16.0.0.2 : (27/02/2023)
+   Improvemnt:
+      - Add Payment Reference functionality in our module.
+      
+=> 16.0.0.3 : Improved an index as per latest improvements.
+	- Add Payment Reference functionality in our module index.
+
+Version 16.0.0.4 : (08/05/2023)
+   -- From the pos when we try to create customer but it is remove field value automatic debug for that and fixed that issue.
+
+
+Version 16.0.0.5 : (13/06/2023)
+   -- When we create product from the pos at that time get an error debug for that and fixed that issue.
+   -- when img is not set for the product at that time product qty is not showing debug for that and fixed that issue.
+
+Version 16.0.0.6 : (20/06/2023)
+   -- When we search proudct at that time searched product is not display fixed that issue.
+   
+Version 16.0.0.7 : (13/7/2023)
+  -- Arabic Translation Issue Fixed.
+
+
+Version 16.0.0.8 : (28/7/2023)
+  -- Fixed the issue of invoice with amount due issue..
+
+
+Version 16.0.0.9 : (02/08/2023)
+  -- Fixed the issue of show quantity based on the location
+  
+  Version 16.0.0.10 : (03/08/2023)
+  -- Spanish (es_MX) Translation Added
+
+  Version 16.0.1.1 : (07/08/2023)
+   -- Update code for the create internal transfer form the pos.
+
+Version 16.0.1.2 : (05/04/2024)
+   Phase1-Customization
+   - Add common credit limit for pos & sale.
+   - Add access rights in payment method.
+   - Add control buttons access restriction form user for refund,customer note,product info,quotation/order,create sale order,coupon.
+   - Show customer balance in pos session.
+   - Hide Action Button in Vertical and hide span string and mouse hover from icon it show name and change some icon.
+   - Print Receipt for the payment received against the invoice.
+   - Add search opiton into invoice screen.
+   - Print Quotation from POS.
+   - Stop auto invoice download.
+   - Receipt for Cash in & Cash Out Transaction. 
+   - Access Rights to Open the session.
+   - Discount should not apply for specific product.
+   - Add parital payment flow for invoice create when doing partial payment.
+
+Version 16.0.1.3 : (30/04/2024)
+   Customization Issue
+   - The credit limit & credit amount field is not updating when using the partial payment button add the same flow as in the validate order.
+   - Add if the customer is allowed to do partial payment at that time it shows a partial payment button in the pos payment screen.
+   - Remove credit limit & credit amount restrictions.
+
+Version 16.0.1.4 : (28/05/2024)
+   Phase2-Customization
+   - Give access to Enter code, Reset programs, Reward, Return order with barcode, Orders, Sale orders, Draft order, Find order, Payment, Invoice, Payment, Payment summary, Product summary, Audit report, Category summary, and Order summary this buttons.
+   - Credit limit is exceeded on pos & sales add manager selection and add manager access key.
+   - Add line wise auto add customer discount for sales and pos.
+   - Customer has an amount due then add validation of manager for sales and pos.
+   - Add config for allow customer discount on total for pos. 
+
+Version 16.0.1.5 : (18/06/2024)
+   Customization Issue
+   - Remove credit limit validation from invoice.
+   - Pos side in orderline discount is not set when already set customer fixed the issue.
+   - For opening the session there have restriction message occurs but apply only if the session is not open update code.
+   - Add two field for authorized manager for balance due and for credit limit and add user from pos and sales.
+
+Version 16.0.1.6 : (27/06/2024)
+   Phase2-Customization Improvement
+   - Add balance due validation on the partial payment button and remove from the product by clicking the payment button.
+   - Sale order invoice is confirmed at that time added credit amount for the customer & payment is done then the value is removed from the credit amount.
+
+Version 16.0.1.7 : (04/07/2024)
+   Customization Issue
+   - Sale and Pos order creating partial payment at that time show credit limit warning but it was calculated through the partner it was not calculated to a different amount so update the code.
+   - Click on Due amount validation at that time click the cancel button which creates an order fixed issue.
+
+Version 16.0.1.8 : (01/08/2024)
+   - When closing the pos_session at that time facing validation of diff amount fixed issue.
+   - Create normal order at that time it does not generate an invoice on the backend fixed that issue.
+   - Not allowing customer discount at that time discount is added in total give condition.
+
+Version 16.0.1.9 : (27/08/2024)
+   - Fixed issue when creating refund order from normal discount order at that time price is zero update condition.
+
+Version 16.0.2.0 : (26/09/2024)
+   - Fixed control button related issue when the "Multi Employees per Session" option is enabled at that time some control buttons are not working.

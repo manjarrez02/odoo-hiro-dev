@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <templates id="x_POSticket_mod_template" inherit_id="point_of_sale.template" xml:space="preserve">
+
+        <t t-name="SaleOrderPrintScreen" t-inherit="pos_all_in_one.SaleOrderPrintScreen" t-inherit-mode="extension" owl="1">        
+            <xpath expr = "//div[@class='pos-receipt-container']" position = "replace">
+                <div class="pos-receipt-container" t-ref="order-receipt">
+                    <SaleOrderPrintReceipt 
+                        date="date_order"
+                        order = "props.order"
+                        orderlines = "props.orderlines"
+                        subtotal = "props.subtotal"	
+                        discount = "props.discount"
+                        user_name = "props.user_name"	
+                        customer_street = "props.customer_street"
+                        customer_neighborhood_id = "props.customer_neighborhood_id"
+                        customer_city = "props.customer_city"
+                        customer_state_id = "props.customer_state_id"
+                        cust_saleper_id = "props.user_name"		                                    
+                    />
+                </div>
+            </xpath>
+            
+        </t>
+
+        <t t-name="SaleOrderPrintReceipt" t-inherit="pos_all_in_one.SaleOrderPrintReceipt" t-inherit-mode="extension" owl="1">        
+            
+            <xpath expr="//div[@class='pos-receipt-contact']" position="replace">
+                <div class="pos-receipt-contact" style = "margin-top:-50px">
+                    <t t-if='env.pos.company.name'>
+                        <t t-esc='env.pos.company.name' />
+                    </t>
+                    <br/> 
+                    <t t-if='env.pos.company.company_registry'>
+                        <t t-esc='env.pos.company.company_registry' />
+                    </t>
+                    <br/>            
+                    <t t-if='env.pos.company.vat'>
+                        <t t-esc='env.pos.company.vat' />
+                    </t>
+                    <br/>            
+                    <t t-if='env.pos.company.street'>
+                        <t t-esc='env.pos.company.street' />
+                    </t>
+                    <t t-if='env.pos.company.city'>
+                        , 
+                        <t t-esc='env.pos.company.city' />
+                    </t>                                               
+                    <t t-if='env.pos.company.state_id'>
+                        ,   
+                        <t t-esc='env.pos.company.state_id[1]' />
+                    </t>                           
+                    <t t-if='env.pos.company.zip'>
+                        , C.P.: 
+                        <t t-esc='env.pos.company.zip' />
+                    </t>
+                    <br/>     
+                    <div style="font-weight: bold; font-size: 16px;">
+                        <br/>
+                        <t t-if="props.order.state == 'draft'">COTIZACIÓN</t>
+                        <t t-if="props.order.state == 'sent'">COTIZACIÓN</t>
+                        <t t-if="props.order.state == 'sale'">ORDEN DE VENTA</t>
+                        <t t-if="props.order.state == 'done'">ORDEN CONFIRMADA</t>
+                        <t t-if="props.order.state == 'cancel'">CANCELADA</t>
+                        <br/>
+                    </div>                     
+                </div>
+
+                <t t-if="props.order['partner_id']">
+                    <div style="font-size: 12px; text-align: left; width:100%;"><b>Cliente:</b></div> 
+                    <div style="font-size: 12px; text-align: left; width:100%;"><t t-esc="props.order.partner_id[1]"/></div>
+                    <div style="font-size: 12px; text-align: left; width:100%;">
+                        <t t-if = "props.customer_street">                        
+                            <t t-esc="props.customer_street"/>
+                        </t>
+                        <t t-if = "props.customer_neighborhood_id">
+                            ,                      
+                            <t t-esc="props.customer_neighborhood_id"/>
+                        </t>
+                        <t t-if = "props.customer_city">
+                            , 
+                            <t t-esc="props.customer_city"/>
+                        </t>
+                        <t t-if = "props.customer_state_id">                        
+                            ,
+                            <t t-esc="props.customer_state_id"/>
+                        </t>                                                                                
+                    </div>
+                </t>
+   
+            </xpath>
+
+            <xpath expr = "//t[@t-esc='props.order.display_name']" position = "replace">
+                <div></div>
+            </xpath>
+
+            <xpath expr="//div[hasclass('orderlines')]//t[@t-foreach][1]" position="replace">
+                <t t-foreach="props.orderlines" t-as="line" t-key="line.id">
+                    <t t-set="product_name" t-value="line.product_id" />
+                    <t t-set="line_amount" t-value="env.pos.format_currency_no_symbol(line.price_subtotal)" />
+                    <t t-set="discount" t-value="line.discount" />
+                    <t t-set="fixed_discount" t-value="env.pos.format_currency(line.discount)" />
+                    <t t-set="unit_name" t-value="line.unit_name" />
+                    <t t-set="quantity" t-value="Math.round(line.qty)" />                
+                    <table class="product-first-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
+                        <tr>
+                            <th style="width: 30%; padding: 1px; font-size: 10px" t-esc="line.barcode"></th>
+                            <th style="width: auto; padding: 1px; font-size: 10px" t-esc="product_name"></th>
+                        </tr>                    
+                    </table> 
+                    <table class="product-second-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; ">                
+                        <tr>
+                            <th style="width: 25%; padding: 1px; font-size: 10px" t-esc="quantity"></th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: center;">
+                                <t t-if="discount != 0">
+                                    Desct: <t t-esc="discount"/>%
+                                </t>
+                            </th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: center;">
+                                <t t-if="discount != 0">
+                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_unit)"/>
+                                    >
+                                    <t t-esc="env.pos.format_currency_no_symbol((line.price_unit)*(100-discount)/100)"/>
+                                </t>
+                                <t t-else=''>
+                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_unit)"/>
+                                </t>
+                            </th>
+                            <th style="width: 25%; padding: 1px; font-size: 10px; text-align: right;">
+                                <t t-esc="env.pos.format_currency_no_symbol(line_amount)"/>
+                            </th>
+                        </tr>
+                    </table> 
+                    <t t-if="line.customer_note">
+                        <table class="product-third-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; ">
+                            <th style="width: 100%; padding: 1px; font-size: 10px; text-align: left;">
+                                <t t-esc="line.customer_note"/>
+                            </th>                                        
+                        </table>                                    
+                    </t>                              
+                </t>
+            </xpath>
+
+            <xpath expr="//div[@class='orderlines']" position="before">
+                <!-- Añadir el encabezado -->  
+                <div style="margin-top: -50px;">
+                    <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                    </svg>
+                </div>
+                <table class="pos-receipt-header" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
+                    <!-- Primera fila -->
+                    <tr>
+                        <th style="width: 30%; padding: 1px; font-size: 11px"><b>CLAVE</b></th>
+                        <th style="width: 70%; padding: 1px; font-size: 11px"><b>DESCRIPCIÓN</b></th>
+                    </tr>
+                </table>
+                <!-- Segunda fila -->
+                <table class="pos-receipt-header" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top: 0px; ">                
+                    <tr>
+                        <th style="width: 60%; padding: 1px; font-size: 11px; text-align: left;"><b>CANTIDAD</b></th>
+                        <th style="width: 10%; padding: 1px; font-size: 11px; text-align: right;"><b>P.U.</b></th>                        
+                        <th style="width: 30%; padding: 1px; font-size: 11px; text-align: right;"><b>IMPORTE</b></th>
+                    </tr>
+                </table>
+                <div style="margin-top: -10px;">
+                    <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                    </svg>
+                </div>    
+            </xpath>
+
+            <xpath expr="//div[@class='orderlines']" position="after">
+                <!-- Añadir el encabezado -->  
+                <div style="margin-top: -10px;">
+                    <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
+                    </svg>
+                </div>
+            </xpath>
+            
+            <xpath expr = "//div[contains(text(), '-')]" position = "replace">
+                <div></div>
+            </xpath>
+
+            <xpath expr = "//div[@class='pos-receipt-amount']" position = "after">
+                <t t-if="props.discount and (props.discount > 0)">
+                    <div class="pos-receipt-discount" style="text-align: center;">
+                        <br/>
+                        <strong>USTED AHORRA</strong> <span t-esc="env.pos.format_currency(props.discount)"/>
+                    </div>
+                </t>
+            </xpath>
+
+            <xpath expr = "//div[@class='before-footer']" position ="before">
+                <div style = "font-size: 14px; text-align: left; width: 100%;">
+                    <br/>                    
+                    Vendedor: 
+                    <t t-if = "props.cust_saleper_id">                                            
+                    <t t-set="full_name" t-value="props.cust_saleper_id"/>                    
+                    <t t-if="full_name">
+                        <t t-set="name_parts" t-value="full_name.split(' ')"/>
+                        <t t-if="name_parts.length &gt; 2">
+                            <t t-esc="name_parts[0]"/> <t t-esc="name_parts[1][0]"/>. <t t-esc="name_parts[2][0]"/>.
+                        </t>                        
+                        <t t-elif="name_parts.length &gt; 1">
+                            <t t-esc="name_parts[0]"/> <t t-esc="name_parts[1][0]"/>.
+                        </t>
+                        <t t-else="">
+                            <t t-esc="full_name"/>
+                        </t>
+                    </t>
+                    </t>
+                    <t t-else="">
+                        
+                        <t t-esc="' '"/>
+                    </t>
+
+                </div>   
+ 
+                <div style="font-size: 14px; text-align: center; width: 100%; ">                                        
+                    <t t-if = "props.order.display_name">
+                        <br/>
+                        <b>Folio de orden:</b> <t t-esc = "props.order.display_name"/>
+                        <br/>        
+                </div>
+            </xpath>            
+
+        </t>
+
+    </templates>   

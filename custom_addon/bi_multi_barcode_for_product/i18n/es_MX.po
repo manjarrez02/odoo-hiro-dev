@@ -1,0 +1,100 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* bi_multi_barcode_for_product
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-03 05:33+0000\n"
+"PO-Revision-Date: 2023-08-03 05:33+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.constraint,message:bi_multi_barcode_for_product.constraint_product_barcode_uniq_barcode
+msgid "A barcode can only be assigned to one product !"
+msgstr "¡Un código de barras solo se puede asignar a un producto!"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__barcode
+msgid "Barcode"
+msgstr "Código de barras"
+
+#. module: bi_multi_barcode_for_product
+#: model_terms:ir.ui.view,arch_db:bi_multi_barcode_for_product.product_template_barcode_form_view_inherit
+#: model_terms:ir.ui.view,arch_db:bi_multi_barcode_for_product.view_product_product_form_inherit
+msgid "Barcodes"
+msgstr "códigos de barras"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__create_date
+msgid "Created on"
+msgstr "Creado en"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__id
+msgid "ID"
+msgstr ""
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode____last_update
+msgid "Last Modified on"
+msgstr "Última modificación el"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__write_date
+msgid "Last Updated on"
+msgstr "Ultima actualización en"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model,name:bi_multi_barcode_for_product.model_product_template
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__product_id
+#: model_terms:ir.ui.view,arch_db:bi_multi_barcode_for_product.bi_sale_order_inherited_form_view
+msgid "Product"
+msgstr "Producto"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model,name:bi_multi_barcode_for_product.model_product_barcode
+msgid "Product Barcode"
+msgstr "Código de barras del producto"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_product__product_barcode
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_template__product_barcode
+msgid "Product Multi Barcodes"
+msgstr "Códigos de barras múltiples del producto"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__product_tmpl_id
+msgid "Product Tmpl"
+msgstr "Producto Tmpl"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model,name:bi_multi_barcode_for_product.model_product_product
+msgid "Product Variant"
+msgstr "Variante del producto"
+
+#. module: bi_multi_barcode_for_product
+#: model:ir.model.fields,field_description:bi_multi_barcode_for_product.field_product_barcode__model_ids
+msgid "Used For"
+msgstr "Usado para"

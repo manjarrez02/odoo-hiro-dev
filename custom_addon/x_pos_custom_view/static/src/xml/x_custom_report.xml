@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="inherit_report_closed_session" inherit_id="pos_all_in_one.report_closed_session">    
+        <xpath expr="//div[@class='page']" position="replace">
+            <div class="page">
+                <div class="text-center container" style="border: 1px solid black; margin-top">
+                    <h2 style="font-size:32px">Reporte de Sesión Cerrada</h2>
+                </div>
+                <br/>
+                <table  class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" >Fecha del reporte:</td>
+                            <td style="text-align:right;"><t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d-%m-%Y')"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Hora del reporte:</td>
+                            <td style="text-align:right;"><t t-esc="context_timestamp(datetime.datetime.now()).strftime('%H:%M %p')"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Sensión(es) :</td>
+                            <td style="text-align:right;"><t t-esc="num_sessions"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Estado:</td>
+                            <td style="text-align:right;">Cerrada(s)</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Balance en apertura:</td>
+                            <td style="text-align:right;"><t t-esc="opening_balance"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Balance al cierre:</td>
+                            <td style="text-align:right;"><t t-esc="clsoing_balance"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Diferencia:</td>
+                            <td style="text-align:right;"><t t-esc="control_diff"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Ventas:</td>
+                            <td style="text-align:right;"><t t-esc="total_paid - taxes" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Descuentos:</td>
+                            <td style="text-align:right;"><t t-esc=" total_discount" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Reembolsos:</td>
+                            <td style="text-align:right;"><t t-esc="total_refunded" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br/>
+                <h5 class="text-center">Pago de Ordenes</h5>
+                <table  class="table table-sm">
+                    <tbody>
+                    <t t-set="payment_sum" t-value="0"/>
+                    <tr t-foreach='payments' t-as='payment'>
+                        <td colspan="3"><t t-esc="payment['e_name']" /></td>
+                        <td style="text-align:right;"><t t-esc="payment['total']" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        <t t-set="payment_sum" t-value="payment_sum + payment['total']"/>
+                    </tr>
+                    <tr>
+                        <td colspan="3" ></td>
+                        <td style="text-align:right;"><t t-esc="payment_sum" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                <hr/>
+                <br/>
+                <h5 class="text-center">Reembolsos de Ordenes</h5>
+                <table  class="table table-sm">
+                    <tbody>
+                    <t t-set="refund_sum" t-value="0"/>
+                    <tr t-foreach='refunds' t-as='refund'>
+                        <td colspan="3"><t t-esc="refund['e_name']" /></td>
+                        <td style="text-align:right;"><t t-esc="refund['total']" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        <t t-set="refund_sum" t-value="refund_sum + refund['total']"/>
+                    </tr>
+                    <tr>
+                        <td colspan="3" ></td>
+                        <td style="text-align:right;"><t t-esc=" refund_sum" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                <hr/>
+                <h5 class="text-center">Pago de Facturas</h5>
+                <table  class="table table-sm">
+                    <tbody>
+                    <tr t-foreach='payments_by_journal.items()' t-as='payment_journal'>
+                        <td colspan="3"><t t-esc="payment_journal[1]['journal_name']" /></td>
+                        <td style="text-align:right;"><t t-esc="payment_journal[1]['total_amount']" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" ></td>
+                        <td style="text-align:right;"><t t-esc="invoice_total" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="report_open_session" inherit_id="pos_all_in_one.report_open_session">    
+        <xpath expr="//div[@class='page']" position="replace">
+            <div class="page">
+                <div class="text-center container" style="border: 1px solid black;">
+                    <h2 style="font-size:32px">Reporte de Sesión Cerrada</h2>
+                </div>
+                <br/>
+                <table  class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <td colspan="3" >Fecha del reporte:</td>
+                            <td style="text-align:right;"><t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d-%m-%Y')"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Hora del reporte:</td>
+                            <td style="text-align:right;"><t t-esc="context_timestamp(datetime.datetime.now()).strftime('%H:%M %p')"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Sensión(es) :</td>
+                            <td style="text-align:right;"><t t-esc="num_sessions"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Estado:</td>
+                            <td style="text-align:right;">Abierta(s)</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Ventas:</td>
+                            <td style="text-align:right;"><t t-esc="total_paid - taxes" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Descuentos:</td>
+                            <td style="text-align:right;"><t t-esc=" total_discount" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" >Reembolsos:</td>
+                            <td style="text-align:right;"><t t-esc="total_refunded" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br/>
+                <h5 class="text-center">Pago de Ordenes</h5>
+                <table  class="table table-sm">
+                    <tbody>
+                    <t t-set="payment_sum" t-value="0"/>
+                    <tr t-foreach='payments' t-as='payment'>
+                        <td colspan="3"><t t-esc="payment['e_name']" /></td>
+                        <td style="text-align:right;"><t t-esc="payment['total']" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        <t t-set="payment_sum" t-value="payment_sum + payment['total']"/>
+                    </tr>
+                    <tr>
+                        <td colspan="3" ></td>
+                        <td style="text-align:right;"><t t-esc="payment_sum" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                <hr/>
+                <br/>
+                <h5 class="text-center">Reembolsos de Ordenes</h5>
+                <table  class="table table-sm">
+                    <tbody>
+                    <t t-set="refund_sum" t-value="0"/>
+                    <tr t-foreach='refunds' t-as='refund'>
+                        <td colspan="3"><t t-esc="refund['e_name']" /></td>
+                        <td style="text-align:right;"><t t-esc="refund['total']" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        <t t-set="refund_sum" t-value="refund_sum + refund['total']"/>
+                    </tr>
+                    <tr>
+                        <td colspan="3" ></td>
+                        <td style="text-align:right;"><t t-esc=" refund_sum" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                <hr/>
+                <h5 class="text-center">Pago de Facturas</h5>
+                <table  class="table table-sm">
+                    <tbody>
+                    <tr t-foreach='payments_by_journal.items()' t-as='payment_journal'>
+                        <td colspan="3"><t t-esc="payment_journal[1]['journal_name']" /></td>
+                        <td style="text-align:right;"><t t-esc="payment_journal[1]['total_amount']" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" ></td>
+                        <td style="text-align:right;"><t t-esc="invoice_total" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </xpath>    
+    </template>
+
+
+</odoo>

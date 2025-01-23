@@ -1,0 +1,6 @@
+.remove-selected-line-button {
+    float: right;
+    padding: 0 5px 0 10px;
+    cursor: pointer;
+    margin-left: 6px;
+}

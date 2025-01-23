@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="pos_all_in_one_template" inherit_id="point_of_sale.template" xml:space="preserve">
+
+	<t t-name="SaleOrderPrintScreen" owl="1">
+		<div class="receipt-screen screen">
+			<div class="screen-content">
+				<div class="top-content">
+					<span class="button back" t-on-click="back">
+						<i class="fa fa-angle-double-left"></i>
+						<span> </span>
+						<span>Back</span>
+					</span>
+					<div class="top-content-center">
+						<h1> Sale Order</h1>
+					</div>
+					<span class="button next highlight" t-on-click="back">
+						<span>Ok</span>
+						<span> </span>
+						<i class="fa fa-angle-double-right"></i>
+					</span>
+				</div>
+				<div class="centered-content">
+					<div class="button print" t-on-click="printReceipt">
+						<i class="fa fa-print"></i>
+						<span> </span>
+						<span>Print</span>
+					</div>
+					<div class="pos-receipt-container" t-ref="order-receipt">
+						<SaleOrderPrintReceipt 
+							date="date_order"
+							order = "props.order"
+							orderlines = "props.orderlines"
+							subtotal = "props.subtotal"	
+							user_name = "props.user_name"				
+										
+						/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</t>
+
+	<t t-name="SaleOrderPrintReceipt" owl="1">
+		<div class="pos-receipt">
+			<img class="pos-receipt-logo" t-att-src='env.pos.company_logo_base64' alt="Logo"/>
+			<br/>
+
+			<div class="pos-receipt-contact">
+				<t t-if='env.pos.company.contact_address'>
+					<div><t t-esc='env.pos.company.contact_address' /></div>
+				</t>
+				<t t-if='env.pos.company.phone'>
+					<div>Tel:<t t-esc='env.pos.company.phone' /></div>
+				</t>
+				<t t-if='env.pos.company.vat'>
+					<div>VAT:<t t-esc='env.pos.company.vat' /></div>
+				</t>
+				<t t-if='env.pos.company.email'>
+					<div><t t-esc='env.pos.company.email' /></div>
+				</t>
+				<t t-if='env.pos.company.website'>
+					<div><t t-esc='env.pos.company.website' /></div>
+				</t>
+				<br/>
+				
+				<t t-if='env.pos.get_cashier()'>
+					<div class='cashier'>
+						<div>--------------------------------</div>
+						<div>Served by <t t-esc='env.pos.get_cashier().name'/></div>
+					</div>
+				</t>
+			</div>
+			<br /><br />
+			<div style="text-align: center; font-size: large;">
+                <div><t t-esc="props.order.display_name"/></div>
+            </div>
+            <br/>
+			<div class='orderlines'>
+				<t t-foreach='props.orderlines' t-as='line' t-key="line.id">
+					<t t-set='simple' t-value='(line.qty === 1)' />
+					<div t-if='simple'>
+						<t t-esc="line.product_id"/>
+						<span t-esc='env.pos.format_currency_no_symbol(line.price_unit)' class="price_display pos-receipt-right-align"/>
+					</div>
+					<t t-if='!simple'>
+						<div t-esc='line.product_id'/>
+						<div class="pos-receipt-left-padding">
+							<t t-esc="Math.round(line.qty)"/>
+							x
+							<t t-esc='env.pos.format_currency_no_symbol(line.price_unit)'/>
+							<span class="price_display pos-receipt-right-align">
+								<t t-esc='env.pos.format_currency_no_symbol(line.price_unit*line.qty)' />
+							</span>
+						</div>
+					</t>
+				</t>
+			</div>
+			<br/>
+			<div class="pos-receipt-right-align">--------</div>
+			<br/>
+			<div class="pos-receipt-amount">
+				TOTAL
+				<span t-esc='env.pos.format_currency(props.order.amount_total)' class="pos-receipt-right-align"/>
+			</div>
+			<div class='before-footer' />
+			<br/>
+			<div class="pos-receipt-order-data">
+				<div><t t-esc='props.order.date_order' /></div>
+			</div>
+		</div>
+	</t>
+
+</templates>
+
+

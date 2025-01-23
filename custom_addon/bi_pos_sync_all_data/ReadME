@@ -1,0 +1,14 @@
+Version 16.0.0.1 : (21/12/22)
+   -- When we create customer from the pos at that time get an error fixed that issue.
+
+
+Version 16.0.0.2 : (03/01/23)
+   -- When we create customer from the pos at that time it is not select that created customer fixed that issue.
+   -- when we edit customer from the backend it is not sync in pos fixed that issue.
+
+Version 16.0.0.3 : (13/09/23)
+   - When sync customer that time facing traceback error so fixed the issue.
+
+Version 16.0.0.4 : (14/09/23)
+   - When using deny order validation that time does not occur validation from payment button so fixed the issue.
+   - Imporvment without image product qty is not shown change xpath.

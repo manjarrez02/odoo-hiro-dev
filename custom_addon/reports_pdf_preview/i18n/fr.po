@@ -1,0 +1,33 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#       * reports_pdf_preview
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-09 19:59+0000\n"
+"PO-Revision-Date: 2021-11-09 19:59+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: reports_pdf_preview
+#: model:ir.model.fields,help:reports_pdf_preview.field_res_users__show_report_preview
+msgid "Check to open report on modal window"
+msgstr "Cocher pour ouvrir dans une fenêtre modale"
+
+#. module: reports_pdf_preview
+#: model:ir.model.fields,field_description:reports_pdf_preview.field_res_users__show_report_preview
+#: model_terms:ir.ui.view,arch_db:reports_pdf_preview.view_users_form_reports_preview
+#: model_terms:ir.ui.view,arch_db:reports_pdf_preview.view_users_form_simple_modif_reports_preview
+msgid "Reports Preview"
+msgstr "Aperçu du rapport"
+
+#. module: reports_pdf_preview
+#: model_terms:ir.ui.view,arch_db:reports_pdf_preview.view_users_form_reports_preview
+msgid "Reports"
+msgstr "Rapports"

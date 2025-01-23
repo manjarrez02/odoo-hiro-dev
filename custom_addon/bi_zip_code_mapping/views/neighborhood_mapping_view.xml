@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="bi_neighborhood_mapping_form" model="ir.ui.view">
+			<field name="name">bi.neighborhood.mapping.form</field>
+			<field name="model">neighborhood.mapping</field>
+			<field name="arch" type="xml">
+				<form string="Neighborhood">
+					<sheet>
+						<group>
+							<field name="name" requierd="1"/>						
+						</group>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id="bi_neighborhood_mapping_tree" model="ir.ui.view">
+			<field name="name">bi.neighborhood.mapping.tree</field>
+			<field name="model">neighborhood.mapping</field>
+			<field name="arch" type="xml">
+				<tree string="Neighborhood">
+					<field name="name"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id="action_neighborhood_mapping" model="ir.actions.act_window">
+			<field name="name">Neighborhood</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">neighborhood.mapping</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+
+		<menuitem id="menu_custom_sequence_map" name="Neighborhood"
+			parent="sale.menu_sale_config" sequence="80"
+			action="action_neighborhood_mapping" />
+
+	</data>
+</odoo>
