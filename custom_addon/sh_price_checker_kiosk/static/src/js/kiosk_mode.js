@@ -58,8 +58,8 @@ odoo.define('sh_price_checker_kiosk.kiosk_mode', function (require) {
 										<br/>
 										<table style="width: 100%; text-align: center;">
 											<tr>
-												<th style="font-size: 3vw; color: rgb(108, 20, 19); text-align: center;" width="50%">Compra mínima</th>
-												<th style="font-size: 3vw; color: rgb(108, 20, 19); text-align: center;" width="50%">Precio Unitario</th>
+												<th style="font-size: 3vw; color: rgb(108, 20, 19); text-align: center;" width="50%">A partir de</th>
+												<th style="font-size: 3vw; color: rgb(108, 20, 19); text-align: center;" width="50%">Precio unitario</th>
 											</tr>
 											<tr>											
 									`;
@@ -492,8 +492,8 @@ odoo.define('sh_price_checker_kiosk.kiosk_mode', function (require) {
 								<br/>
 								<table style="width: 100%; text-align: center;">
 									<tr>
-										<th style="font-size: 3vw; color: rgb(108, 20, 19); text-align: center;" width="50%">Compra mínima</th>
-										<th style="font-size: 3vw; color: rgb(108, 20, 19); text-align: center;" width="50%">Precio Unitario</th>
+										<th style="font-size: 3vw; color: rgb(108, 20, 19); text-align: center;" width="50%">A partir de</th>
+										<th style="font-size: 3vw; color: rgb(108, 20, 19); text-align: center;" width="50%">Precio unitario</th>
 									</tr>
 									<tr>											
 							`;
