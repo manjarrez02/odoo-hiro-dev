@@ -5,7 +5,6 @@ from odoo import models, api, _
 from odoo.http import request
 from datetime import datetime
 
-
 class Product(models.Model):
     _inherit = 'product.product'
 
@@ -19,8 +18,14 @@ class Product(models.Model):
                     field_name = char_fields.name
                     field_value = barcode
                     if state:
-                        product_id = self.search(
-                            [(field_name, '=', field_value)], limit=1)
+                        product_prd = self.env['product.product'].sudo().search([(field_name, '=', field_value)], limit=1)
+                        product_id = product_prd
+                        if ('product.barcode' in self.env) and not product_id and field_name == "barcode":
+                            product_bcd = self.env['product.barcode'].sudo().search([(field_name, '=', field_value)], limit=1)
+                            if product_bcd:
+                                product_id = self.env['product.product'].sudo().search([('product_tmpl_id.id', '=', product_bcd.product_tmpl_id.id)], limit=1)
+                        #product_id = self.search(
+                        #    [(field_name, '=', field_value)], limit=1)
                         if product_id:
                             state = False
                         else:
@@ -29,11 +34,10 @@ class Product(models.Model):
                     pricelists = self.env['product.pricelist'].sudo().search([('id', '=', 1)])   
 
                     now = datetime.now()                 
-
                     # Filtramos los ítems con la lógica para la comparación de fechas
                     matched_items = pricelists.item_ids.filtered(
                         lambda item: 
-                            item.product_tmpl_id.id == product_id.id and (
+                            item.product_tmpl_id.id == product_id.product_tmpl_id.id and (
                                 # Fecha inicio y fin definidas
                                 (item.date_start and item.date_end and item.date_start <= now and item.date_end >= now) or
                                 # Solo 'date_start' definida
@@ -44,6 +48,7 @@ class Product(models.Model):
                                 (not item.date_start and not item.date_end)
                             )
                     )
+   
                     sorted_items = matched_items.sorted(key=lambda item: item.min_quantity)
                     price_list_values = []  # Inicializa un array vacío
                     min_qty_list_values = []  # Inicializa un array vacío

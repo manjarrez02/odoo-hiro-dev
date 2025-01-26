@@ -22,7 +22,8 @@
         'product',
         'barcodes',
         'portal',
-        'stock'
+        'stock',
+        'bi_multi_barcode_for_product'
     ],
 
     'data': [
