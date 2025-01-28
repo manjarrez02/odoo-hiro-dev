@@ -119,14 +119,14 @@ const payment_method = (PaymentScreen) =>
                 var session = this.env.pos.config.current_session_id[1];
                 var currency_id = this.env.pos.company.currency_id[1];
                 var order = this.env.pos.selectedOrder.partner;
-
+                var order_name = this.env.pos.selectedOrder.name;
                 var balance = wallet_balance - price;
 
                 var rpc = require('web.rpc');
                 rpc.query({
                     model: 'res.partner',
                     method: 'write_value',
-                    args: [balance, order, session, price, currency_id],
+                    args: [balance, order, order_name, price, currency_id],
                 });
             }
         }
@@ -187,13 +187,14 @@ const payment_method = (PaymentScreen) =>
                     var session = this.env.pos.config.current_session_id[1];
                     var currency_id = this.env.pos.company.currency_id[1];
                     var order_partner = this.env.pos.selectedOrder.partner;
+                    var order_name = this.env.pos.selectedOrder.name;
                     var balance = wallet_balance - price;
     
                     var rpc = require('web.rpc');
                     rpc.query({
                         model: 'res.partner',
                         method: 'write_value',
-                        args: [balance, order_partner, session, price, currency_id],
+                        args: [balance, order_partner, order_name, price, currency_id],
                     });
                 }
             }

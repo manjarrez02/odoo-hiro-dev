@@ -24,3 +24,5 @@ from . import pos_payment_method
 from . import pos_session
 from . import res_partner
 from . import wallet_transaction
+from . import pos_payment
+from . import account_payment_register

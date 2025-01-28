@@ -61,11 +61,12 @@ odoo.define('x_pos_custom_view.CustomRegisterInvoicePaymentPopupWidget', functio
                         var session = this.env.pos.config.current_session_id[1];
                         var currency_id = this.env.pos.company.currency_id[1];
                         var order_partner = partner_;
+                        var order_name = invoice['name'];
                         var balance = parseFloat(wallet_balance - price);                                                                   
                         rpc.query({
                             model: 'res.partner',
                             method: 'write_value',
-                            args: [balance, order_partner, session, price, currency_id],
+                            args: [balance, order_partner, order_name, price, currency_id],
                         });
                     }
                     rpc_result = rpc.query({

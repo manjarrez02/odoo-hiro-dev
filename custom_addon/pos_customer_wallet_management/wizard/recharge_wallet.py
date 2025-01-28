@@ -28,7 +28,7 @@ class RechargeWallet(models.TransientModel):
     _description = "Create Wallet Recharge Of Each Customer"
 
     journal_id = fields.Many2one("account.journal", string="Payment Journal",
-                                 help="Select journal type")
+                                 help="Select journal type", domain=[("type", "in", ["cash", "bank"]), ("wallet_journal", "=", False)])
     recharge_amount = fields.Float(string="Recharge Amount",
                                    help="Recharge amount in wallet")
 
