@@ -92,7 +92,11 @@ odoo.define('sh_price_checker_kiosk.kiosk_mode', function (require) {
 								$("#sh_product_pricelist_min_qty").html(htmlContent_min_qty);
 								var html_table = html_PricelistHeader+htmlContent_min_qty+htmlContent+html_PricelistFooter;
 								$("#sh_pricelist_table").html(html_table);
-
+								var discount_label = "";
+								if (result.sh_allow_discount){
+									discount_label = "Producto elegible para descuento de cliente"
+								}
+								$("#sh_discount_label").html(discount_label);
 								var formattedListPrice = parseFloat(result.sh_product_sale_price).toFixed(2);
 								var htmlFormattedListPrice = "$ "+ formattedListPrice;
 								$("#sh_product_sale_price").html(htmlFormattedListPrice);

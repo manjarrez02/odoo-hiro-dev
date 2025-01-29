@@ -83,6 +83,10 @@ class Product(models.Model):
                             'sh_product_pricelist': price_list_values,
                             'sh_product_pricelist_min_qty': min_qty_list_values,
                         })
+                    if product_id.allow_discount:
+                        msg_dict.update({
+                            'sh_allow_discount' : True
+                        })
                     if product_id.name:
                         msg_dict.update({
                             'sh_product_name': product_id.name,

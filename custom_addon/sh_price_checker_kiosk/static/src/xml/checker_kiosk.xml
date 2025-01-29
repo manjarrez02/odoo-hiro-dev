@@ -202,6 +202,8 @@
                                     <div class="contenedor">
                                         <div class="columna columna-izquierda">
                                             <div class="o_hidden" align="center" id="sh_product_image"></div>
+                                            <br/>
+                                            <div style="font-size: 3vw; line-height: 1.2; font-style: italic;" align="center" id="sh_discount_label"></div>
                                         </div>
                                         <div class="columna columna-derecha">
                                             
