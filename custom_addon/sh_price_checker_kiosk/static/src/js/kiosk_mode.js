@@ -94,7 +94,7 @@ odoo.define('sh_price_checker_kiosk.kiosk_mode', function (require) {
 								$("#sh_pricelist_table").html(html_table);
 								var discount_label = "";
 								if (result.sh_allow_discount){
-									discount_label = "Producto elegible para descuento de cliente"
+									discount_label = "Producto elegible para descuento de socio"
 								}
 								$("#sh_discount_label").html(discount_label);
 								var formattedListPrice = parseFloat(result.sh_product_sale_price).toFixed(2);

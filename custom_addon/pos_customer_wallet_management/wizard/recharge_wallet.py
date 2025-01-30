@@ -60,7 +60,7 @@ class RechargeWallet(models.TransientModel):
             'invoice_line_ids': [(0, 0, {
                 'name': 'Recarga de e-wallet',  # Etiqueta en la línea
                 'quantity': 1,  # Cantidad fija
-                'price_unit': self.recharge_amount,  # Monto del pago (ajusta según necesidad)                
+                'price_unit': self.recharge_amount,  # Monto del pago       
             })]
         }
         
