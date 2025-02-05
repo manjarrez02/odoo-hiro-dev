@@ -8,10 +8,8 @@ const {useRef, toRaw} = owl;
 
 const oldSetup = FormController.prototype.setup;
 const oldonPagerUpdated = FormController.prototype.onPagerUpdate;
-console.log("web_no_auto_save loaded");
 
 const Formsetup = function () {
-    console.log("setup from CIUSTOM");
 
     const rootRef = useRef("root");
     useSetupView({
@@ -52,14 +50,12 @@ FormController.prototype.onPagerUpdate = onPagerUpdate;
 
 const ListSuper = ListController.prototype.setup;
 const Listsetup = function () {
-    console.log("setup from List CIUSTOM");
 
     useSetupView({
         rootRef: this.rootRef,
         beforeLeave: () => {
             const list = this.model.root;
             const editedRecord = list.editedRecord;
-            console.log("editedRecord", editedRecord);
             if (editedRecord && editedRecord.isDirty) {
                 if (confirm("¿Deseas guardar los cambios automáticamente?")) {
                     if (!list.unselectRecord(true)) {
