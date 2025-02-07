@@ -83,9 +83,9 @@ class FleetVehicleLogFuel(models.Model):
     )
     liter = fields.Float(states=READONLY_STATES)
     price_per_liter = fields.Float(states=READONLY_STATES)
-    service_id = fields.Many2one(
-        comodel_name="fleet.vehicle.log.services", readonly=True, copy=False
-    )
+#    service_id = fields.Many2one(
+#        comodel_name="fleet.vehicle.log.services", readonly=True, copy=False
+#   )
 
     @api.onchange("liter", "price_per_liter", "amount")
     def _onchange_liter_price_amount(self):
@@ -118,9 +118,10 @@ class FleetVehicleLogFuel(models.Model):
                 _("Emptying the odometer value of a vehicle is not allowed.")
             )
         for record in self:
-            self.odometer_id = self.env["fleet.vehicle.odometer"].create(
-                record._prepare_fleet_vehicle_odometer_vals()
-            )
+            if record.state == 'done': #this fixes the duplicity of odometer
+                self.odometer_id = self.env["fleet.vehicle.odometer"].create(
+                    record._prepare_fleet_vehicle_odometer_vals()
+                )
 
     @api.depends("vehicle_id")
     def _compute_purchaser_id(self):
@@ -139,8 +140,9 @@ class FleetVehicleLogFuel(models.Model):
         }
 
     def _prepare_fleet_vehicle_log_services_vals(self):
+        service_id = self.env['fleet.service.type'].search([("name", "=", "Recarga gasolina")], limit=1)
         return {
-            "service_type_id": self.service_type_id.id,
+            "service_type": service_id.id,
             "description": self.description,
             "vehicle_id": self.vehicle_id.id,
             "amount": self.amount,
@@ -156,14 +158,20 @@ class FleetVehicleLogFuel(models.Model):
 
     def button_done(self):
         for item in self.filtered(lambda x: x.state == "running"):
-            item.service_id = self.env["fleet.vehicle.log.services"].create(
-                self._prepare_fleet_vehicle_log_services_vals()
-            )
             item.state = "done"
+            item._inverse_odometer()
         return True
 
     def button_cancel(self):
-        records = self.filtered(lambda x: x.state in ["todo", "running", "done"])
-        records.mapped("service_id").sudo().unlink()
-        records.state = "cancelled"
+        self.filtered(lambda x: x.state in ["todo", "running", "done"]).state = "cancelled"
         return True
+
+    def unlink(self):
+        # Call super to perform the regular unlink behavior
+        for record in self:
+            if record.odometer_id:
+                # Delete the odometer record if it exists
+                record.odometer_id.unlink()
+
+        # Proceed with deleting the fuel log record
+        return super().unlink()
