@@ -57,7 +57,17 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
         this.ks_is_lines = true;
         if (this.props.activeActions.type == 'view' &&  ks_is_list_renderer) {
             this.ks_is_lines = false;
-            onMounted(this._mounted);
+            onMounted(() => {
+                this._mounted();
+                
+                //setTimeout ejecuta una función que permite mostrar las columnas preactivas en la vista de lista
+                setTimeout(() => {
+                    let checkbox = document.querySelector('.ks_hide_show_checkbox');
+                    if (checkbox) {
+                        checkbox.click(); // Simula un clic real del usuario
+                    }
+                }, 100); 
+            });
             onWillUpdateProps((next_prop) => {
                 this.keepColumnWidths = false;
                 this.allColumns = next_prop.archInfo.columns;
@@ -68,6 +78,10 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
             });
             onWillStart(async () => {
                  this.willStart()
+            });
+            onPatched(() => {
+                this.freezeColumnWidths();
+                console.log("Se realizó en patch")
             });
     }
 
@@ -164,8 +178,7 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
             }
          }
 
-
-
+        console.log("Si se realiza")
 
     },
     clearLocalStorage(){

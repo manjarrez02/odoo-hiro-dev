@@ -31,7 +31,7 @@
             <button type="button" class="btn btn-primary refresh_button o_button_lvm mx-1" title="Refresh Data">
                 <span class="fa fa-lg fa fa-refresh"/>
             </button>
-            <button type="button" class="btn btn-primary copy_button o_button_lvm mr-1" style="display : none; margin-right:4px;" title="Duplicate Records">
+            <button type="button" class="btn btn-primary copy_button o_button_lvm mr-1" style="visibility: hidden; display : none; margin-right:4px;" title="Duplicate Records">
                 <span class="fa fa-copy"/>
             </button>
             <label class="switch mr-1 mode_button o_button_lvm" data-toggle="tooltip" title="Read/Edit Mode">
