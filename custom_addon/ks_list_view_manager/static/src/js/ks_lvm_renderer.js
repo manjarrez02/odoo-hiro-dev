@@ -81,7 +81,6 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
             });
             onPatched(() => {
                 this.freezeColumnWidths();
-                console.log("Se realizó en patch")
             });
     }
 
@@ -177,8 +176,6 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
                 $(document.querySelector(".o_list_controller.o_list_actions_header")).addClass("d-none")
             }
          }
-
-        console.log("Si se realiza")
 
     },
     clearLocalStorage(){
