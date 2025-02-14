@@ -79,9 +79,6 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
             onWillStart(async () => {
                  this.willStart()
             });
-            onPatched(() => {
-                this.freezeColumnWidths();
-            });
     }
 
         // Todo: Remove this as useExternalListener and follow the proper approach.
