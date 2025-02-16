@@ -62,11 +62,15 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
                 
                 //setTimeout ejecuta una función que permite mostrar las columnas preactivas en la vista de lista
                 setTimeout(() => {
-                    let checkbox = document.querySelector('.ks_hide_show_checkbox');
-                    if (checkbox) {
-                        checkbox.click(); // Simula un clic real del usuario
+                    let checkboxes = document.querySelectorAll('.ks_hide_show_checkbox');
+                    if (checkboxes.length > 0) {
+                        let lastCheckbox = checkboxes[checkboxes.length - 1]; // Selecciona el último
+                        lastCheckbox.click(); // Primer clic
+                        setTimeout(() => {
+                            lastCheckbox.click(); // Segundo clic para restaurar estado
+                        }, 50); 
                     }
-                }, 100); 
+                }, 100);
             });
             onWillUpdateProps((next_prop) => {
                 this.keepColumnWidths = false;
