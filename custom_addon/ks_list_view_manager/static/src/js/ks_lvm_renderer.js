@@ -68,7 +68,7 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
                         lastCheckbox.click(); // Primer clic
                         setTimeout(() => {
                             lastCheckbox.click(); // Segundo clic para restaurar estado
-                        }, 50); 
+                        }, 250); 
                     }
                 }, 100);
             });
