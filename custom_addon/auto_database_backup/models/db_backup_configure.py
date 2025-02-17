@@ -803,7 +803,24 @@ class DbBackupConfigure(models.Model):
                         timeout=1800)
                     dropbox_destination = (rec.dropbox_folder + '/' +
                                            backup_filename)
-                    dbx.files_upload(temp.read(), dropbox_destination)
+                    #  Subida en fragmentos
+                    CHUNK_SIZE = 8 * 1024 * 1024  # 8MB
+                    with open(temp.name, "rb") as f:
+                        first_chunk = f.read(CHUNK_SIZE)
+                        session_start = dbx.files_upload_session_start(first_chunk)
+                        session_id = session_start.session_id
+                        cursor = dropbox.files.UploadSessionCursor(session_id=session_id, offset=f.tell())
+
+                        while True:
+                            chunk = f.read(CHUNK_SIZE)
+                            if not chunk:
+                                break
+                            dbx.files_upload_session_append_v2(chunk, cursor)
+                            cursor.offset = f.tell()
+
+                        commit = dropbox.files.CommitInfo(path=dropbox_destination)
+                        dbx.files_upload_session_finish(chunk, cursor, commit)
+
                     if rec.auto_remove:
                         files = dbx.files_list_folder(rec.dropbox_folder)
                         file_entries = files.entries
