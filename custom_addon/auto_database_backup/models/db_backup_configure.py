@@ -799,7 +799,8 @@ class DbBackupConfigure(models.Model):
                     dbx = dropbox.Dropbox(
                         app_key=rec.dropbox_client_key,
                         app_secret=rec.dropbox_client_secret,
-                        oauth2_refresh_token=rec.dropbox_refresh_token)
+                        oauth2_refresh_token=rec.dropbox_refresh_token,
+                        timeout=1800)
                     dropbox_destination = (rec.dropbox_folder + '/' +
                                            backup_filename)
                     dbx.files_upload(temp.read(), dropbox_destination)
