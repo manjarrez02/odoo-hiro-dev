@@ -11,6 +11,6 @@ class StockPicking(models.Model):
     @api.depends("location_dest_id")
     def _compute_user_can_validate(self):
         user = self.env.user
-        allowed_locations = user.x_validation_allowed.ids
+        allowed_locations = user.x_location_allowed.ids
         for record in self:
             record.x_user_can_validate = record.location_dest_id.id in allowed_locations
