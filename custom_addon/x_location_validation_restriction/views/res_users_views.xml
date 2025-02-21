@@ -8,7 +8,7 @@
             <xpath expr="//page[@name='preferences']" position="inside">
                 <group>
                     <field name="property_warehouse_id"/>
-                    <field name="x_validation_allowed" widget="many2many_tags"/>
+                    <field name="x_location_allowed" widget="many2many_tags"/>
                 </group>
             </xpath>
         </field>
