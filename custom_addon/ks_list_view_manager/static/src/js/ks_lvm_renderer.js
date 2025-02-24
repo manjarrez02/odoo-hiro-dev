@@ -58,19 +58,24 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
         if (this.props.activeActions.type == 'view' &&  ks_is_list_renderer) {
             this.ks_is_lines = false;
             onMounted(() => {
-                this._mounted();
-                
-                //setTimeout ejecuta una función que permite mostrar las columnas preactivas en la vista de lista
+                this._mounted();                
                 setTimeout(() => {
-                    let checkboxes = document.querySelectorAll('.ks_hide_show_checkbox');
-                    if (checkboxes.length > 0) {
-                        let lastCheckbox = checkboxes[checkboxes.length - 1]; // Selecciona el último
-                        lastCheckbox.click(); // Primer clic
-                        setTimeout(() => {
-                            lastCheckbox.click(); // Segundo clic para restaurar estado
-                        }, 250); 
+                    let dropdown = document.getElementById('ks_dropdown');
+                
+                    if (dropdown && !dropdown.classList.contains('d-none')) {  
+                        // Solo ejecuta si el dropdown existe y NO tiene la clase "d-none"
+                        let checkboxes = document.querySelectorAll('.ks_hide_show_checkbox');
+                
+                        if (checkboxes.length > 0) {
+                            let lastCheckbox = checkboxes[checkboxes.length - 1];
+                            lastCheckbox.click(); // Primer clic
+                            setTimeout(() => {
+                                lastCheckbox.click(); // Segundo clic para restaurar estado
+                            }, 250);
+                        }
                     }
                 }, 100);
+                                          
             });
             onWillUpdateProps((next_prop) => {
                 this.keepColumnWidths = false;
