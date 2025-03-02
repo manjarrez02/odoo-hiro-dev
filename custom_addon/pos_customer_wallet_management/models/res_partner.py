@@ -59,7 +59,7 @@ class ResPartner(models.Model):
         """Count of wallet balance"""
         for record in self:
             record.wallet_count = self.env['wallet.transaction'].search_count(
-                [('customer', '=', self.name)])
+                [('customer', '=', record.name)])
 
     @api.model
     def write_value(self, balance, order, session, price, currency_id):
