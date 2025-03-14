@@ -18,7 +18,9 @@ class PosSession(models.Model):
             for picking in order.picking_ids:
                 if picking.state == 'done':
                     # Ejecutar la acción de devolución (ID: 292) para abrir el wizard
-                    action_return = picking.with_context(active_id=picking.id).env['ir.actions.act_window'].browse(292).read()[0]
+                    #action_return = picking.with_context(active_id=picking.id).env['ir.actions.act_window'].browse(292).read()[0]
+                    action_return = picking.with_context(active_id=picking.id).env['ir.actions.act_window'].sudo().browse(292).read()[0]
+
                     
                     # Crear el asistente de devolución
                     return_wizard = self.env['stock.return.picking'].with_context(active_id=picking.id).create({
