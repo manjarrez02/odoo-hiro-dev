@@ -25,7 +25,13 @@ class stock_quant(models.Model):
 		product_id = prod_obj.search([('id', '=', prd_id)]) 
 
 		res = product_id._compute_quantities_dict(self._context.get('lot_id'), self._context.get('owner_id'), self._context.get('package_id'), self._context.get('from_date'), self._context.get('to_date'))
-		product[0]['qty_available'] = res[product_id.id]['qty_available']
+		#product[0]['qty_available'] = res[product_id.id]['qty_available']
+
+		if product_id.id in res:  # ✅ Evita el KeyError
+			product[0]['qty_available'] = res[product_id.id]['qty_available']
+		else:
+			return True  # ❌ No sincroniza si no hay datos
+
 		if product :
 			categories = ssn_obj._get_pos_ui_product_category(ssn_obj._loader_params_product_category())
 			product_category_by_id = {category['id']: category for category in categories}
