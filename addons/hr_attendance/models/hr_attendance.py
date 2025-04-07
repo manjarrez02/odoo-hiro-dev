@@ -58,6 +58,7 @@ class HrAttendance(models.Model):
         """ verifies if check_in is earlier than check_out. """
         for attendance in self:
             if attendance.check_in and attendance.check_out:
+                continue
                 if attendance.check_out < attendance.check_in:
                     raise exceptions.ValidationError(_('"Check Out" time cannot be earlier than "Check In" time.'))
 
@@ -76,6 +77,7 @@ class HrAttendance(models.Model):
                 ('id', '!=', attendance.id),
             ], order='check_in desc', limit=1)
             if last_attendance_before_check_in and last_attendance_before_check_in.check_out and last_attendance_before_check_in.check_out > attendance.check_in:
+                continue
                 raise exceptions.ValidationError(_("Cannot create new attendance record for %(empl_name)s, the employee was already checked in on %(datetime)s") % {
                     'empl_name': attendance.employee_id.name,
                     'datetime': format_datetime(self.env, attendance.check_in, dt_format=False),
@@ -88,6 +90,7 @@ class HrAttendance(models.Model):
                     ('check_out', '=', False),
                     ('id', '!=', attendance.id),
                 ], order='check_in desc', limit=1)
+                continue
                 if no_check_out_attendances:
                     raise exceptions.ValidationError(_("Cannot create new attendance record for %(empl_name)s, the employee hasn't checked out since %(datetime)s") % {
                         'empl_name': attendance.employee_id.name,
@@ -101,6 +104,7 @@ class HrAttendance(models.Model):
                     ('check_in', '<', attendance.check_out),
                     ('id', '!=', attendance.id),
                 ], order='check_in desc', limit=1)
+                continue
                 if last_attendance_before_check_out and last_attendance_before_check_in != last_attendance_before_check_out:
                     raise exceptions.ValidationError(_("Cannot create new attendance record for %(empl_name)s, the employee was already checked in on %(datetime)s") % {
                         'empl_name': attendance.employee_id.name,
