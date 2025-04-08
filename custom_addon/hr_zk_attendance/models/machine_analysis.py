@@ -26,7 +26,7 @@ from odoo import models, fields, api, _
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
-    device_id = fields.Char(string='Biometric Device ID')
+    device_id = fields.Char(string='Biometric Device ID',groups="hr.group_hr_user")
 
 
 class ZkMachine(models.Model):
