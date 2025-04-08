@@ -198,24 +198,21 @@ class ZkMachine(models.Model):
                                                 else:
                                                     att_var1 = att_obj.search([('employee_id', '=', get_user_id.id)])
                                                     if att_var1:
-                                                        att_obj.create({'employee_id': get_user_id.id,
-                                                                    'break_out': atten_time})   
+                                                        att_var1[-1].write({'break_out': atten_time})
                                             if each.punch in [4, 14]: #break-in
                                                 if len(att_var) == 1:
                                                     att_var.write({'break_in': atten_time})
                                                 else:
                                                     att_var1 = att_obj.search([('employee_id', '=', get_user_id.id)])
                                                     if att_var1:
-                                                        att_obj.create({'employee_id': get_user_id.id,
-                                                                    'break_in': atten_time})   
+                                                        att_var1[-1].write({'break_in': atten_time})
                                             if each.punch in [1, 11]: #check-out
                                                 if len(att_var) == 1:
                                                     att_var.write({'check_out': atten_time})
                                                 else:
                                                     att_var1 = att_obj.search([('employee_id', '=', get_user_id.id)])
                                                     if att_var1:
-                                                        att_obj.create({'employee_id': get_user_id.id,
-                                                                    'check_out': atten_time})                                                                                                                                   
+                                                        att_var1[-1].write({'check_out': atten_time})                                                                                                                                    
 
                                     else:
                                         print('ddfcd', str(each.status))
