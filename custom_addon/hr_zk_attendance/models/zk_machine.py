@@ -192,8 +192,6 @@ class ZkMachine(models.Model):
                                                 if not att_var:
                                                     att_obj.create({'employee_id': get_user_id.id,
                                                                     'check_in': atten_time})
-                                                else:
-                                                    att_var.write({'check_in': atten_time})
                                             if each.punch in [5, 15]: #break-out
                                                 if len(att_var) == 1:
                                                     if att_var.break_out:
