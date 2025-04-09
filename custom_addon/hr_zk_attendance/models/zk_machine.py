@@ -180,9 +180,12 @@ class ZkMachine(models.Model):
                                             ])
 
                                             # Filtrar registros donde los campos definidos sean del mismo día
+                                            atten_date_filter = each.timestamp.astimezone(local_tz).date()
                                             att_var = att_var_unfiltered.filtered(lambda a: all(
-                                                        not getattr(a, field) or
-                                                        local_tz.localize(getattr(a, field), is_dst=None).date() == atten_date
+                                                        not getattr(a, field) or (
+                                                            getattr(a, field).astimezone(local_tz).date() if getattr(a, field).tzinfo else
+                                                            pytz.utc.localize(getattr(a, field)).astimezone(local_tz).date()
+                                                        ) == atten_date
                                                         for field in ['check_in', 'break_out', 'break_in']
                                                     ))
 
