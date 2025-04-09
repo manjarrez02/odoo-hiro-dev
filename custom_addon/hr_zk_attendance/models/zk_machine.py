@@ -197,7 +197,11 @@ class ZkMachine(models.Model):
                                             if each.punch in [5, 15]: #break-out
                                                 if len(att_var) == 1:
                                                     if att_var.break_out:
-                                                       att_var.write({'break_in': atten_time})
+                                                       if att_var.break_out < atten_time:
+                                                            att_var.write({'break_in': atten_time})
+                                                       else:
+                                                           att_var.write({'break_in': att_var.break_out})
+                                                           att_var.write({'break_out': atten_time})
                                                     else:
                                                         att_var.write({'break_out': atten_time})
                                                 else:
