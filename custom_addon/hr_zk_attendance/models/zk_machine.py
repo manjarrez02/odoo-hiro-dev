@@ -175,8 +175,7 @@ class ZkMachine(models.Model):
 
                                             # Búsqueda inicial: check_out = False y employee_id
                                             att_var_unfiltered = att_obj.search([
-                                                ('employee_id', '=', get_user_id.id),
-                                                ('check_out', '=', False)
+                                                ('employee_id', '=', get_user_id.id)
                                             ])
 
                                             # Filtrar registros donde los campos definidos sean del mismo día
