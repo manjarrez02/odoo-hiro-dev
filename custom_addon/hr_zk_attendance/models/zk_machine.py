@@ -189,6 +189,8 @@ class ZkMachine(models.Model):
                                                 if not att_var:
                                                     att_obj.create({'employee_id': get_user_id.id,
                                                                     'check_in': atten_time})
+                                                else:
+                                                    att_var.write({'check_in': atten_time})
                                             if each.punch in [5, 15]: #break-out
                                                 if len(att_var) == 1:
                                                     if att_var.break_out:
@@ -215,7 +217,14 @@ class ZkMachine(models.Model):
                                                     att_var1 = att_obj.create({'employee_id': get_user_id.id,
                                                                     'check_in': atten_time})
                                                     if att_var1:
-                                                        att_var1.write({'check_out': atten_time})                                                                                                                                    
+                                                        att_var1.write({'check_out': atten_time})
+                                            if each.punch == 3:
+                                                if len(att_var) == 0:
+                                                    att_obj.create({'employee_id': get_user_id.id,
+                                                                    'check_in': atten_time})  
+                                            if each.punch == 2:
+                                                if len(att_var) == 1 and not att_var.check_out:
+                                                    att_var.write({'check_out': atten_time})
 
                                     else:
                                         print('ddfcd', str(each.status))
