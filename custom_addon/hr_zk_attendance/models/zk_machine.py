@@ -181,8 +181,11 @@ class ZkMachine(models.Model):
 
                                             # Filtrar registros donde los campos definidos sean del mismo día
                                             att_var = att_var_unfiltered.filtered(lambda a: all(
-                                                not getattr(a, field) or getattr(a, field).date() == atten_date
-                                                for field in ['check_in', 'break_out', 'break_in']))
+                                                        not getattr(a, field) or
+                                                        local_tz.localize(getattr(a, field), is_dst=None).date() == atten_date
+                                                        for field in ['check_in', 'break_out', 'break_in']
+                                                    ))
+
                                             
                                             print('ddfcd', str(each.status))
                                             if each.punch in [0, 10]: #check-in
