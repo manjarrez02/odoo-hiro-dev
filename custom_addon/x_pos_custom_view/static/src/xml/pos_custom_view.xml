@@ -374,7 +374,8 @@ Lo siguiente solo es para reparar el comportamient del botón de pago del módul
                                     </t>
                                 </table>
                             </div>
-                        </div>  
+                        </div>
+                        <div class="extra"/> 
                     </main>
                     <footer class="footer">
                         <div class="button cancel" t-on-click="cancel">

@@ -6,6 +6,12 @@ odoo.define('my_pos_extension.custom_pos', function (require) {
 
     // Extiende PosGlobalState
     const CustomPosGlobalState = (PosGlobalState) => class extends PosGlobalState {
+
+        setup() {
+            super.setup();
+        }
+
+
         async getClosePosInfo() {
             const closingData = await this.env.services.rpc({
                 model: 'pos.session',
