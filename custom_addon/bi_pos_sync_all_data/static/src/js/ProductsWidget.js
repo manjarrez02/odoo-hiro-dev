@@ -18,7 +18,7 @@ odoo.define('bi_pos_sync_all_data.ProductsWidget', function(require) {
 				let self = this;
 				let check = self.env.pos.config.allow_pos_sync_data;
 				if(check){
-					self.env.services['bus_service'].addEventListener('notification', ({ detail: notifications }) => {
+					this.env.services.bus_service.addEventListener('notification', ({ detail: notifications }) => {
 						self.syncProdData(notifications);
 					});
 				}
@@ -27,8 +27,9 @@ odoo.define('bi_pos_sync_all_data.ProductsWidget', function(require) {
 
 			syncProdData(notifications){
 				let self = this;
+				console.log("Estos procesando la notificación", notifications);
 				notifications.forEach(function (ntf) {
-					ntf = JSON.parse(JSON.stringify(ntf))
+					ntf = JSON.parse(JSON.stringify(ntf))					
 					if(ntf && ntf.type && ntf.type == "product.product/sync_data"){
 						let prod = ntf.payload.product[0];
 						let old_category_id = self.env.pos.db.product_by_id[prod.id];

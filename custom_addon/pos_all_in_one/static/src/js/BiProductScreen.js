@@ -101,7 +101,7 @@ odoo.define('pos_all_in_one.BiProductScreen', function(require) {
 						// super._clickProduct(event);
 						let allow_order = self.env.pos.config.pos_allow_order;
 						let pos_config = self.env.pos.config;
-						let deny_order= self.env.pos.config.pos_deny_order;
+						let deny_order= self.env.pos_deny_order;
 						let call_super = true;
 						if(self.env.pos.config.pos_display_stock)
 						{

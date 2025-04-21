@@ -37,8 +37,9 @@ class ProductProduct(models.Model):
 				'id': [product[0].get('id')], 
 				'product': product,
 				'access':'pos.sync.product',
-				'notification_id': notification_id
+				#'notification_id': notification_id
 			}
+			#product.product/sync_data_product
 			notifications.append([self.env.user.partner_id,'product.product/sync_data',vals])
 		if len(notifications) > 0:
 			self.env['bus.bus']._sendmany(notifications)

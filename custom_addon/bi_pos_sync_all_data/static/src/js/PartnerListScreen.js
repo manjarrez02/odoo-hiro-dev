@@ -3,7 +3,7 @@ odoo.define('bi_pos_sync_all_data.PartnerListScreen', function(require) {
 
     const PartnerListScreen = require('point_of_sale.PartnerListScreen');
     const Registries = require('point_of_sale.Registries');
-    const { onMounted } = owl;
+    const { onMounted, onWillUnmount } = owl;
     const { isConnectionError } = require('point_of_sale.utils');
 
     const BiPartnerListScreen = PartnerListScreen =>
@@ -12,22 +12,37 @@ odoo.define('bi_pos_sync_all_data.PartnerListScreen', function(require) {
                 super.setup();
                 var self = this;
                 onMounted(() => this._mounted());
+                onWillUnmount(() => this._unmounted());
                 let check = self.env.pos.config.allow_pos_sync_data;
                 if(check){
                     self.searchPartner()
                 }
+                if (!this._boundPartnerListener) {
+                    this._boundPartnerListener = this._partnerNotificationListener.bind(this);
+                }            
+                this.listenerAdded = false;
             }
+
+            _partnerNotificationListener({ detail: notifications }) {
+                this.syncPartnerData(notifications);
+            }
+
             _mounted() {
-                let self = this;
-                let check = self.env.pos.config.allow_pos_sync_data;
-                if(check){
-                    self.env.services['bus_service'].addEventListener('notification', ({ detail: notifications }) => {
-                        self.syncPartnerData(notifications);
-                    });
+                let check = this.env.pos.config.allow_pos_sync_data;
+                if (check && !this.listenerAdded) {
+                    this.env.services['bus_service'].addEventListener('notification', this._boundPartnerListener);
+                    this.listenerAdded = true;                    
                 }
-                
             }
             
+            _unmounted() {
+                if (this.listenerAdded) {
+                    this.env.services['bus_service'].removeEventListener('notification', this._boundPartnerListener);
+                    this.listenerAdded = false;
+                }
+            }
+
+
             async syncPartnerData(notifications){
                 let self = this;
                 notifications.forEach(async function (ntf) {

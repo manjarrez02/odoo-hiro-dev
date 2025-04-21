@@ -12,72 +12,86 @@ odoo.define('pos_orders_all.ProductsWidget', function(require) {
 
 	let prd_list_count = 0;
     let is_listening = false;
+    let listenerCounter = 0;  // 👈 nuestro contador
+    let ProductListenerAdded = false;
 
 	const BiProductsWidget = (ProductsWidget) =>
 		class extends ProductsWidget {
 			setup() {
 	            super.setup();
 	            var self = this;
-                this.processedNotifications = new Set(['initial']);
                 if (!this.listener) {
                     self.listener = ({ detail: notifications }) => {
                         self.syncProdData(notifications);                                                              
                     };
                 }
                 self.listenerAdded = false; 
+
 				onMounted(() => this._mounted());
-                
+                //onWillUnmount(() => this._unmounted());                
 	        }
 
             _mounted() {
-                // Inicializa el conjunto para las notificaciones procesadas
-                
-
                 // Evitar que se añadan múltiples listeners
-                if (!this.listenerAdded) {
-                    this.env.services['bus_service'].addEventListener('notification', this.listener);
+                if (!ProductListenerAdded) {
+                    this.env.services.bus_service.addEventListener('notification', this.listener);
                     this.listenerAdded = true;
+                    ProductListenerAdded = true
                 }
             }       
+
+            _unmounted() {
+                if (this.listenerAdded) {
+                    this.env.services.bus_service.removeEventListener('notification', this.listener);
+                    this.listenerAdded = false;
+                    ProductListenerAdded = true;
+                }
+            }
 
 			syncProdData(notifications){
 				let self = this;
                 notifications.forEach(ntf => {
-                    const notificationId = ntf.payload.notification_id;                                        
-                    if (notificationId && !this.processedNotifications.has(notificationId)) {
-                        this.processedNotifications.add(notificationId);
-                        console.log("Las notificacion es ", ntf);
-                        //console.log("El contenido del arreglo es ",this.processedNotifications)
-                        ntf = JSON.parse(JSON.stringify(ntf))
-                        if(ntf && ntf.type && ntf.type == "product.product/sync_data"){
-                            let prod = ntf.payload.product[0];
-                            let old_category_id = self.env.pos.db.product_by_id[prod.id];
-                            let new_category_id = prod.pos_categ_id[0];
-                            let stored_categories = self.env.pos.db.product_by_category_id;
+                    if(ntf && ntf.type && ntf.type == "product.product/sync_data"){
+                        let prod = ntf.payload.product[0];
+                        let old_category_id = self.env.pos.db.product_by_id[prod.id];
+                        let new_category_id = prod.pos_categ_id[0];
+                        let stored_categories = self.env.pos.db.product_by_category_id;
 
-                            prod.pos = self.env.pos;
-                            if(self.env.pos.db.product_by_id[prod.id]){
-                                if(old_category_id.pos_categ_id){
-                                    stored_categories[old_category_id.pos_categ_id[0]] = stored_categories[old_category_id.pos_categ_id[0]].filter(function(item) {
-                                        return item != prod.id;
-                                    });
-                                }
-                                if(stored_categories[new_category_id]){
-                                    stored_categories[new_category_id].push(prod.id);
-                                }
-                                let updated_prod = self.updateProd(prod);
-                            }else{
-
-                                const loadedData =  self.env.services.rpc({
-                                    model: 'pos.session',
-                                    method: 'load_pos_data_prod_temp',
-                                    args: [[odoo.pos_session_id]],
+                        prod.pos = self.env.pos;
+                        if(self.env.pos.db.product_by_id[prod.id]){
+                            if(old_category_id.pos_categ_id){
+                                stored_categories[old_category_id.pos_categ_id[0]] = stored_categories[old_category_id.pos_categ_id[0]].filter(function(item) {
+                                    return item != prod.id;
                                 });
-                                let updated_prod = self.updateProd(prod);
-                                 self.env.pos._loadProductTemplate(loadedData['product.template']);
                             }
+                            if(stored_categories[new_category_id]){
+                                stored_categories[new_category_id].push(prod.id);
+                            }
+                            let updated_prod = self.updateProd(prod);
+                        }else{
+
+                            const loadedData =  self.env.services.rpc({
+                                model: 'pos.session',
+                                method: 'load_pos_data_prod_temp',
+                                args: [[odoo.pos_session_id]],
+                            });
+                            let updated_prod = self.updateProd(prod);
+                                self.env.pos._loadProductTemplate(loadedData['product.template']);
                         }
                     }
+                    else if(ntf && ntf.type && ntf.type == "res.partner/sync_data"){
+                        let partner = ntf.payload.partner;
+                        partner.pos = self.env.pos;
+                        console.log("modificaré al partner")
+                        if(self.env.pos.db.partner_by_id[partner.id]){
+                            self.env.pos.addPartners([partner]);
+                            self.render(true);
+                        }else{
+                            self.env.pos.addPartners(partner);
+                            self.render(true);
+                        }                         
+                    }
+                
 				});
 				let call = self.productsToDisplay;
 				self.env.pos.is_sync = true;

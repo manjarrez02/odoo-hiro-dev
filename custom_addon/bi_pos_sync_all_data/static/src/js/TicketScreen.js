@@ -3,7 +3,7 @@ odoo.define('bi_pos_sync_all_data.TicketScreen', function(require) {
 
     const TicketScreen = require('point_of_sale.TicketScreen');
     const Registries = require('point_of_sale.Registries');
-    const { onMounted } = owl;
+    const { onMounted, onWillUnmount } = owl;
     const { isConnectionError } = require('point_of_sale.utils');
 
     const BiTicketScreen = TicketScreen =>
@@ -12,20 +12,37 @@ odoo.define('bi_pos_sync_all_data.TicketScreen', function(require) {
                 super.setup();
                 var self = this;
                 onMounted(() => this._mounted());
-                
-            }
-            _mounted() {
-                let self = this;
-                let check = self.env.pos.config.allow_pos_sync_data;
-                if(check){
-                    self.env.services['bus_service'].addEventListener('notification', ({ detail: notifications }) => {
-                        self.syncPartnerData(notifications);
-                    });
+                onWillUnmount(() => this._unmounted());
+
+                // Crear referencia persistente una sola vez
+                if (!this._boundTicketListener) {
+                    this._boundTicketListener = this._ticketNotificationListener.bind(this);
                 }
+                this.listenerAdded = false;
                 
             }
+
+            _ticketNotificationListener({ detail: notifications }) {
+                this.syncPartnerProductData(notifications);
+            }
+
+            _mounted() {
+                let check = this.env.pos.config.allow_pos_sync_data;
+                if (check && !this.listenerAdded) {
+                    this.env.services['bus_service'].addEventListener('notification', this._boundTicketListener);
+                    this.listenerAdded = true;
+                }                
+            }
+
+            _unmounted() {
+                if (this.listenerAdded) {
+                    this.env.services['bus_service'].removeEventListener('notification', this._boundTicketListener);
+                    this.listenerAdded = false;
+                }
+            }
+
             
-            async syncPartnerData(notifications){
+            async syncPartnerProductData(notifications){
                 let self = this;
                 notifications.forEach(async function (ntf) {
                     ntf = JSON.parse(JSON.stringify(ntf))

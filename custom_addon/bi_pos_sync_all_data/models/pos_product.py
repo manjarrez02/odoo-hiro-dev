@@ -39,7 +39,7 @@ class stock_quant(models.Model):
 						'product': product,
 						'access': 'pos.sync.product',
 					}
-					notifications.append([config.current_user_id.partner_id, 'product.product/sync_data', vals])
+					notifications.append([config.current_user_id.partner_id, 'product.product/sync_data_coment1', vals])
 		if len(notifications) > 0:
 			self.env['bus.bus']._sendmany(notifications)
 		return True
@@ -104,7 +104,7 @@ class BiResPartner(models.Model):
 			i.sync_partner(i._origin.id)
 		return res
 
-'''
+
 class ProductTemplate(models.Model):
 	_inherit = 'product.template'
 
@@ -114,7 +114,7 @@ class ProductTemplate(models.Model):
 			for pv in rec.product_variant_ids :
 				pv.sync_product(pv.id)
 		return res
-'''
+
 '''
 class PosSession(models.Model):
 	_inherit = 'pos.session'
