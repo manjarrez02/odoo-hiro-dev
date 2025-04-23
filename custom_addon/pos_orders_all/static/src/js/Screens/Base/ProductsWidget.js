@@ -48,54 +48,94 @@ odoo.define('pos_orders_all.ProductsWidget', function(require) {
                 }
             }
 
-			syncProdData(notifications){
-				let self = this;
-                notifications.forEach(ntf => {
-                    if(ntf && ntf.type && ntf.type == "product.product/sync_data"){
-                        let prod = ntf.payload.product[0];
-                        let old_category_id = self.env.pos.db.product_by_id[prod.id];
-                        let new_category_id = prod.pos_categ_id[0];
-                        let stored_categories = self.env.pos.db.product_by_category_id;
-
-                        prod.pos = self.env.pos;
-                        if(self.env.pos.db.product_by_id[prod.id]){
-                            if(old_category_id.pos_categ_id){
-                                stored_categories[old_category_id.pos_categ_id[0]] = stored_categories[old_category_id.pos_categ_id[0]].filter(function(item) {
-                                    return item != prod.id;
-                                });
+			syncProdData(notifications) {
+                let self = this;
+                let batchSize = 15; // Tamaño del bloque (batch)
+                let totalNotifications = notifications.length;
+                let currentBatch = 0;
+                let productTemplatesToLoad = []; // Acumulador para los productos que necesitan ser cargados
+            
+                // Función que procesa un lote de notificaciones
+                function processBatch() {
+                    let start = currentBatch * batchSize;
+                    let end = Math.min(start + batchSize, totalNotifications);
+                    let batchNotifications = notifications.slice(start, end);
+            
+                    // Mostrar en consola el número de batch que se está procesando
+                    //console.log(`Procesando batch ${currentBatch + 1} de ${Math.ceil(totalNotifications / batchSize)}...`);
+            
+                    // Procesar cada notificación en el batch actual
+                    batchNotifications.forEach(ntf => {
+                        if (ntf && ntf.type && ntf.type == "product.product/sync_data") {
+                            let prod = ntf.payload.product[0];
+                            let old_category_id = self.env.pos.db.product_by_id[prod.id];
+                            let new_category_id = prod.pos_categ_id[0];
+                            let stored_categories = self.env.pos.db.product_by_category_id;
+            
+                            prod.pos = self.env.pos;
+                            if (self.env.pos.db.product_by_id[prod.id]) {
+                                // Actualizar el producto en la categoría antigua
+                                if (old_category_id.pos_categ_id) {
+                                    stored_categories[old_category_id.pos_categ_id[0]] = stored_categories[old_category_id.pos_categ_id[0]].filter(function (item) {
+                                        return item != prod.id;
+                                    });
+                                }
+                                // Añadir a la nueva categoría
+                                if (stored_categories[new_category_id]) {
+                                    stored_categories[new_category_id].push(prod.id);
+                                }
+                                self.updateProd(prod);
+                            } else {
+                                // Acumulamos los productos que necesitamos cargar
+                                productTemplatesToLoad.push(prod);
                             }
-                            if(stored_categories[new_category_id]){
-                                stored_categories[new_category_id].push(prod.id);
+                        } else if (ntf && ntf.type && ntf.type == "res.partner/sync_data") {
+                            let partner = ntf.payload.partner;
+                            partner.pos = self.env.pos;
+                            //console.log("modificaré al partner");
+                            if (self.env.pos.db.partner_by_id[partner.id]) {
+                                self.env.pos.addPartners([partner]);
+                                self.render(true);
+                            } else {
+                                self.env.pos.addPartners(partner);
+                                self.render(true);
                             }
-                            let updated_prod = self.updateProd(prod);
-                        }else{
-
-                            const loadedData =  self.env.services.rpc({
+                        }
+                    });
+            
+                    // Después de procesar un batch, incrementar el contador y verificar si hay más bloques
+                    currentBatch++;
+                    if (start + batchSize < totalNotifications) {
+                        // Procesar el siguiente batch
+                        setTimeout(processBatch, 0); // Recursión para continuar procesando sin bloquear la interfaz
+                    } else {
+                        // Cargar los productos una sola vez después de procesar todos los batches
+                        if (productTemplatesToLoad.length > 0) {
+                            //console.log("Cargando productos adicionales...");
+                            self.env.services.rpc({
                                 model: 'pos.session',
                                 method: 'load_pos_data_prod_temp',
                                 args: [[odoo.pos_session_id]],
-                            });
-                            let updated_prod = self.updateProd(prod);
+                            }).then(loadedData => {
+                                // Solo cargamos los productos que necesitan ser cargados
                                 self.env.pos._loadProductTemplate(loadedData['product.template']);
+                                productTemplatesToLoad.forEach(prod => {
+                                    self.updateProd(prod);
+                                });
+                                //console.log("Sincronización completa.");
+                                self.env.pos.is_sync = false; // Finaliza la sincronización
+                            });
+                        } else {
+                            //console.log("Sincronización completa.");
+                            self.env.pos.is_sync = false; // Finaliza la sincronización
                         }
                     }
-                    else if(ntf && ntf.type && ntf.type == "res.partner/sync_data"){
-                        let partner = ntf.payload.partner;
-                        partner.pos = self.env.pos;
-                        console.log("modificaré al partner")
-                        if(self.env.pos.db.partner_by_id[partner.id]){
-                            self.env.pos.addPartners([partner]);
-                            self.render(true);
-                        }else{
-                            self.env.pos.addPartners(partner);
-                            self.render(true);
-                        }                         
-                    }
-                
-				});
-				let call = self.productsToDisplay;
-				self.env.pos.is_sync = true;
-			}
+                }
+            
+                self.env.pos.is_sync = true; // Indica que estamos en proceso de sincronización
+                processBatch(); // Inicia el procesamiento de los bloques
+            }
+            
 
 			updateProd(product){
 				let self = this;
