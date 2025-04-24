@@ -165,10 +165,12 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 
 					orderlines.forEach(function(ol) {
 						let product = self.env.pos.db.get_product_by_id(ol.product_id[0]);
+						let discount = parseFloat(ol.discount);
+						discount = isNaN(discount) ? 0 : discount;
 						selectedOrder.add_product(product, {
 							quantity: parseFloat(ol.qty),
 							price: ol.price_unit,
-							discount: ol.discount,
+							discount: discount,
 							is_saved: true,
 						});
 					});
