@@ -137,45 +137,31 @@ odoo.define('pos_orders_all.ProductsWidget', function(require) {
             }
             
 
-			updateProd(product){
-				let self = this;
-				product.product_tmpl_id = product.product_tmpl_id[0] || [];
-				self.env.pos._loadProductProduct([product]);
-				const productMap = {};
-				const productTemplateMap = {};
-
-				product.pos = self.env.pos; 
-				product.applicablePricelistItems = {};
-				productMap[product.id] = product;
-				productTemplateMap[product.product_tmpl_id[0]] = (productTemplateMap[product.product_tmpl_id[0]] || []).concat(product);
-				let new_prod =  Product.create(product);
-				for (let pricelist of self.env.pos.pricelists) {
-					for (const pricelistItem of pricelist.items) {
-						if (pricelistItem.product_id) {
-							let product_id = pricelistItem.product_id[0];
-							let correspondingProduct = productMap[product_id];
-							if (correspondingProduct) {
-								self.env.pos._assignApplicableItems(pricelist, correspondingProduct, pricelistItem);
-							}
-						}
-						else if (pricelistItem.product_tmpl_id) {
-							let product_tmpl_id = pricelistItem.product_tmpl_id[0];
-							let correspondingProducts = productTemplateMap[product_tmpl_id];
-							for (let correspondingProduct of (correspondingProducts || [])) {
-								self.env.pos._assignApplicableItems(pricelist, correspondingProduct, pricelistItem);
-							}
-						}
-						else {
-							for (const correspondingProduct of product) {
-								self.env.pos._assignApplicableItems(pricelist, correspondingProduct, pricelistItem);
-							}
-						}
-					}
-				}
-				self.env.pos.db.product_by_id[product.id] = new_prod ;
-				self.env.pos.db.add_products(new_prod);
-				self.productsToDisplay
-			}
+            updateProd(product) {
+                let self = this;
+                product.product_tmpl_id = product.product_tmpl_id[0] || [];
+                product.pos = self.env.pos;
+                
+                // Crear nuevo producto
+                let new_prod = Product.create(product);
+                
+                // Reasignar precios de listas correctamente
+                new_prod.applicablePricelistItems = {};
+                for (let pricelist of self.env.pos.pricelists) {
+                    for (const pricelistItem of pricelist.items) {
+                        if (pricelistItem.product_id && pricelistItem.product_id[0] === new_prod.id) {
+                            self.env.pos._assignApplicableItems(pricelist, new_prod, pricelistItem);
+                        } else if (pricelistItem.product_tmpl_id && pricelistItem.product_tmpl_id[0] === new_prod.product_tmpl_id) {
+                            self.env.pos._assignApplicableItems(pricelist, new_prod, pricelistItem);
+                        }
+                    }
+                }
+            
+                // Actualizar base de datos POS
+                self.env.pos.db.product_by_id[new_prod.id] = new_prod;
+                self.env.pos.db.add_products(new_prod);
+            }
+            
 
 			get is_sync() {
 				return this.env.pos.is_sync;
