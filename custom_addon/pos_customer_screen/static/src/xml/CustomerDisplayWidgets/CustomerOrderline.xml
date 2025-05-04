@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="CustomerOrderline" owl="1">
+        <li class="orderline">
+            <span class="product-name">
+                <t t-esc="props.line.full_product_name"/>
+                <span> </span>
+            </span>
+            <span class="price">
+                <t t-esc="env.pos.format_currency(props.line.price_subtotal_incl)"/>
+            </span>
+            <ul class="info-list">
+                <li class="info">
+                    <em>
+                        <t t-esc="props.line.qty"/>
+                    </em>
+                    <span> </span>
+                    <t t-esc="env.pos.db.get_product_by_id(props.line.product_id).uom_id[1]"/>
+                    at
+                   
+                    <t t-if="env.pos.round_decimals_currency(props.line.price_subtotal_incl / props.line.qty ) &lt; (env.pos.db.get_product_by_id(props.line.product_id).lst_price)">
+                        <t t-if="props.line.qty > 0">
+                            <s>
+                                <t t-esc="env.pos.format_currency(env.pos.db.get_product_by_id(props.line.product_id).lst_price)"/>
+                            </s>      
+                            <t t-esc="env.pos.format_currency(props.line.price_subtotal_incl / props.line.qty )"/>        
+                        </t>                   
+                        c/u              
+                    </t>
+                    <t t-else="">
+                        <t t-esc="env.pos.format_currency(props.line.price_unit)"/>
+                    c/u
+                    </t>                    
+                </li>
+                    
+                <t t-if="props.line.discount != 0">
+                    <li class="info">
+                        Incluye
+                        <em>
+                            <t t-esc="props.line.discount"/>%
+                        </em>
+                        discount
+                    </li>
+                </t>
+                
+            </ul>
+        </li>
+    </t>
+</templates>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="SliderContent" owl="1">
+        <div class="slider-content"
+             t-attf-style="width: {{ props.width }}px; transition: transform ease-out {{ props.transition }}s; transform: translateX(-{{ props.translate }}px)">
+            <t t-foreach="env.pos.customer" t-as="data" t-key="data.id">
+                <Slide content="data.image"/>
+            </t>
+        </div>
+    </t>
+</templates>

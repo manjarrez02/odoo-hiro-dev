@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_customer_display,access_customer_display,model_customer_display,base.group_user,1,1,1,1
+access_ad_video,access_ad_video,model_ad_video,base.group_user,1,1,1,1
