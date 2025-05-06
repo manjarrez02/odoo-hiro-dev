@@ -38,25 +38,40 @@ class AccountMove(models.Model):
     @api.depends('invoice_line_ids', 'invoice_line_ids.quantity',
                  'invoice_line_ids.price_unit', 'invoice_line_ids.discount')
     def _compute_margin(self):
-        """Method for computing margin"""
-        line_cost = lines_margin_amount = lines_sale_price = 0.0
+        """Method for computing margin with safe handling of None values"""
         for move in self:
             move.margin_amount = False
             move.margin_percentage = False
+
+            line_cost = lines_margin_amount = lines_sale_price = 0.0
+
             if move.invoice_line_ids:
                 for line in move.invoice_line_ids:
-                    sale_price = line.price_unit * line.quantity
+                    price_unit = float(line.price_unit or 0.0)
+                    quantity = float(line.quantity or 0.0)
+                    discount_rate = float(line.discount or 0.0)
+
+                    sale_price = price_unit * quantity
+                    discount = (sale_price * discount_rate) / 100.0
+
                     lines_sale_price += sale_price
-                    discount = (sale_price * line.discount) / 100
-                    cost = line.product_id.standard_price * line.quantity
-                    line_cost += cost
-                    line_margin_amount = (sale_price - discount) - cost
-                    lines_margin_amount += line_margin_amount
-                if line_cost:
-                    move.margin_amount = lines_margin_amount
-                    if lines_sale_price != 0:
-                        move.margin_percentage = \
-                            lines_margin_amount / lines_sale_price
+
+                    if line.product_id:
+                        standard_price = float(line.product_id.standard_price or 0.0)
+                        cost = standard_price * quantity
+                        line_margin_amount = (sale_price - discount) - cost
+
+                        line_cost += cost
+                        lines_margin_amount += line_margin_amount
+                    else:
+                        # Si no hay producto, no se considera costo ni margen
+                        continue
+
+                move.margin_amount = lines_margin_amount
+
+                if lines_sale_price != 0:
+                    move.margin_percentage = lines_margin_amount / lines_sale_price
                 else:
-                    move.margin_amount = lines_margin_amount
-                    move.margin_percentage = 1
+                    move.margin_percentage = 0.0  # margen nulo si no hay venta
+
+

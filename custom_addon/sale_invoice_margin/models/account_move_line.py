@@ -37,19 +37,33 @@ class AccountMoveLine(models.Model):
 
     @api.depends('quantity', 'price_unit', 'discount')
     def _compute_margin(self):
-        """Method for computing margin"""
+        """Method for computing margin with safe handling of None values"""
         for line in self:
-            line.margin_amount = False
-            line.margin_percentage = False
+            price_unit = float(line.price_unit or 0.0)
+            quantity = float(line.quantity or 0.0)
+            discount_rate = float(line.discount or 0.0)
+
+            sale_price = price_unit * quantity
+            discount = (sale_price * discount_rate) / 100.0
+
             if line.product_id:
-                sale_price = line.price_unit * line.quantity
-                discount = (sale_price * line.discount) / 100
-                cost = line.product_id.standard_price * line.quantity
-                margin_amount = (sale_price - discount) - cost
-                if cost:
-                    line.margin_amount = margin_amount
-                    if sale_price != 0:
-                        line.margin_percentage = margin_amount / sale_price
-                else:
-                    line.margin_amount = margin_amount
-                    line.margin_percentage = 1
+                standard_price = float(line.product_id.standard_price or 0.0)
+                cost = standard_price * quantity
+            else:
+                cost = 0.0  # Si no hay producto, asumimos costo cero
+
+            margin_amount = (sale_price - discount) - cost
+
+            line.margin_amount = margin_amount
+
+            if sale_price != 0:
+                line.margin_percentage = margin_amount / sale_price
+            else:
+                line.margin_percentage = 0.0  # margen nulo si no hay venta
+
+            # Si no hay producto, fuerza margen a cero explícitamente
+            if not line.product_id:
+                line.margin_amount = 0.0
+                line.margin_percentage = 0.0
+
+
