@@ -291,6 +291,12 @@
                             </div>
                             <div style="font-size: 14px; text-align: center; width: 100%; ">                                                
                                 <br/>
+                                <br/>
+                                <b>EXIJA SU RECIBO DE PAGO.</b>
+                                <br/>
+                                <b>SI NO LO RECIBE, REPORTELO, Y SERÁ GRATIFICADO.</b>
+                                <br/>
+                                <br/>
                                 <b>Folio:</b> <t t-esc = "doc.name"/>
                                 <br/>         
                                 <b>Fecha:</b> <t t-esc = "doc.invoice_date and doc.invoice_date.strftime('%d/%m/%Y')"/>
