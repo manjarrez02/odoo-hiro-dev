@@ -31,48 +31,29 @@ class SequenceMixin(models.AbstractModel):
     def _compute_split_sequence(self):
         for record in self:
             sequence = record[record._sequence_field] or ''
-            regex = re.sub(r"\?P<\w+>", "?:",
-                           record._sequence_fixed_regex.replace(r"?P<seq>", ""))
+            regex = re.sub(r"\?P<\w+>", "?:", record._sequence_fixed_regex.replace(r"?P<seq>", ""))
             matching = re.match(regex, sequence)
             record.sequence_prefix = sequence[:matching.start(1)]
             record.sequence_number = int(matching.group(1) or 0)
-            if record.move_type in ('out_invoice', '0'):
-                if record.id not in record.journal_id.sudo().entry_sequence_id.sudo().incremented_move_id.ids and record._origin.id and record.name != '/' and record.name:
-                    record.journal_id.sudo().entry_sequence_id.write({'incremented_move_id': [(4, record._origin.id)]})
-                    rec = record.journal_id.sudo().entry_sequence_id.date_range_ids
-                    for res in rec:
-                        res.number_next_actual = record.journal_id.sudo().entry_sequence_id.number_next_actual + record.journal_id.sudo().entry_sequence_id.number_increment
 
-            if record.move_type in ('out_refund', '0'):
-                if record.id not in record.journal_id.sudo().credit_notes_entry_sequence_id.sudo().incremented_move_id.ids and record._origin.id and record.name != '/' and record.name:
-                    record.journal_id.sudo().credit_notes_entry_sequence_id.write(
-                        {'incremented_move_id': [(4, record._origin.id)]})
-                    rec = record.journal_id.sudo().credit_notes_entry_sequence_id.date_range_ids
-                    for res in rec:
-                        res.number_next_actual = res.number_next_actual + record.journal_id.sudo().credit_notes_entry_sequence_id.number_increment
+            # Determinar si se debe usar credit_notes_entry_sequence_id o entry_sequence_id
+            if record.move_type in ('out_invoice', 'in_invoice', 'entry'):
+                sequence_obj = record.journal_id.sudo().entry_sequence_id
+            elif record.move_type in ('out_refund', 'in_refund'):
+                sequence_obj = record.journal_id.sudo().credit_notes_entry_sequence_id
+            else:
+                continue  # Si no es un tipo soportado, pasa al siguiente registro
 
-            if record.move_type in ('in_refund', '0'):
-                if record.id not in record.journal_id.sudo().credit_notes_entry_sequence_id.sudo().incremented_move_id.ids and record._origin.id and record.name != '/' and record.name:
-                    record.journal_id.sudo().credit_notes_entry_sequence_id.write(
-                        {'incremented_move_id': [(4, record._origin.id)]})
-                    rec = record.journal_id.sudo().credit_notes_entry_sequence_id.date_range_ids
-                    for res in rec:
-                        res.number_next_actual = record.journal_id.sudo().credit_notes_entry_sequence_id.number_next_actual + record.journal_id.sudo().credit_notes_entry_sequence_id.number_increment
+            # Verifica si ya se ha incrementado
+            if record.id in sequence_obj.incremented_move_id.ids:
+                continue
 
-            if record.move_type in ('in_invoice', '0'):
-                if record.id not in record.journal_id.sudo().entry_sequence_id.sudo().incremented_move_id.ids and record._origin.id and record.name != '/' and record.name:
-                    record.journal_id.sudo().entry_sequence_id.write({'incremented_move_id': [(4, record._origin.id)]})
-                    rec = record.journal_id.sudo().entry_sequence_id.date_range_ids
-                    for res in rec:
-                        res.number_next_actual = record.journal_id.sudo().entry_sequence_id.number_next_actual + record.journal_id.sudo().entry_sequence_id.number_increment
+            if record._origin.id and record.name and record.name != '/':
+                sequence_obj.write({'incremented_move_id': [(4, record._origin.id)]})
 
-            if record.move_type in ('entry','0'):
-                if record.id not in record.journal_id.sudo().entry_sequence_id.sudo().incremented_move_id.ids and record._origin.id and record.name != '/' and record.name:
-                    record.journal_id.sudo().entry_sequence_id.write({'incremented_move_id': [(4, record._origin.id)]})
-                    rec = record.journal_id.sudo().entry_sequence_id.date_range_ids
-                    for res in rec:
-                        res.number_next_actual = record.journal_id.sudo().entry_sequence_id.number_next_actual + record.journal_id.sudo().entry_sequence_id.number_increment
-
+                for date_range in sequence_obj.date_range_ids:
+                    # Incrementa el siguiente número
+                    date_range.number_next_actual += sequence_obj.number_increment
 
 
     @api.constrains(lambda self: (self._sequence_field, self._sequence_date_field))
