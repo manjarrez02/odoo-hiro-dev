@@ -262,6 +262,10 @@
 					<div style="margin:auto;margin-top:10px;" id="barcode_print"></div>
 				</div>
 			</t>
+			<br/>
+			<div style="font-size: 14px; text-align: center; width: 100%;">
+				<t t-esc="receipt.order_reference_no"/>
+			</div>
 		</xpath> 
 	</t>
 	

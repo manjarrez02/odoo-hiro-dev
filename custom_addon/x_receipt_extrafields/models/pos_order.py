@@ -55,7 +55,8 @@ class pos_order(models.Model):
 			'customer_state_id' : self.partner_id.state_id.name,
 			'state' : self.state,
 			'account_move' : self.account_move.name,
-			'current_time' : current_time				
+			'current_time' : current_time,
+			'name' : self.name				
 		}
 		
 		return vals

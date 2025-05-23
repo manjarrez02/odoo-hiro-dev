@@ -22,6 +22,7 @@
                         state = "props.state"
                         account_move = "props.account_move"
                         current_time = "props.current_time"
+                        name = "props.name"
                     />
                 </div>
             </xpath>
@@ -244,6 +245,8 @@
 
             <xpath expr = "//t[@t-if='env.pos.config.show_barcode']" position = "after">
                 <div style="font-size: 14px; text-align: center; width: 100%;">
+                    <br/>
+                    <t t-esc="props.name"/>    
                     <br/>
                     Fecha y hora de impresión: 
                     <t t-esc="props.current_time"/>
