@@ -19,12 +19,12 @@
                             </th>
                             <th style="width: 25%; padding: 1px; font-size: 10px; text-align: center;">
                                 <t t-if="line.discount != 0">
-                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_unit)"/>
+                                    <t t-esc="env.pos.format_currency_no_symbol((line.price_display / line.quantity) / (1-line.discount/100))"/>
                                     >
                                     <t t-esc="env.pos.format_currency_no_symbol(line.price_display / line.quantity)"/>
                                 </t>
                                 <t t-else=''>
-                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_unit)"/>
+                                    <t t-esc="env.pos.format_currency_no_symbol(line.price_display / line.quantity)"/>
                                 </t>
                             </th>
                             <th style="width: 25%; padding: 1px; font-size: 10px; text-align: right;">
