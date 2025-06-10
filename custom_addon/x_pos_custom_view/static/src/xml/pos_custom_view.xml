@@ -375,6 +375,22 @@ Lo siguiente solo es para reparar el comportamient del botón de pago del módul
                                 </table>
                             </div>
                         </div>
+                        <div class="section-packaging" t-if="productInfo.warehouses.length > 0">
+                            <div class="section-title">
+                                <span>Empaquetado </span>
+                                <div class="section-title-line"></div>
+                            </div>
+                            <div class="section-packaging-body">
+                                <table class="mobile-table">
+                                    <t t-foreach="productInfo.packaging" t-as="pack" t-key="pack.name">
+                                        <tr>
+                                            <td><span class="table-name"><t t-esc="pack.name"/></span>:</td>
+                                            <td style="padding-left: 1em;"><t t-esc="pack.qty"/> Unidades</td>
+                                        </tr>
+                                    </t>
+                                </table>
+                            </div>
+                        </div>
                         <div class="extra"/> 
                     </main>
                     <footer class="footer">

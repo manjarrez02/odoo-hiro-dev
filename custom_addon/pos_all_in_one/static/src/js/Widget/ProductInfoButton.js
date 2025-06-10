@@ -25,6 +25,7 @@ odoo.define('point_of_sale.ProductInfoButton', function(require) {
                 const quantity = orderline.get_quantity();
                 try {
                     const info = await this.env.pos.getProductInfo(product, quantity);
+                    
                     this.showPopup('ProductInfoPopup', { info: info , product: product });
                 } catch (e) {
                     if (isConnectionError(e)) {

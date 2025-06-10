@@ -102,6 +102,16 @@ class ProductProduct(models.Model):
             })                        
         location_list_sorted = sorted(location_list, key=lambda l: l['warehouse_name'])
 
+        # Packagings
+        packaging_list = [{
+            'name': packaging.name,
+            'qty': packaging.qty
+        } for packaging in self.env['product.packaging'].search([
+            ('product_id', '=', self.id)
+        ])]
+
+        # Ordenar de mayor a menor por qty
+        packaging_list_sorted = sorted(packaging_list, key=lambda p: p['qty'], reverse=True)
         
 
         return {
@@ -110,7 +120,8 @@ class ProductProduct(models.Model):
             'warehouses': warehouse_list,
             'locations' : location_list_sorted,
             'suppliers': supplier_list,
-            'variants': variant_list
+            'variants': variant_list,
+            'packaging': packaging_list_sorted
         }
 
 
