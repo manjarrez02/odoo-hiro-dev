@@ -37,156 +37,131 @@ SIGN_UP_REQUEST_PARAMS = {
 
 
 class HomeCustom(Home):
-    @http.route("/web/login", type="http", auth="none")
-    def web_login(self, redirect=None, **kw):
+    @http.route('/web/login')
+    def web_login(self, *args, **kw):
+        redirect = None
         ensure_db()
-        request.params["login_success"] = False
+        request.params['login_success'] = False
 
-        if request.httprequest.method == "GET" and redirect and request.session.uid:
+        if request.httprequest.method == 'GET' and redirect and request.session.uid:
             return request.redirect(redirect)
 
-        if request.env.uid is None:
-            if request.session.uid is None:
-                request.env["ir.http"]._auth_method_public()
-            else:
-                request.update_env(user=request.session.uid)
+        if not request.uid:
+            request.update_env(user=odoo.SUPERUSER_ID)
 
-        values = {
-            k: v for k, v in request.params.items() if k in SIGN_UP_REQUEST_PARAMS
-        }
+        values = {k: v for k, v in request.params.items() if k in SIGN_UP_REQUEST_PARAMS}
         try:
-            values["databases"] = http.db_list()
-        except AccessDenied:
-            values["databases"] = None
+            values['databases'] = http.db_list()
+        except odoo.exceptions.AccessDenied:
+            values['databases'] = None
 
-        if request.httprequest.method == "POST":
-            old_uid = request.uid
-            ip_address = request.httprequest.environ["REMOTE_ADDR"]
+        if request.httprequest.method == 'POST':
+            ip_address = request.httprequest.remote_addr
             _logger.info("Login attempt from IP: %s", ip_address)
+            try:
+                user = request.env['res.users'].sudo().search([('login', '=', request.params['login'])])
 
-            if request.params["login"]:
-                user_rec = (
-                    request.env["res.users"]
-                    .sudo()
-                    .search([("login", "=", request.params["login"])])
-                )
-
-                if user_rec.allowed_ips:
+                # Verificación de IP
+                if user and user.allowed_ips:
                     ip_allowed = False
                     try:
                         ip = ipaddress.ip_address(ip_address)
-                        for rec in user_rec.allowed_ips:
+                        for rec in user.allowed_ips:
                             if rec.ip_range_start and rec.ip_range_end:
-                                try:
-                                    if ":" in rec.ip_range_start:
-                                        start_ip = ipaddress.IPv6Address(
-                                            rec.ip_range_start
-                                        )
-                                        end_ip = ipaddress.IPv6Address(rec.ip_range_end)
-                                    else:
-                                        start_ip = ipaddress.IPv4Address(
-                                            rec.ip_range_start
-                                        )
-                                        end_ip = ipaddress.IPv4Address(rec.ip_range_end)
-
-                                    if isinstance(
-                                        ip, ipaddress.IPv6Address
-                                    ) and isinstance(start_ip, ipaddress.IPv6Address):
-                                        if start_ip <= ip <= end_ip:
-                                            ip_allowed = True
-                                            break
-                                    elif isinstance(
-                                        ip, ipaddress.IPv4Address
-                                    ) and isinstance(start_ip, ipaddress.IPv4Address):
-                                        if start_ip <= ip <= end_ip:
-                                            ip_allowed = True
-                                            break
-                                    else:
-                                        _logger.warning(
-                                            "IP type mismatch: IP is %s, Range is %s",
-                                            type(ip),
-                                            type(start_ip),
-                                        )
-
-                                except ValueError as e:
-                                    _logger.error("Invalid IP range: %s", e)
-                                    ip_allowed = False
+                                start_ip = ipaddress.ip_address(rec.ip_range_start)
+                                end_ip = ipaddress.ip_address(rec.ip_range_end)
+                                if start_ip <= ip <= end_ip:
+                                    ip_allowed = True
+                                    break
                     except ValueError as e:
-                        _logger.error("Invalid IP address format: %s", e)
-                        ip_allowed = False
+                        _logger.error("Invalid IP format or range: %s", e)
 
                     if not ip_allowed:
                         notification_enabled = (
                             request.env["ir.config_parameter"]
                             .sudo()
-                            .get_param(
-                                "unauthorized_notification_enabled", default=False
-                            )
+                            .get_param("unauthorized_notification_enabled", default=False)
                         )
                         if notification_enabled:
-                            self._send_blocked_login_email(user_rec, ip_address)
-                        _logger.warning(
-                            "Blocked login attempt for user %s from IP %s",
-                            user_rec.login,
-                            ip_address,
-                        )
-                        request.update_env = old_uid
+                            self._send_blocked_login_email(user, ip_address)
+                        self._log_login_attempt(user, ip_address, request.params["login"], False)
                         values["error"] = _(
                             "Not allowed to login from this IP. Please contact your administrator."
                         )
-                        self._log_login_attempt(
-                            user_rec, ip_address, request.params["login"], False
-                        )
                         return request.render("web.login", values)
-                    else:
-                        try:
-                            uid = request.session.authenticate(
-                                request.session.db,
-                                request.params["login"],
-                                request.params["password"],
-                            )
-                            request.params["login_success"] = True
-                            return request.redirect("/web")
-                        except AccessDenied as e:
-                            request.update_env = old_uid
-                            if e.args == AccessDenied().args:
-                                values["error"] = _("Wrong login/password")
-                                self._log_login_attempt(
-                                    user_rec, ip_address, request.params["login"], False
-                                )
+
+                # Validación de contraseña y grupos
+                login = True
+                if user and not user.has_group('base.group_system') and user.ks_is_passwd_expired:
+                    values['error'] = _("Password Expired")
+                    login = False
+                elif user and not user.groups_id and not user.has_group('base.group_system'):
+                    values['error'] = _("This database is not allowed, Please contact your Admin to activate this database")
+                    login = False
+
+                if login:
+                    uid = request.session.authenticate(request.db, request.params['login'], request.params['password'])
+                    request.params['login_success'] = True
+                    return request.redirect(self._login_redirect(uid, redirect=redirect))
+
+            except odoo.exceptions.AccessDenied as e:
+                if e.args == odoo.exceptions.AccessDenied().args:
+                    values['error'] = _("Wrong login/password")
                 else:
-                    try:
-                        uid = request.session.authenticate(
-                            request.session.db,
-                            request.params["login"],
-                            request.params["password"],
-                        )
-                        request.params["login_success"] = True
-                        return request.redirect("/web")
-                    except AccessDenied as e:
-                        request.update_env = old_uid
-                        if e.args == AccessDenied().args:
-                            values["error"] = _("Wrong login/password")
+                    values['error'] = e.args[0]
+
         else:
-            if "error" in request.params and request.params.get("error") == "access":
-                values["error"] = _(
-                    "Only employees can access this database. Please contact the administrator."
-                )
+            if 'error' in request.params and request.params.get('error') == 'access':
+                values['error'] = _('Only employees can access this database. Please contact the administrator.')
 
-        if "login" not in values and request.session.get("auth_login"):
-            values["login"] = request.session.get("auth_login")
+        if 'login' not in values and request.session.get('auth_login'):
+            values['login'] = request.session.get('auth_login')
 
-        if (
-            not request.env["ir.config_parameter"]
-            .sudo()
-            .get_param("list_db", default=False)
-        ):
-            values["disable_database_manager"] = True
+        if not odoo.tools.config['list_db']:
+            values['disable_database_manager'] = True
 
-        response = request.render("web.login", values)
-        response.headers["X-Frame-Options"] = "SAMEORIGIN"
-        response.headers["Content-Security-Policy"] = "frame-ancestors 'self'"
+        response = request.render('web.login', values)
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['Content-Security-Policy'] = "frame-ancestors 'self'"
+
+        module = request.env['ir.module.module'].sudo().search([
+            ('name', '=', 'auth_oauth'),
+            ('state', '=', 'installed')
+        ], limit=1)
+
+        response.qcontext.update(self.get_auth_signup_config())
+
+        if request.session.uid:
+            if request.httprequest.method == 'GET' and request.params.get('redirect'):
+                return request.redirect(request.params.get('redirect'))
+            if response.location == '/web/login_successful' and kw.get('confirm_password'):
+                return request.redirect_query('/web/login_successful', query={'account_created': True})
+
+        if request.httprequest.method == 'GET' and request.session.uid and request.params.get('redirect'):
+            return request.redirect(request.params.get('redirect'))
+
+        if module:
+            providers = self.list_providers()
+            if response.is_qweb:
+                error = request.params.get('oauth_error')
+                if error == '1':
+                    error = _("Sign up is not allowed on this database.")
+                elif error == '2':
+                    error = _("Access Denied")
+                elif error == '3':
+                    error = _(
+                        "You do not have access to this database or your invitation has expired. "
+                        "Please ask for an invitation and be sure to follow the link in your invitation email."
+                    )
+                else:
+                    error = None
+
+                response.qcontext['providers'] = providers
+                if error:
+                    response.qcontext['error'] = error
+
         return response
+
 
     def _send_blocked_login_email(self, user_rec, ip_address):
         admin_emails = (

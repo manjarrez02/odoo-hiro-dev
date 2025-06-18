@@ -10,7 +10,7 @@
     "contributor": "Zehntech Technologies Inc.",
     "website": "https://www.zehntech.com/",
     "support": "odoo-support@zehntech.com",
-    'depends': ['mail'],
+    'depends': ['mail', 'ks_access_manager_ninja'],
     'data': [
           'security/access_groups.xml',
           'security/ir.model.access.csv',
