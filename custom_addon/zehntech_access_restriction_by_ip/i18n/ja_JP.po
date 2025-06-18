@@ -1,0 +1,284 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* zehntech_access_restriction_by_ip
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-16 10:13+0000\n"
+"PO-Revision-Date: 2025-01-16 16:22+0530\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.5\n"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:mail.template,body_html:zehntech_access_restriction_by_ip.email_template_blocked_login
+msgid ""
+"\n"
+"                \n"
+"                <p>Dear Admin,</p>\n"
+"                <p>A login attempt by user <strong><t t-esc=\"object.partner_id.name or object.name or 'Unknown User'\"/></strong> from IP address <strong><t t-esc=\"ctx.get('blocked_ip')\"/></strong> was blocked due to IP restrictions.</p>\n"
+"                <p>Please review this activity to ensure the security of your system.</p>\n"
+"                <p>Best regards,</p>\n"
+"                <p>Your IT team</p>\n"
+"                \n"
+"            "
+msgstr ""
+"\n"
+"                \n"
+"                <p>親愛なる管理者様</p>\n"
+"                <p>ユーザーによるログイン試行 <strong><t t-esc=\"object.partner_id.name or object.name or 'Unknown User'\"/></strong> IPアドレスから <strong><t t-esc=\"ctx.get('blocked_ip')\"/></strong> IP制限によりブロックされました。</p>\n"
+"                <p>システムのセキュリティを確保するために、このアクティビティを確認してください。</p>\n"
+"                <p>よろしくお願いします、</p>\n"
+"                <p>貴社のITチーム</p>\n"
+"                \n"
+"            "
+
+#. module: zehntech_access_restriction_by_ip
+#: model:res.groups,name:zehntech_access_restriction_by_ip.group_access_manager
+msgid "Access Manager"
+msgstr "アクセスマネージャー"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.module.category,name:zehntech_access_restriction_by_ip.security_access_groups
+msgid "Access Rights"
+msgstr "アクセス権"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:res.groups,name:zehntech_access_restriction_by_ip.group_access_user
+msgid "Access User"
+msgstr "アクセスユーザー"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_res_users__allowed_ips
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.res_users_allowed_ips
+msgid "Allowed IPs"
+msgstr "許可されたIP"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "Attempt Date"
+msgstr "試行日"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__attempt_date
+msgid "Attempt Date and Time"
+msgstr "試行日時"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:mail.template,name:zehntech_access_restriction_by_ip.email_template_blocked_login
+msgid "Blocked Login Notification"
+msgstr "ブロックされたログイン通知"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/models/allowed_ips.py:0
+#, python-format
+msgid "Both 'IP Range Start' and 'IP Range End' must be provided together."
+msgstr "「IP範囲の開始」と「IP範囲の終了」の両方を一緒に指定する必要があります。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model,name:zehntech_access_restriction_by_ip.model_res_config_settings
+msgid "Config Settings"
+msgstr "コンフィグ設定"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__create_uid
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__create_uid
+msgid "Created by"
+msgstr "作成者"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__create_date
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__create_date
+msgid "Created on"
+msgstr "作成日"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "Date"
+msgstr "日付"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__display_name
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_res_config_settings__unauthorized_notification_enabled
+msgid "Enable Unauthorized Login Notifications"
+msgstr "不正ログイン通知を有効にする"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_res_config_settings__unauthorized_notification_enabled
+msgid "Enable or disable email notifications for unauthorized login attempts."
+msgstr "不正なログイン試行に対する電子メール通知を有効または無効にします。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__ip_range_end
+msgid "Ending IP Address"
+msgstr "終了IPアドレス"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/models/allowed_ips.py:0
+#, python-format
+msgid "Ending range of IP address must be greater than starting IP address."
+msgstr "IP アドレスの終了範囲は開始 IP アドレスより大きくなければなりません。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "Group By..."
+msgstr "グループ化..."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__id
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__id
+msgid "ID"
+msgstr "ID"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__ip_address
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "IP Address"
+msgstr "IPアドレス"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/models/allowed_ips.py:0
+#, python-format
+msgid "IP addresses must be valid IPv4 or IPv6 addresses."
+msgstr "IP アドレスは有効な IPv4 または IPv6 アドレスである必要があります。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips____last_update
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log____last_update
+msgid "Last Modified on"
+msgstr "最終更新日"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__write_uid
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__write_uid
+msgid "Last Updated by"
+msgstr "最終更新者"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__write_date
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__write_date
+msgid "Last Updated on"
+msgstr "最終更新日"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.actions.act_window,help:zehntech_access_restriction_by_ip.action_unauthorized_access_log
+msgid "No unauthorized access logs found."
+msgstr "不正アクセスログは見つかりませんでした。"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/controllers/main.py:0
+#, python-format
+msgid "Not allowed to login from this IP. Please contact your administrator."
+msgstr "この IP からのログインは許可されていません。管理者に連絡してください。"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/controllers/main.py:0
+#, python-format
+msgid "Only employees can access this database. Please contact the administrator."
+msgstr "このデータベースにアクセスできるのは従業員だけです。管理者にお問い合わせください。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_allowed_ips__users_ip
+msgid "Select the user for whom the IP access is being configured."
+msgstr "IP アクセスを構成するユーザーを選択します。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_allowed_ips__ip_range_end
+msgid "Specify the ending IP address of the range."
+msgstr "範囲の終了IPアドレスを指定します。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_res_users__allowed_ips
+msgid "Specify the list of IPs allowed for user access."
+msgstr "ユーザーアクセスを許可する IP のリストを指定します。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_allowed_ips__ip_range_start
+msgid "Specify the starting IP address of the range."
+msgstr "範囲の開始IPアドレスを指定します。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__ip_range_start
+msgid "Starting IP Address"
+msgstr "開始IPアドレス"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/models/allowed_ips.py:0
+#, python-format
+msgid "Starting and Ending range of IP address must be different."
+msgstr "IP アドレスの開始範囲と終了範囲は異なっていなければなりません。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_unauthorized_access_log__ip_address
+msgid "The IP address from which the unauthorized access attempt was made."
+msgstr "不正アクセスの試みが行われた IP アドレス。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_unauthorized_access_log__attempt_date
+msgid "The date and time of the unauthorized access attempt."
+msgstr "不正アクセスが試みられた日時。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_unauthorized_access_log__user_id
+msgid "The user who attempted to access the system without authorization."
+msgstr "許可なくシステムにアクセスしようとしたユーザー。"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model,name:zehntech_access_restriction_by_ip.model_unauthorized_access_log
+msgid "Unauthorized Access Log"
+msgstr "不正アクセスログ"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.actions.act_window,name:zehntech_access_restriction_by_ip.action_unauthorized_access_log
+#: model:ir.ui.menu,name:zehntech_access_restriction_by_ip.menu_unauthorized_access_log_root
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "Unauthorized Access Logs"
+msgstr "不正アクセスログ"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:mail.template,subject:zehntech_access_restriction_by_ip.email_template_blocked_login
+msgid "Unauthorized Login Attempt Alert"
+msgstr "不正ログイン試行アラート"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model,name:zehntech_access_restriction_by_ip.model_res_users
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__users_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__user_id
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "User"
+msgstr "ユーザ"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/controllers/main.py:0
+#, python-format
+msgid "Wrong login/password"
+msgstr "ログイン/パスワードが間違っています"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model,name:zehntech_access_restriction_by_ip.model_allowed_ips
+msgid "allowed.ips"
+msgstr "許可された.ips"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_res_config_settings
+msgid "notification setter"
+msgstr "通知セッター"

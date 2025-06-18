@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_allowed_ips,access.allowed.ips,model_allowed_ips,zehntech_access_restriction_by_ip.group_access_user,0,0,0,0
+access_allowed_ips,access.allowed.ips,model_allowed_ips,zehntech_access_restriction_by_ip.group_access_manager,1,1,1,1
+
+access_unauthorized_access_log,access.unauthorized.access.log.model,model_unauthorized_access_log,zehntech_access_restriction_by_ip.group_access_user,0,0,0,0
+access_unauthorized_access_log,access.unauthorized.access.log.model,model_unauthorized_access_log,zehntech_access_restriction_by_ip.group_access_manager,1,1,1,1

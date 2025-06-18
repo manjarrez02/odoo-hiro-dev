@@ -1,0 +1,284 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* zehntech_access_restriction_by_ip
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-16 09:28+0000\n"
+"PO-Revision-Date: 2025-01-16 15:42+0530\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.5\n"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:mail.template,body_html:zehntech_access_restriction_by_ip.email_template_blocked_login
+msgid ""
+"\n"
+"                \n"
+"                <p>Dear Admin,</p>\n"
+"                <p>A login attempt by user <strong><t t-esc=\"object.partner_id.name or object.name or 'Unknown User'\"/></strong> from IP address <strong><t t-esc=\"ctx.get('blocked_ip')\"/></strong> was blocked due to IP restrictions.</p>\n"
+"                <p>Please review this activity to ensure the security of your system.</p>\n"
+"                <p>Best regards,</p>\n"
+"                <p>Your IT team</p>\n"
+"                \n"
+"            "
+msgstr ""
+"\n"
+"                \n"
+"                <p>Sehr geehrter Admin,</p>\n"
+"                <p>Ein Anmeldeversuch des Benutzers <strong><t t-esc=\"object.partner_id.name or object.name or 'Unknown User'\"/></strong> von der IP-Adresse <strong><t t-esc=\"ctx.get('blocked_ip')\"/></strong> wurde aufgrund von IP-Einschränkungen blockiert.</p>\n"
+"                <p>Bitte überprüfen Sie diese Aktivität, um die Sicherheit Ihres Systems zu gewährleisten.</p>\n"
+"                <p>Beste grüße,</p>\n"
+"                <p>Ihr IT-Team</p>\n"
+"                \n"
+"            "
+
+#. module: zehntech_access_restriction_by_ip
+#: model:res.groups,name:zehntech_access_restriction_by_ip.group_access_manager
+msgid "Access Manager"
+msgstr "Zugriffsmanager"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.module.category,name:zehntech_access_restriction_by_ip.security_access_groups
+msgid "Access Rights"
+msgstr "Zugriffsrechte"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:res.groups,name:zehntech_access_restriction_by_ip.group_access_user
+msgid "Access User"
+msgstr "Zugriffsbenutzer"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_res_users__allowed_ips
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.res_users_allowed_ips
+msgid "Allowed IPs"
+msgstr "Erlaubte IPs"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "Attempt Date"
+msgstr "Datum des Versuchs"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__attempt_date
+msgid "Attempt Date and Time"
+msgstr "Datum und Uhrzeit des Versuchs"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:mail.template,name:zehntech_access_restriction_by_ip.email_template_blocked_login
+msgid "Blocked Login Notification"
+msgstr "Benachrichtigung über blockierte Anmeldung"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/models/allowed_ips.py:0
+#, python-format
+msgid "Both 'IP Range Start' and 'IP Range End' must be provided together."
+msgstr "Sowohl 'IP-Bereichsanfang' als auch 'Ende des IP-Bereichs' müssen zusammen angegeben werden."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model,name:zehntech_access_restriction_by_ip.model_res_config_settings
+msgid "Config Settings"
+msgstr "Konfigurationseinstellungen"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__create_uid
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__create_uid
+msgid "Created by"
+msgstr "Erstellt von"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__create_date
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__create_date
+msgid "Created on"
+msgstr "Erstellt am"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "Date"
+msgstr "Datum"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__display_name
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__display_name
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_res_config_settings__unauthorized_notification_enabled
+msgid "Enable Unauthorized Login Notifications"
+msgstr "Aktivieren Sie Benachrichtigungen über unbefugte Anmeldungen"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_res_config_settings__unauthorized_notification_enabled
+msgid "Enable or disable email notifications for unauthorized login attempts."
+msgstr "Aktivieren oder deaktivieren Sie E-Mail-Benachrichtigungen für nicht autorisierte Anmeldeversuche."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__ip_range_end
+msgid "Ending IP Address"
+msgstr "End-IP-Adresse"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/models/allowed_ips.py:0
+#, python-format
+msgid "Ending range of IP address must be greater than starting IP address."
+msgstr "Der Endbereich der IP-Adresse muss größer sein als die Start-IP-Adresse."
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "Group By..."
+msgstr "Gruppieren nach..."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__id
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__id
+msgid "ID"
+msgstr "AUSWEIS"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__ip_address
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "IP Address"
+msgstr "IP-Adresse"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/models/allowed_ips.py:0
+#, python-format
+msgid "IP addresses must be valid IPv4 or IPv6 addresses."
+msgstr "IP-Adressen müssen gültige IPv4- oder IPv6-Adressen sein."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips____last_update
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log____last_update
+msgid "Last Modified on"
+msgstr "Zuletzt geändert am"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__write_uid
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__write_uid
+msgid "Last Updated by"
+msgstr "Zuletzt aktualisiert von"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__write_date
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__write_date
+msgid "Last Updated on"
+msgstr "Zuletzt aktualisiert am"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.actions.act_window,help:zehntech_access_restriction_by_ip.action_unauthorized_access_log
+msgid "No unauthorized access logs found."
+msgstr "Keine nicht autorisierten Zugriffsprotokolle gefunden."
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/controllers/main.py:0
+#, python-format
+msgid "Not allowed to login from this IP. Please contact your administrator."
+msgstr "Anmeldung von dieser IP aus nicht erlaubt. Bitte wenden Sie sich an Ihren Administrator."
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/controllers/main.py:0
+#, python-format
+msgid "Only employees can access this database. Please contact the administrator."
+msgstr "Auf diese Datenbank können nur Mitarbeiter zugreifen. Bitte wenden Sie sich an den Administrator."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_allowed_ips__users_ip
+msgid "Select the user for whom the IP access is being configured."
+msgstr "Wählen Sie den Benutzer aus, für den der IP-Zugriff konfiguriert werden soll."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_allowed_ips__ip_range_end
+msgid "Specify the ending IP address of the range."
+msgstr "Geben Sie die End-IP-Adresse des Bereichs an."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_res_users__allowed_ips
+msgid "Specify the list of IPs allowed for user access."
+msgstr "Geben Sie die Liste der für den Benutzerzugriff zulässigen IPs an."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_allowed_ips__ip_range_start
+msgid "Specify the starting IP address of the range."
+msgstr "Geben Sie die Start-IP-Adresse des Bereichs an."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__ip_range_start
+msgid "Starting IP Address"
+msgstr "Start-IP-Adresse"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/models/allowed_ips.py:0
+#, python-format
+msgid "Starting and Ending range of IP address must be different."
+msgstr "Start- und Endbereich der IP-Adresse müssen unterschiedlich sein."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_unauthorized_access_log__ip_address
+msgid "The IP address from which the unauthorized access attempt was made."
+msgstr "Die IP-Adresse, von der aus der unberechtigte Zugriffsversuch unternommen wurde."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_unauthorized_access_log__attempt_date
+msgid "The date and time of the unauthorized access attempt."
+msgstr "Datum und Uhrzeit des unbefugten Zugriffsversuchs."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model.fields,help:zehntech_access_restriction_by_ip.field_unauthorized_access_log__user_id
+msgid "The user who attempted to access the system without authorization."
+msgstr "Der Benutzer, der versucht hat, ohne Autorisierung auf das System zuzugreifen."
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model,name:zehntech_access_restriction_by_ip.model_unauthorized_access_log
+msgid "Unauthorized Access Log"
+msgstr "Protokoll über unbefugten Zugriff"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.actions.act_window,name:zehntech_access_restriction_by_ip.action_unauthorized_access_log
+#: model:ir.ui.menu,name:zehntech_access_restriction_by_ip.menu_unauthorized_access_log_root
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "Unauthorized Access Logs"
+msgstr "Protokolle über unbefugten Zugriff"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:mail.template,subject:zehntech_access_restriction_by_ip.email_template_blocked_login
+msgid "Unauthorized Login Attempt Alert"
+msgstr "Warnung vor unbefugtem Anmeldeversuch"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model,name:zehntech_access_restriction_by_ip.model_res_users
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_allowed_ips__users_ip
+#: model:ir.model.fields,field_description:zehntech_access_restriction_by_ip.field_unauthorized_access_log__user_id
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_unauthorized_access_log_search
+msgid "User"
+msgstr "Benutzer"
+
+#. module: zehntech_access_restriction_by_ip
+#. odoo-python
+#: code:addons/zehntech_access_restriction_by_ip/controllers/main.py:0
+#, python-format
+msgid "Wrong login/password"
+msgstr "Falscher Login/Passwort"
+
+#. module: zehntech_access_restriction_by_ip
+#: model:ir.model,name:zehntech_access_restriction_by_ip.model_allowed_ips
+msgid "allowed.ips"
+msgstr "erlaubt.ips"
+
+#. module: zehntech_access_restriction_by_ip
+#: model_terms:ir.ui.view,arch_db:zehntech_access_restriction_by_ip.view_res_config_settings
+msgid "notification setter"
+msgstr "Benachrichtigungssetzer"

@@ -1,0 +1,45 @@
+  <odoo>
+    <data>
+        <record id="email_template_blocked_login" model="mail.template">
+            <field name="name">Blocked Login Notification</field>
+            <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="subject">Unauthorized Login Attempt Alert</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_to">{{ ctx.get('email_to') }}</field>
+            <field name="body_html">
+                <![CDATA[
+                <p>Dear Admin,</p>
+                <p>A login attempt by user <strong><t t-esc="object.partner_id.name or object.name or 'Unknown User'"/></strong> from IP address <strong><t t-esc="ctx.get('blocked_ip')"/></strong> was blocked due to IP restrictions.</p>
+                <p>Please review this activity to ensure the security of your system.</p>
+                <p>Best regards,</p>
+                <p>Your IT team</p>
+                ]]>
+            </field>
+        </record>
+    </data>
+</odoo>
+
+ 
+ 
+ 
+ 
+ 
+
+
+
+ 
+
+
+
+ 
+ 
+ 
+ 
+ 
+
+
+
+ 
+
+
