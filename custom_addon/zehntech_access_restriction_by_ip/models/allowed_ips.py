@@ -15,6 +15,7 @@ class ResUsersInherit(models.Model):
             raise exceptions.AccessError("You do not have permission to Create User.")
         return super(ResUsersInherit, self).create(vals)
 
+"""
     @api.constrains("groups_id")
     def _check_required_groups(self):
         for user in self:
@@ -72,7 +73,7 @@ class ResUsersInherit(models.Model):
                     "1. Either 'Access User' or 'Access Manager'.\n"
                     "2. Either 'Access Rights' or 'Settings'."
                 )
-
+"""
 
 class AllowedIPs(models.Model):
     _name = "allowed.ips"

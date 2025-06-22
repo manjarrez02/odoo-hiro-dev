@@ -23,7 +23,9 @@
         'barcodes',
         'portal',
         'stock',
-        'bi_multi_barcode_for_product'
+        'bi_multi_barcode_for_product',
+        'ks_access_manager_ninja',
+        'zehntech_access_restriction_by_ip'
     ],
 
     'data': [
