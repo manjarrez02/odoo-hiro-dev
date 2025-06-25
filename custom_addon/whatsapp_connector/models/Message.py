@@ -369,7 +369,7 @@ class AcruxChatMessages(models.Model):
                 if self.env.user.chatroom_signing:
                     self.text = '%s\n%s' % (self.env.user.chatroom_signing, self.text)
                 else:
-                    self.text = '%s:\n%s' % (self.env.user.name, self.text)
+                    self.text = '%s:\n%s' % (self.env.user.x_whatsapp_signature, self.text)
 
     def message_check_time(self, raise_on_error=True):
         self.ensure_one()
