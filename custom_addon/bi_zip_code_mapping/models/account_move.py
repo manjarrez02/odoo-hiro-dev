@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 
 class AccountMove(models.Model):
 	_inherit = "account.move"
@@ -36,10 +37,14 @@ class AccountMove(models.Model):
 		return res
 
 class SaleAdvancePaymentInv_inherit(models.TransientModel):
-    _inherit = "sale.advance.payment.inv"
-    
-    def _create_invoices(self, sale_orders):
-        res = super(SaleAdvancePaymentInv_inherit, self)._create_invoices(sale_orders)
-        res ['neighborhood_id'] = sale_orders.neighborhood_id
-        res ['neighborhood_text'] = sale_orders.neighborhood_text
-        return res
+	_inherit = "sale.advance.payment.inv"
+
+	def _create_invoices(self, sale_orders):
+		res = super(SaleAdvancePaymentInv_inherit, self)._create_invoices(sale_orders)
+		partner_ids = sale_orders.mapped('partner_id')
+		if len(partner_ids) == 1:
+			res ['neighborhood_id'] = sale_orders[0].neighborhood_id
+			res['neighborhood_text'] = sale_orders[0].neighborhood_text
+		else:
+			raise UserError("Todas las órdenes deben pertenecer al mismo contacto para generar una factura.")
+		return res
