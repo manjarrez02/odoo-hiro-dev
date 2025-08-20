@@ -78,6 +78,9 @@ odoo.define('x_pos_custom_view.x_add_product', function (require) {
 					}				
 				}
 			}
+			if (typeof this._updateRewards === "function") {
+				this._updateRewards();
+			}
 		}
     };
 
