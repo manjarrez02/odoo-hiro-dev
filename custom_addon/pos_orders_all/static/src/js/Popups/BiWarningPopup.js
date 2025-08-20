@@ -13,16 +13,17 @@ odoo.define('pos_orders_all.BiWarningPopup', function(require) {
 
         async order(){
             var self = this;
-            var order = self.env.pos.get_order();
-            if(!self.props.qty){
-                order.add_product(self.props.product);
-            }
+            //var order = self.env.pos.get_order();
+            //if(!self.props.qty){
+            //    order.add_product(self.props.product);
+            //}
             self.env.posbus.trigger('close-popup', {
                 popupId: self.props.id,
-                response: { confirmed: true, payload: await self.getPayload() },
+                //response: { confirmed: true, payload: await self.getPayload() },
+                response: { confirmed: true},
             });
 
-            self.showScreen('ProductScreen');
+            //self.showScreen('ProductScreen');
         }
 	}
 
