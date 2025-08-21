@@ -86,32 +86,56 @@ class StockMove(models.Model):
             # Add new costing method for 'last' with real-time or
             # manual_periodic valuation
         # Filter moves based on conditions
+        # Costeo 'last' (último costo) con impuestos incluidos en el costo
         for move in self.filtered(lambda move: move.with_company(
                 move.company_id).product_id.cost_method == 'last' and
             (move.product_id.valuation == 'real_time' or move.product_id.valuation == 'manual_periodic')):
-            # Get the new standard price for the move
-            new_std_price = move._get_price_unit()  # Presumably retrieves incoming move price
 
-            # Retrieve product details for the move
-            products = self.env['product.product'].browse(move.product_id.id)
+            # Costo base (sin impuestos) que Odoo usa para valoración
+            base_unit_cost = move._get_price_unit()
 
-            # Determine the account ID for price differences
-            account_id = (products.property_account_creditor_price_difference.id
-                          or products.categ_id.property_account_creditor_price_difference_categ.id)
+            # Default: moneda y partner
+            company = move.company_id
+            company_currency = company.currency_id
+            currency = company_currency
+            partner = move.picking_id.partner_id
 
-            # Check if account ID is not set, raise an error
-            """if not account_id:
-                raise UserError(
-                    _('Configuration error. Please configure the price '
-                      'difference account on the product or its category '
-                      'to process this operation.'))"""
-            # products.create_price_change_account_move(new_std_price,
-            #                                                       account_id,
-            #                                                       move.company_id.id,
-            #                                                       move.origin)
-            # Update the standard price for the product
-            move.product_id.with_company(move.company_id.id).with_context(
-                disable_auto_svl=True).sudo().write(
-                {'standard_price': new_std_price})
+            # Intentar tomar impuestos y moneda desde la línea de compra
+            taxes = self.env['account.tax']
+            if getattr(move, 'purchase_line_id', False) and move.purchase_line_id:
+                taxes = move.purchase_line_id.taxes_id.filtered(
+                    lambda t: (t.company_id == company) and (t.type_tax_use in ('purchase', 'none'))
+                )
+                if move.purchase_line_id.currency_id:
+                    currency = move.purchase_line_id.currency_id
+
+            # Si hay impuestos, calcular precio con impuestos incluidos
+            price_with_taxes = base_unit_cost
+            if taxes:
+                tax_res = taxes.compute_all(
+                    base_unit_cost,
+                    currency=currency,
+                    quantity=1.0,
+                    product=move.product_id,
+                    partner=partner,
+                )
+                # total_included = precio unitario + impuestos (resuelve si price_include estaba marcado)
+                price_with_taxes = tax_res.get('total_included', base_unit_cost)
+
+            # Convertir a moneda de la compañía si es necesario
+            if currency != company_currency:
+                price_with_taxes = currency._convert(
+                    from_amount=price_with_taxes,
+                    to_currency=company_currency,
+                    company=company,
+                    date=move.date or fields.Date.context_today(self)
+                )
+
+            new_std_price = price_with_taxes
+
+            # Escribir el nuevo standard_price (como superuser, y sin SVL automático)
+            move.product_id.with_company(company.id).with_context(
+                disable_auto_svl=True
+            ).sudo().write({'standard_price': new_std_price})
 
 
