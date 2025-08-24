@@ -124,7 +124,7 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 				let expected_total = lines.reduce((acc, ol) => acc + (ol.qty * ol.price_unit * (1 - (ol.discount || 0) / 100)), 0);
 				let difference = Math.abs(expected_total - order.amount_total);
 
-				if (lines.length !== order.lines.length || difference > 0.01) {
+				if (lines.length !== order.lines.length || difference > 0.1) {
 					if (retry < 2) {
 						console.warn(`Reintentando carga de líneas: intento ${retry + 1}`);
 						return await tryLoadOrderLines(retry + 1);
