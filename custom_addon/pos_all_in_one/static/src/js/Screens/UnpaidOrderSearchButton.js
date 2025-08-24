@@ -170,17 +170,135 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 				selectedOrder.set_partner(client);
 			}
 
-			orderlines.forEach(ol => {
-				let product = self.env.pos.db.get_product_by_id(ol.product_id[0]);
-				let discount = parseFloat(ol.discount);
-				discount = isNaN(discount) ? 0 : discount;
+			/* ================================
+			* (A) HELPERS: carga + poda
+			* ================================ */
+			function makeLineSignature(ol) {
+				const pid = Array.isArray(ol.product_id) ? ol.product_id[0] : ol.product_id;
+				const qty = parseFloat(ol.qty) || 0;
+				const unitPrice = parseFloat(ol.price_unit) || 0;
+				const discount = parseFloat(ol.discount) || 0;
+				return [String(pid), String(qty), String(unitPrice), String(discount)].join('|');
+			}
+
+			function addImportedLine(ol) {
+				const pid = Array.isArray(ol.product_id) ? ol.product_id[0] : ol.product_id;
+				const product = self.env.pos.db.get_product_by_id(pid);
+
+				const qty = parseFloat(ol.qty) || 0;
+				const unitPrice = parseFloat(ol.price_unit) || 0;
+				const discount = isNaN(parseFloat(ol.discount)) ? 0 : parseFloat(ol.discount);
+
+				const isDiscountLine = unitPrice < 0;
+
 				selectedOrder.add_product(product, {
-					quantity: parseFloat(ol.qty),
-					price: ol.price_unit,
-					discount: discount,
+					quantity: qty,
+					price: isDiscountLine ? 0 : unitPrice,
+					discount: isDiscountLine ? 0 : discount,
+					merge: false,
 					is_saved: true,
 				});
-			});
+
+				const line = selectedOrder.get_last_orderline();
+				if (line) {
+					// Fijar precio manual para evitar recálculos/promos
+					if (typeof line.set_unit_price === 'function') line.set_unit_price(unitPrice);
+					else line.price = unitPrice;
+
+					line.price_manually_set = true;
+					if (typeof line.set_price_manually === 'function') line.set_price_manually(true);
+
+					// Marcas para distinguir tus líneas
+					line._loaded_from_saved_order = true;
+					line._loaded_signature = makeLineSignature(ol);
+
+					// Por si tu versión soporta este flag y evita promos
+					if (typeof line.set_is_reward_line === 'function') line.set_is_reward_line(false);
+				}
+			}
+
+			function pruneAutoDiscounts() {
+				const lines = selectedOrder.get_orderlines();
+				for (const l of [...lines]) {
+					const isMine = !!l._loaded_from_saved_order;
+
+					const unitPrice = typeof l.get_unit_price === 'function'
+						? l.get_unit_price()
+						: (l.price || 0);
+
+					const pctDiscount = typeof l.get_discount === 'function'
+						? parseFloat(l.get_discount()) || 0
+						: parseFloat(l.discount) || 0;
+
+					// PROPIEDAD booleana: l.is_reward_line
+					const isReward = l.is_reward_line === true;
+
+					const looksLikeAutoDiscount =
+						(!isMine && isReward) ||     // recompensa/promoción autogenerada
+						(!isMine && unitPrice < 0) ||// línea negativa no importada
+						(!isMine && pctDiscount !== 0); // % descuento ajeno a lo importado
+
+					if (looksLikeAutoDiscount) {
+						if (typeof selectedOrder.remove_orderline === 'function') {
+							selectedOrder.remove_orderline(l);
+						} else if (l.order && typeof l.order.remove_orderline === 'function') {
+							l.order.remove_orderline(l);
+						}
+					}
+				}
+			}
+
+			/* ============================================
+			* (B) REEMPLAZO DEL BUCLE DE AGREGAR LÍNEAS
+			* ============================================ */
+			for (const ol of orderlines) {
+				addImportedLine(ol);
+			}
+			// Poda inmediata y diferida por si el motor de promos recalcula
+			pruneAutoDiscounts();
+			setTimeout(pruneAutoDiscounts, 0);
+			setTimeout(pruneAutoDiscounts, 150);
+
+			/* ============================================
+			* (C) ABONO PARCIAL → AGREGAR PRODUCTO Y PODAR
+			* ============================================ */
+			if (amount_due > 0 && order.amount_paid != 0) {
+				let product_for_due = self.env.pos.config.partial_product_id;
+				if (product_for_due) {
+					let prd = self.env.pos.db.get_product_by_id(product_for_due[0]);
+					selectedOrder.add_product(prd, {
+						quantity: 1.0,
+						price: -order.amount_paid,
+						discount: 0,
+						merge: false,
+						is_saved: true,
+					});
+
+					// Fijar precio manual del abono para que no se toque
+					const lineDue = selectedOrder.get_last_orderline();
+					if (lineDue) {
+						if (typeof lineDue.set_unit_price === 'function') lineDue.set_unit_price(-order.amount_paid);
+						else lineDue.price = -order.amount_paid;
+						lineDue.price_manually_set = true;
+						if (typeof lineDue.set_price_manually === 'function') lineDue.set_price_manually(true);
+
+						// Marcarla como "nuestra" para que la poda no la quite
+						lineDue._loaded_from_saved_order = true;
+						lineDue._loaded_signature = `partial|${order.id}|${order.amount_paid}`;
+						if (typeof lineDue.set_is_reward_line === 'function') lineDue.set_is_reward_line(false);
+					}
+
+					// Poda nuevamente por si el abono dispara promos
+					pruneAutoDiscounts();
+					setTimeout(pruneAutoDiscounts, 0);
+					setTimeout(pruneAutoDiscounts, 150);
+				} else {
+					return self.showPopup('ErrorPopup', {
+						title: self.env._t('Configure Product'),
+						body: self.env._t('Please configure partial product.'),
+					});
+				}
+			}
 
 			if (amount_due > 0 && order.amount_paid != 0) {
 				let product_for_due = self.env.pos.config.partial_product_id;
