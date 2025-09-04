@@ -178,6 +178,66 @@ class ProductInherit(models.Model):
                 product_ids = self._search(args, limit=limit, access_rights_uid=name_get_uid)
             return product_ids
 
+    @api.constrains('barcode')
+    def _check_barcode_uniqueness(self):
+        # Ejecutar la validación original (productos + empaques)
+        super(ProductInherit, self)._check_barcode_uniqueness()
+        
+        all_barcodes = [b for b in self.mapped('barcode') if b]
+        if not all_barcodes:
+            return
+        
+        # Buscar valores duplicados en product_barcode
+        product_barcode_records = self.env['product.barcode'].search([('barcode', 'in', all_barcodes)])
+        if product_barcode_records:
+            duplicates_by_barcode = defaultdict(list)
+            for rec in product_barcode_records:
+                # Obtener nombre del producto relacionado
+                product_name = rec.product_tmpl_id.name if rec.product_tmpl_id else 'Unknown Product'
+                duplicates_by_barcode[rec.barcode].append(product_name)
+            
+            duplicates_message = "\n".join(
+                _("El código de barras \"%s\" está asignado al producto: %s",
+                  barcode, ", ".join(names))
+                for barcode, names in duplicates_by_barcode.items()
+            )
+            raise ValidationError(_("Código de barras asignados en pestaña 'codigos de barras':\n\n%s") % duplicates_message)
+
+
+from odoo import models, api, _
+from odoo.exceptions import ValidationError
+from collections import defaultdict
+
+class ProductPackaging(models.Model):
+    _inherit = 'product.packaging'
+
+    @api.constrains('barcode')
+    def _check_barcode_uniqueness(self):
+        barcodes = [b for b in self.mapped('barcode') if b]
+        if not barcodes:
+            return
+        domain = [('barcode', 'in', barcodes)]
+
+        product_found = self.env['product.product'].search(domain, order="id")
+        if product_found:
+            products_names = ", ".join(product_found.mapped('display_name'))
+            raise ValidationError(_("El empaquetado utiliza el código de barras del producto: %s") % products_names)
+
+        barcode_records = self.env['product.barcode'].search(domain, order="id")
+        if barcode_records:
+            duplicates_by_barcode = defaultdict(list)
+            for rec in barcode_records:
+                product_name = rec.product_tmpl_id.name if rec.product_tmpl_id else 'Unknown Product'
+                duplicates_by_barcode[rec.barcode].append(product_name)
+
+            duplicates_message = "\n".join(
+                _("El código de barras \"%s\" está asignado al producto: %s",
+                  barcode, ", ".join(names))
+                for barcode, names in duplicates_by_barcode.items()
+            )
+            raise ValidationError(_("El empaquetado utiliza un código de barras en la pestaña 'codigos de barras': \n\n%s") % duplicates_message)
+        
+        
 
 class Barcode(models.Model):
     _name = 'product.barcode'
@@ -193,3 +253,23 @@ class Barcode(models.Model):
     _sql_constraints = [
         ('uniq_barcode', 'unique(barcode)', "A barcode can only be assigned to one product !"),
     ]
+
+    @api.constrains('barcode')
+    def _check_barcode_uniqueness_against_products(self):
+        for record in self:
+            if not record.barcode:
+                continue
+            
+            # Buscar en product.product
+            product_with_barcode = self.env['product.product'].search([('barcode', '=', record.barcode)], limit=1)
+            if product_with_barcode:
+                raise ValidationError(_(
+                    'El código de barras "%s" está asignado al producto "%s".'
+                ) % (record.barcode, product_with_barcode.display_name))
+            
+            # Buscar en product.packaging
+            packaging_with_barcode = self.env['product.packaging'].search([('barcode', '=', record.barcode)], limit=1)
+            if packaging_with_barcode:
+                raise ValidationError(_(
+                    'El código de barras "%s" está asignado al empaque "%s".'
+                ) % (record.barcode, packaging_with_barcode.display_name))
