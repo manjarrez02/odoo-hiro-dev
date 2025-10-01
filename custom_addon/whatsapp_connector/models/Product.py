@@ -9,5 +9,5 @@ class ProductProduct(models.Model):
 
     def read_from_chatroom(self, field_read=None, load='_classic_read'):
         if not field_read:
-            field_read = self.env['acrux.chat.conversation'].sudo().get_product_fields_to_read()
+            field_read = self.env['acrux.chat.conversation'].get_product_fields_to_read()
         return self.sudo().read(fields=field_read, load=load)

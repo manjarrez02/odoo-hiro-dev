@@ -254,8 +254,7 @@ class AcruxChatConversation(models.Model):
     def get_to_done(self):
         self.ensure_one()
         return {'status': 'done',
-                'agent_id': False,
-                'stage_id': 3}
+                'agent_id': False}
 
     def get_to_current(self):
         self.ensure_one()
@@ -265,8 +264,7 @@ class AcruxChatConversation(models.Model):
     def get_to_new(self):
         self.ensure_one()
         return {'status': 'new',
-                'agent_id': False,
-                'stage_id': 1}
+                'agent_id': False}
 
     def set_to_done(self):
         for r in self:
