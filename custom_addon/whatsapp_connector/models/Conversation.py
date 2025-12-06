@@ -32,8 +32,11 @@ class AcruxChatConversation(models.Model):
     number = fields.Char('Base number', required=True, index=True)
     number_format = fields.Char('Number', compute='_compute_number_format',
                                 store=True, readonly=True)
-    conv_type = fields.Selection([('none', 'None'), ('normal', 'Normal'), ('private', 'Private')], readonly=False,
+    conv_type = fields.Selection([('none', 'None'),
+                                  ('normal', 'Normal'),
+                                  ('private', 'Private')], readonly=False,
                                  string='Conversation Type', required=True, default='normal')
+    chat_id = fields.Char('Chat ID', index=True, help='Other id for chats')
     image_128 = fields.Image('Avatar', max_width=128, max_height=128)
     image_url = fields.Char('Avatar Url', compute='_image_update', store=True,
                             default=DEFAULT_IMAGE_URL, required=True)
@@ -326,9 +329,7 @@ class AcruxChatConversation(models.Model):
         please_set_to_new = False
         while max_tries < 3:
             max_tries += 1
-            conversation = self.search([('number', '=', data['number']),
-                                        ('conv_type', '=', data['conv_type']),
-                                        ('connector_id', '=', data['connector_id'])])
+            conversation = self.search_conversation_from_message_dict_vals(data)
             if conversation:
                 if conversation.valid_number != 'yes':
                     conversation.valid_number = 'yes'
@@ -345,7 +346,6 @@ class AcruxChatConversation(models.Model):
                         self.env.cr.rollback()
                         sleep(1)
                         continue
-                # conversation.set_to_new()
             if not conversation.res_partner_id and conversation.status in ['new', 'done']:
                 partner_id = self.search_partner_from_number(conversation)
                 if partner_id:
@@ -356,6 +356,18 @@ class AcruxChatConversation(models.Model):
         return conversation
 
     @api.model
+    def search_conversation_from_message_dict_vals(self, data):
+        if data['conv_type'] == 'private':
+            domain = [('connector_id', '=', data['connector_id']),
+                      '|', ('number', '=', data['number']),
+                           ('chat_id', '=', data['number'])]
+        else:
+            domain = [('number', '=', data['number']),
+                      ('conv_type', '=', data['conv_type']),
+                      ('connector_id', '=', data['connector_id'])]
+        return self.search(domain)
+
+    @api.model
     def create_conversation_from_message_dict_vals(self, data):
         return {
             'name': data['name'] or data['number'],
@@ -364,6 +376,7 @@ class AcruxChatConversation(models.Model):
             'is_waba_opt_in': True,
             'number': data['number'],
             'conv_type': data['conv_type'],
+            'chat_id': data['number'],
         }
 
     def decide_first_status(self):
@@ -819,14 +832,12 @@ class AcruxChatConversation(models.Model):
 
     @api.model
     def parse_event_receive(self, connector_id, event):
-        if event.get('type') == 'failed':
+        if event.get('type') in ('failed', 'edited'):
             out = {
                 'type': event.get('type'),
                 'msgid': event.get('msgid'),
                 'reason': event.get('txt'),
             }
-        elif event.get('type') == 'phone-status':
-            out = event
         else:
             out = event
         return out
@@ -834,10 +845,11 @@ class AcruxChatConversation(models.Model):
     @api.model
     def new_webhook_event(self, connector_id, event):
         ttype = event.get('type')
-        if ttype == 'failed':
+        if ttype in ('failed', 'edited'):
             if event['msgid'] and event['reason']:
                 self.new_message_event(connector_id, event['msgid'], event)
-            _logger.warning(event)
+            if ttype == 'failed':
+                _logger.warning(event)
         elif ttype == 'phone-status':
             connector_id.ca_status_change(event.get('status'))
         elif ttype == 'pending' and connector_id.connector_type == 'gupshup':
@@ -964,4 +976,14 @@ class AcruxChatConversation(models.Model):
         Config = self.env['ir.config_parameter'].sudo()
         return {
             'chatroom_tab_orientation': Config.get_param('chatroom_tab_orientation')
+        }
+
+    def merge_chats_wizard(self):
+        return {
+            'name': _('Merge Chats'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'acrux.chat.merge.chat.wizard',
+            'target': 'new',
+            'context': dict(default_private_conversation=self.id)
         }

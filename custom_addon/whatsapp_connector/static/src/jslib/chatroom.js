@@ -2,7 +2,7 @@ odoo.define('@8be75bee909eda24768f5b90d853a72ed79d4d652138d1ca9ac25285cb77bbd4',
 const{registerPatch}=require('@mail/model/model_core')
 const{attr}=require('@mail/model/model_field')
 registerPatch({name:'Attachment',fields:{isDeletable:{compute(){let val=false
-if(this.isAcrux){if(this.attachmentLists&&this.attachmentLists.length){val=this.attachmentLists[0].acruxMessageId<=0}else{val=true}}else{val=this._super()}
+if(this.isAcrux){if(this.attachmentLists&&this.attachmentLists.length){val=(!this.attachmentLists[0].acruxMessageId||this.attachmentLists[0].acruxMessageId<=0)}else{val=true}}else{val=this._super()}
 return val}},isAcrux:attr({default:false,}),res_model:attr({default:null})}})
 return __exports;});;
 odoo.define('@cb83745a246e90ddafdc73edfb8370e2a9a2728ae14514fa0243b4c36ce3a07f',async function(require){'use strict';let __exports={};require('@mail/models/attachment_card')
@@ -266,10 +266,13 @@ this.env.chatBus.on('uploadAttachment',this,files=>this.onChangeAttachment({targ
 this.env.chatBus.on('updateAttachmentUI',this,this.render)
 this.env.chatBus.on('attachmentRemove',this,this.attachmentRemove)
 this.fileUploader={}
-onWillStart(async()=>{await this.env.services.messaging.initializedPromise
+onWillStart(async()=>{await this.env.services.messaging.modelManager.messagingInitializedPromise
+await this.env.services.messaging.initializedPromise
 this.fileUploader=new this.env.services.messaging.modelManager.models.FileUploader()})
 onWillDestroy(this.destroy.bind(this))}
-destroy(){this.env.chatBus.off('initAttachment',this)
+destroy(){for(const attachment of[...this.props.attachList.attachments]){attachment.update({attachmentLists:link(this.props.attachList)})
+attachment.remove()}
+this.env.chatBus.off('initAttachment',this)
 this.env.chatBus.off('uploadAttachment',this)
 this.env.chatBus.off('updateAttachmentUI',this)
 this.env.chatBus.off('attachmentRemove',this)}
@@ -299,6 +302,7 @@ attachment.chatroomUploader=this
 attachments.push(attachment)}}catch(e){if(e.name!=='AbortError'){throw e}}}
 return attachments}
 attachmentRemove({attachment}){attachment.update({attachmentLists:unlink(this.props.attachList)})
+attachment.remove()
 this.env.chatBus.trigger('attachRemoved')
 this.render()}}
 Object.assign(AttachmentUpload,{template:'chatroom.AttachmentUpload',props:{attachList:{type:Object},selectedConversation:{type:ConversationModel.prototype,optional:true,}},components:{AttachmentImage:getMessagingComponent('AttachmentImage'),AttachmentCard:getMessagingComponent('AttachmentCard'),}})
@@ -413,7 +417,7 @@ getInitState(){const conversationOrder=browser.localStorage.getItem('chatroomCon
 const chatroomTabSize=parseInt(browser.localStorage.getItem('chatroomTabSize')||'0')
 return{user:new UserModel(this),selectedConversation:null,conversations:[],currentMobileSide:'',renderForms:false,conversationOrder:conversationOrder&&JSON.parse(conversationOrder)||{current:'desc',other:'asc'},chatroomTabSize,active:true,}}
 getSubEnv(){return{context:this.props.action.context,chatBus:new EventBus(),chatModel:'acrux.chat.conversation',getCurrency:()=>this.currencyId,chatroomJsId:this.props.action.jsId,getShowUser:()=>this.showUserInMessage,canTranscribe:()=>this.canTranscribe,canTranslate:()=>this.canTranslate,getCurrentLang:()=>this.currentLang,isVerticalView:()=>this.state.user?.tabOrientation==='vertical',modelsUsedFields:this.modelsUsedFields,readFromChatroom:this.readFromChatroom,conversationBuildDict:this.buildModelBuildDict('acrux.chat.conversation','build_dict'),messageBuildDict:this.buildModelBuildDict('acrux.chat.message','search_read_from_chatroom',this._groupMessageResult),}}
-async willStart(){return Promise.all([this.env.services.messaging.initializedPromise,this.getCurrency().then(res=>{this.currencyId=res}),this.getDefaultAnswers().then(res=>{this.defaultAnswers=res}),this.loadModelsUsedFields(),this.getConversationInfoView().then(res=>{this.conversationInfoForm=res}),this.getConversationKanbanView().then(res=>{this.conversationKanban=res}),this.getAiIntefaceView().then(res=>{this.aiIntefaceForm=res}),this.getUserPreference().then(res=>this.state.user.updateFromJson(res)),this.env.services.user.hasGroup('whatsapp_connector.group_chat_show_user_in_message').then(res=>{this.showUserInMessage=res}),this.getTranscriptionModel().then(res=>{this.canTranscribe=res}),this.getTranslationModel().then(res=>{this.canTranslate=res}),]).then(()=>{if(this.canPlay){this.audio=new Audio()
+async willStart(){return Promise.all([this.env.services.messaging.modelManager.messagingInitializedPromise,this.env.services.messaging.initializedPromise,this.getCurrency().then(res=>{this.currencyId=res}),this.getDefaultAnswers().then(res=>{this.defaultAnswers=res}),this.loadModelsUsedFields(),this.getConversationInfoView().then(res=>{this.conversationInfoForm=res}),this.getConversationKanbanView().then(res=>{this.conversationKanban=res}),this.getAiIntefaceView().then(res=>{this.aiIntefaceForm=res}),this.getUserPreference().then(res=>this.state.user.updateFromJson(res)),this.env.services.user.hasGroup('whatsapp_connector.group_chat_show_user_in_message').then(res=>{this.showUserInMessage=res}),this.getTranscriptionModel().then(res=>{this.canTranscribe=res}),this.getTranslationModel().then(res=>{this.canTranslate=res}),]).then(()=>{if(this.canPlay){this.audio=new Audio()
 if(this.audio.canPlayType('audio/ogg; codecs=vorbis')){this.audio.src=url('/mail/static/src/audio/ting.ogg')}else{this.audio.src=url('/mail/static/src/audio/ting.mp3')}}})}
 destroy(){this.state.active=false
 this.env.services.bus_service.removeEventListener('notification',this.onNotificationBind)
@@ -524,7 +528,7 @@ const someMessageNew=messages.some(msg=>!msg.from_me)
 let conv=null
 const res=await this.upsertConversation(convData)
 if(res.length>0){conv=res[0]
-if(document.hidden){if('all'&&desk_notify||('mines'===desk_notify&&conv.agent.id===this.env.services.user.userId)){if(someMessageNew){const msg=this.env._t('New messages from ')+conv.name
+if(document.hidden){if('all'===desk_notify||('mines'===desk_notify&&conv.agent.id===this.env.services.user.userId)){if(someMessageNew){const msg=this.env._t('New messages from ')+conv.name
 this.env.services.notification.add(msg,{type:'info'})
 await this.playNotification()}}}else{if(someMessageNew&&this.state.selectedConversation?.id===conv.id&&conv.isMine()){await conv.messageSeen()}}}
 return conv}
@@ -893,9 +897,10 @@ const{ConversationModel}=require('@e71c685495b3fd5a77d050fe9a0ee4564da20c118bd36
 const{DefaultAnswerModel}=require('@691be66bc681670fb0cd11c07adec04e8dfc38741d2ef37bf718faf4dab4f3b1')
 const{ProductContainer}=require('@aedb85b64f8970ed4ccdcfb5fad7484eb5f9502792073b672b574c2d95ef5fe2')
 const{UserModel}=require('@6e344e9f6e92958c137d3f0fd12f4b185e994c729e92e763551752e4b953217a')
-const{Component,onWillUpdateProps,onWillStart,onWillDestroy}=owl
+const{Component,onWillUpdateProps,onWillStart,onWillDestroy,useState}=owl
 const TabsContainer=__exports.TabsContainer=class TabsContainer extends Component{setup(){super.setup()
 this.env;this.props
+this.state=useState({tabSelected:this.props.tabSelected})
 onWillStart(this.willStart.bind(this))
 onWillUpdateProps(this.willUpdateProps.bind(this))
 onWillDestroy(this.destroy.bind(this))
@@ -903,13 +908,15 @@ this.comp={ConversationForm,PartnerForm,ConversationKanban,AiIntefaceForm,}
 this.compProps={}
 this.env.chatBus.on('updateConversation',this,()=>{this.computeFormProps(this.props)
 this.render()})
-this.env.chatBus.on('updateTab',this,(tabSelected)=>{if(tabSelected!==undefined){this.props.tabSelected=tabSelected}
+this.env.chatBus.on('updateTab',this,(tabSelected)=>{if(tabSelected!==undefined){this.updateTab(tabSelected)}
 this.computeFormProps(this.props)
 this.render()})}
 async willStart(){this.computeFormProps(this.props)}
 async willUpdateProps(nextProps){this.computeFormProps(nextProps)}
 destroy(){this.env.chatBus.off('updateConversation',this)
 this.env.chatBus.off('updateTab',this)}
+updateTab(tab){this.state.tabSelected=tab
+this.props.updateTab(tab)}
 computeFormProps(props){this.compProps.ConversationForm=this.getTabInfoProps(props)
 this.compProps.PartnerForm=this.getTabPartnerProps(props)
 this.compProps.ConversationKanban=this.getTabConversationKanbanProps(props)
@@ -962,11 +969,13 @@ __exports[Symbol.for("default")]=LangSelector
 return __exports;});;
 odoo.define('@c011635ccdcd3301f40c07724a28d782d0f498e544a6747890cf878476644d9c',async function(require){'use strict';let __exports={};const{CheckBox}=require('@web/core/checkbox/checkbox')
 const{useAutofocus}=require('@web/core/utils/hooks')
+const{session}=require('@web/session')
 const{Emojis}=require('@77841dc469b48ca608b4d7a840d74ad5a4605d44519882a2a029ac38f196c9ba')
 const{LangSelector,LangSelectorAdapter}=require('@22d02ce98f424c42b50d5ef691515a9bf568d37ce2e2702c4ddaa506fefa54b7')
 const{AttachmentUpload}=require('@823cc1a7e61fd78e5058a6cd3f3004f796bbcf6fd6d7c45b7368b77e32deee31')
-const{ConversationModel}=require('@e71c685495b3fd5a77d050fe9a0ee4564da20c118bd360ce54260886e1bb13ef')
+const{ConversationModel,getNextMessageId}=require('@e71c685495b3fd5a77d050fe9a0ee4564da20c118bd360ce54260886e1bb13ef')
 const{UserModel}=require('@6e344e9f6e92958c137d3f0fd12f4b185e994c729e92e763551752e4b953217a')
+const{link,unlink}=require('@mail/model/model_field_command')
 const{Component,useRef,onWillDestroy,onWillStart}=owl
 const Toolbox=__exports.Toolbox=class Toolbox extends Component{setup(){super.setup()
 this.env
@@ -990,9 +999,10 @@ this.env.chatBus.on('attachRemoved',this,this.enableDisplabeAttachBtn)
 this.env.chatBus.on('setInputText',this,this.setInputText)
 this.env.chatBus.on('setLang',this,lang=>this.lang=lang)
 useAutofocus('inputRef')
-onWillStart(async()=>{await this.env.services.messaging.initializedPromise
+onWillStart(async()=>{await this.env.services.messaging.modelManager.messagingInitializedPromise
+await this.env.services.messaging.initializedPromise
 const{AttachmentList}=this.env.services.messaging.modelManager.models
-this.attachList=AttachmentList.insert({isAcrux:true,acruxMessageId:-1})})
+this.attachList=AttachmentList.insert({isAcrux:true,acruxMessageId:getNextMessageId()})})
 onWillDestroy(this.destroy.bind(this))}
 destroy(){this.env.chatBus.off('attachCreated',this)
 this.env.chatBus.off('attachRemoved',this)
@@ -1027,23 +1037,30 @@ event.stopPropagation()}
 if(''!==traduction){options.traduction=traduction}
 if(''!=text){options.ttype='text'
 options.text=text}
-if(attachments.length){const attachment=attachments.shift()
+if(attachments.length){const{AttachmentList}=this.env.services.messaging.modelManager.models
+const attachList=AttachmentList.insert({isAcrux:true,acruxMessageId:getNextMessageId()})
+for(const attachment of attachments){attachment.update({attachmentLists:unlink(this.attachList)})
+attachment.update({attachmentLists:link(attachList)})}
+this.env.chatBus.trigger('updateAttachmentUI')
+const attachment=attachments.shift()
 options=this.setAttachmentValues2Message(options,attachment)}
-try{if(options.ttype){options=this.sendMessageHook(options)
+try{if(session.chatroom_immediate_sending){this.env.services.ui.block()}
+if(options.ttype){options=this.sendMessageHook(options)
 outMessages.push(await this.props.selectedConversation.createMessage(options))
 await this.postCreateMessage(outMessages[outMessages.length-1])
 text=traduction=''
 for await(const attachment of attachments){options=this.setAttachmentValues2Message({from_me:true},attachment)
 options=this.sendMessageHook(options)
 outMessages.push(await this.props.selectedConversation.createMessage(options))
-await this.postCreateMessage(outMessages[outMessages.length-1])}}}finally{this.env.chatBus.trigger('updateAttachmentUI')
+await this.postCreateMessage(outMessages[outMessages.length-1])}}
+if(session.chatroom_immediate_sending){await this.props.selectedConversation.sendMessages()}else{this.props.selectedConversation.sendMessages()}}finally{this.env.chatBus.trigger('updateAttachmentUI')
 this.env.chatBus.trigger('orderConversations')
 this.inputRef.el.disabled=false
 this.sendBtnRef.el.disabled=false
 this.inputLangRef.el.disabled=false
 this.enableDisplabeAttachBtn()
-this.setInputText(text,traduction)}
-this.props.selectedConversation.sendMessages()
+this.setInputText(text,traduction)
+if(session.chatroom_immediate_sending){this.env.services.ui.unblock()}}
 return outMessages}
 async postCreateMessage(){}
 setAttachmentValues2Message(options,attachment){if(attachment.mimetype.includes('image')){options.ttype='image'}else if(attachment.mimetype.includes('audio')){options.ttype='audio'}else if(attachment.mimetype.includes('video')){options.ttype='video'}else{options.ttype='file'}
@@ -1125,6 +1142,8 @@ odoo.define('@e71c685495b3fd5a77d050fe9a0ee4564da20c118bd360ce54260886e1bb13ef',
 const{MessageModel}=require('@7020aa6e3d62fd1ef5722ab7283652cd994893657d2f6d64c48687221ccf4d2a')
 const{deserializeDateTime}=require('@web/core/l10n/dates')
 const{Mutex}=require('@web/core/utils/concurrency')
+let msgIdCounter=0
+const getNextMessageId=__exports.getNextMessageId=()=>--msgIdCounter
 const ConversationModel=__exports.ConversationModel=class ConversationModel extends ChatBaseModel{constructor(comp,base){super(comp)
 this.env
 this.id=0
@@ -1152,7 +1171,6 @@ this.allowedLangIds=[]
 this.convType='normal'
 this.data={}
 this.ready=false
-this.msgCounter=-2
 this.mutex=new Mutex()
 if(base){this.updateFromJson(base)}}
 updateFromJson(base){super.updateFromJson(base)
@@ -1184,7 +1202,7 @@ async buildExtraObj(){await super.buildExtraObj()
 await Promise.all(this.messages.map(msg=>msg.buildExtraObj()))
 this.ready=true}
 sortMessages(){this.messages.sort((a,b)=>{let comp=a.dateMessage.toMillis()-b.dateMessage.toMillis()
-if(comp===0){comp=a.id-b.id}
+if(comp===0){if(a.id>0&&b.id>0){comp=a.id-b.id}else if(a.id<=0&&b.id<=0){comp=Math.abs(a.id)-Math.abs(b.id)}else{comp=Math.sign(b.id)-Math.sign(a.id)}}
 return comp})}
 appendMessages(messages){if(messages?.length>0){const newMessages=[]
 let msg=null
@@ -1205,7 +1223,7 @@ if(!this.ready&&result.length>0){this.appendMessages(result[0].messages)
 await this.buildExtraObj()}
 this.ready=true}}
 async createMessage(options){const msg=new MessageModel(this)
-msg.id=--this.msgCounter
+msg.id=getNextMessageId()
 msg.updateFromJson(options)
 await msg.buildExtraObj()
 this.messages.push(msg)
@@ -1281,6 +1299,7 @@ this.transcription=null
 this.transcription=null
 this.traduction=null
 this.status='new'
+this.editedDate=null
 if(base){this.updateFromJson(base)}}
 updateFromJson(base){super.updateFromJson(base)
 if('from_me'in base){this.fromMe=base.from_me}
@@ -1297,7 +1316,9 @@ if('metadata_type'in base){this.metadataType=base.metadata_type}
 if('metadata_json'in base){this.metadataJson=base.metadata_json}
 if('create_uid'in base){this.createUid=this.convertRecordField(base.create_uid)}
 if('transcription'in base){this.transcription=base.transcription}
-if('traduction'in base){this.traduction=base.traduction}}
+if('traduction'in base){this.traduction=base.traduction}
+if('edited_date'in base){this.editedDate=base.edited_date
+if(this.editedDate){this.convertDate('editedDate')}}}
 exportToJson(){const out={}
 out.text=this.text
 out.from_me=this.fromMe
@@ -1314,6 +1335,7 @@ if(this.createUid.id){out.create_uid=[this.createUid.id,this.createUid.name]}
 if(this.chatList.id){out.chat_list_id=this.chatListRecord}
 if(this.transcription){out.transcription=this.transcription}
 if(this.traduction){out.traduction=this.traduction}
+if(this.editedDate){out.edited_date=serializeDateTime(this.editedDate)}
 return out}
 exportToVals(){const out=this.exportToJson()
 delete out.title_color
@@ -1370,11 +1392,11 @@ delete data.res_id
 delete data.res_field
 attachment=Attachment.insert(data)}}
 if(attachment){const attachListVals={isAcrux:true,acruxMessageId:this.id}
-if(attachList){if(attachment.attachmentLists===attachList&&(!attachList.acruxMessageId||attachList.acruxMessageId<0)){attachment.update({attachmentLists:unlink(attachList)})
+if(attachList){if((attachment.attachmentLists&&attachment.attachmentLists[0]===attachList)&&(!attachList.acruxMessageId||attachList.acruxMessageId<0)){attachment.update({attachmentLists:unlink(attachList)})
 attachList=null}}
 if(!attachList){attachList=AttachmentList.insert(attachListVals)}
 let attachVals={isAcrux:true}
-if(attachment.attachmentLists!==attachList){attachVals.attachmentLists=link(attachList)}
+if(attachment.attachmentLists&&attachment.attachmentLists[0]!==attachList){attachVals.attachmentLists=link(attachList)}
 if(['audio','sticker'].includes(this.ttype)){attachVals.url=`/web/content/${attachment.id}`}
 attachment.update(attachVals)}else{attachList={}}
 return attachList}

@@ -3,7 +3,7 @@
 
     <t t-name="chatroom.TabsContainer" owl="1">
         <NotebookChat className="'o_TabsContainer ' + props.className"
-            onPageUpdate="props.updateTab" defaultPage="props.tabSelected"
+            onPageUpdate.bind="updateTab" defaultPage="state.tabSelected"
             orientation="props.user.tabOrientation">
             <t t-set-slot="tab_default_answer" isVisible="true"
                 name="'tab_default_answer'" icon="'fa fa-bolt'"
