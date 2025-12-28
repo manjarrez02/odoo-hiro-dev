@@ -120,7 +120,7 @@
                                 </span>
                             </t>
                             <t t-else="">                        
-                                <t t-if = "line.price_unit >= 0">
+                                <t t-if = "line.price_unit != 0">
                                     <table class="product-first-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
                                         <tr>
                                             <th style="width: 30%; padding: 1px; font-size: 12px; border: none;" t-field="line.product_id.barcode"></th>
