@@ -63,6 +63,7 @@ odoo.define('x_pos_custom_view.ExtendCreateDraftPOS', function(require) {
 					order.is_partial = true;
 					order.to_invoice = false;
 					order.creation_date = new Date();
+					order.validation_date = new Date();
 					this.env.services.ui.block()
 					let syncOrderResult = await this.env.pos.push_single_order(order);
 					this.env.services.ui.unblock();

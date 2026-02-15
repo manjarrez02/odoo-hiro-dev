@@ -44,6 +44,7 @@ odoo.define('pos_all_in_one.CreateDraftPOS', function(require) {
 					order.is_partial = true;
 					order.to_invoice = false;
 					order.creation_date = new Date();
+					order.validation_date = new Date();
 					let syncOrderResult = await this.env.pos.push_single_order(order);
 					this.env.pos.get_order().set_order_reference_no(syncOrderResult[0].name)
 					self.showScreen('ReceiptScreen');			
