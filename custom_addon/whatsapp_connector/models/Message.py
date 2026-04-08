@@ -149,7 +149,7 @@ class AcruxChatMessages(models.Model):
 
     @api.model
     def unlink_attachment(self, attach_to_del_ids, only_old=True):
-        data = [('id', 'in', attach_to_del_ids)]
+        data = [('id', 'in', attach_to_del_ids), ('res_model', '=', 'acrux.chat.message')]
         if only_old:
             data.append(('delete_old', '=', True))
         to_del = self.env['ir.attachment'].sudo().search(data)

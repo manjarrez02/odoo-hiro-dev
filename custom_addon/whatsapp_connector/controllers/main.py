@@ -2,6 +2,8 @@
 import logging
 import json
 import werkzeug
+import random
+from time import sleep
 from odoo import http, _, SUPERUSER_ID
 from odoo.http import request, Response
 from odoo.exceptions import UserError
@@ -29,21 +31,23 @@ class WebhookController(http.Controller):
                 auth='public', type='json', methods=['POST'])
     def acrux_webhook(self, connector_uuid, **post):
         ''' Keeping URLs secret. '''
+        if not post:
+            return Response(status=422)
+        log_request(request)
+
+        updates = post.get('updates', [])
+        events = post.get('events', [])
+        messages = post.get('messages', [])
+        if not updates and not events and not messages:
+            return Response(status=422)
+
+        Connector = request.env['acrux.chat.connector'].with_user(SUPERUSER_ID).sudo()
+        connector_id = Connector.search([('uuid', '=', connector_uuid)], limit=1)
+        if not connector_id or not connector_uuid:
+            return Response(status=422)
+
+        response = None
         try:
-            if not post:
-                return Response(status=403)  # Forbidden
-            log_request(request)
-
-            updates = post.get('updates', [])
-            events = post.get('events', [])
-            messages = post.get('messages', [])
-            if not updates and not events and not messages:
-                return Response(status=403)  # Forbidden
-
-            Connector = request.env['acrux.chat.connector'].with_user(SUPERUSER_ID).sudo()
-            connector_id = Connector.search([('uuid', '=', connector_uuid)], limit=1)
-            if not connector_id or not connector_uuid:
-                return Response(status=403)  # Forbidden
             ctx = {
                 'tz': connector_id.tz,
                 'lang': connector_id.company_id.partner_id.lang,
@@ -69,13 +73,14 @@ class WebhookController(http.Controller):
                 else:
                     _logger.warning(f'message {data.get("number")} ignored')
 
-            return Response(status=200)
+            response = Response(status=200)
         except (TransactionRollbackError, OperationalError, QWebException) as e:
             raise e
         except Exception:
             request._cr.rollback()
             _logger.error('Error', exc_info=True)
-            return Response(status=500)  # Internal Server Error
+            response = Response(status=500)  # Internal Server Error
+        return response
 
     def chek_error(self, status, content, headers):
         if status == 304:
@@ -94,24 +99,34 @@ class WebhookController(http.Controller):
         /web/static/chatresource/... -> for product image
         :param field: field (binary image, PNG or JPG) name in model. Only support 'image'.
         '''
-
         IrBinary = request.env['ir.binary'].sudo()
-        try:
-            if id and access_token and not model and not field:
-                record = IrBinary._find_record(res_id=int(id), access_token=access_token)
-                stream = IrBinary._get_stream_from(record)
-            else:
-                if not id or not field.startswith('image') or model not in acrux_allowed_models():
-                    return Response(status=404)
+        retry = 0
+        response = None
+        while not response:
+            retry += 1
+            try:
+                if id and access_token and not model and not field:
+                    record = IrBinary._find_record(res_id=int(id), access_token=access_token)
+                    stream = IrBinary._get_stream_from(record)
+                else:
+                    if not id or not field.startswith('image') or model not in acrux_allowed_models():
+                        raise Exception('Not found')
 
-                id, sep, unique = id.partition('_')
-                record = IrBinary._find_record(res_model=model, res_id=int(id))
-                stream = IrBinary._get_image_stream_from(record, field_name=field,
-                                                         placeholder='web/static/img/XXXXX.png')
-        except Exception:
-            return Response(status=404)
+                    id, sep, unique = id.partition('_')
+                    record = IrBinary._find_record(res_model=model, res_id=int(id))
+                    stream = IrBinary._get_image_stream_from(record, field_name=field,
+                                                             placeholder='web/static/img/XXXXX.png')
+                response = stream.get_response()
+            except Exception as e:
+                request._cr.rollback()
+                if not isinstance(e, (TransactionRollbackError, OperationalError, QWebException)):
+                    retry = 4
+                if retry >= 4:
+                    _logger.error(e)
+                    response = Response(status=404)
+                else:
+                    sleep(random.uniform(0.5, 2.0))
 
-        response = stream.get_response()
         return response
 
 

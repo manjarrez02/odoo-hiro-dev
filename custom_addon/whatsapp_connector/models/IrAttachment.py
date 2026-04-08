@@ -9,14 +9,16 @@ class IrAttachment(models.Model):
                                 help="It can be removed if it is old.")
 
     def write(self, vals):
-        if 'public' not in vals and vals.get('res_model', '') == 'acrux.chat.message':
+        if 'public' not in vals and vals.get('res_model', '') in ('acrux.chat.message',
+                                                                  'acrux.chat.default.answer'):
             vals['public'] = True
         return super(IrAttachment, self).write(vals)
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if 'public' not in vals and vals.get('res_model', '') == 'acrux.chat.message':
+            if 'public' not in vals and vals.get('res_model', '') in ('acrux.chat.message',
+                                                                      'acrux.chat.default.answer'):
                 vals['public'] = True
         return super(IrAttachment, self).create(vals_list)
 

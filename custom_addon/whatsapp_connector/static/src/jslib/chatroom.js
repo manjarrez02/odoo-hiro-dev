@@ -1355,7 +1355,8 @@ this.resModelObj.message=this}}}}
 buildResModelObj(attachRes){if(this.isProductType){const attach={...attachRes}
 const{res_model,res_id,res_field}=attach
 this.resModelObj=attach
-this.resModelObj.url=`/web/image?model=${res_model}&id=${res_id}&field=${res_field}`}else{this.resModelObj=this.createAttachObject(attachRes)}}
+this.resModelObj.url=`/web/image?model=${res_model}&id=${res_id}&field=${res_field}`}else{this.resModelObj=null
+this.resModelObj=this.createAttachObject(attachRes)}}
 deleteResModelObj(){const{AttachmentList}=this.env.services.messaging.modelManager.models
 if(this.resModelObj instanceof AttachmentList){if(this.resModelObj.attachments.length){if(this.resModelObj.attachments[0].res_model==='acrux.chat.message'){this.resModelObj.attachments[0].remove()}}}}
 get date(){return formatDate(this.dateMessage)}
