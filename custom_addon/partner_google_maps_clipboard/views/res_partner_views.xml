@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_google_maps_clipboard" model="ir.ui.view">
+        <field name="name">res.partner.form.google.maps.clipboard</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority" eval="20"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='name']" position="after">
+                <div attrs="{'invisible': [('google_maps_url', '=', False)]}">
+                    <button name="action_open_google_maps"
+                            type="object"
+                            string="Abrir Maps"
+                            class="oe_highlight oe_inline"/>
+                </div>
+
+                <field name="google_maps_url"
+                       readonly="1"
+                       attrs="{'invisible': True}"/>
+
+                <field name="google_maps_url_copy"
+                       widget="CopyClipboardChar"
+                       readonly="1"
+                       attrs="{'invisible': [('google_maps_url_copy', '=', False)]}"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

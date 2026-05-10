@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_inherit_geoloc_clean" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.geoloc.clean</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base_geolocalize.view_crm_partner_geo_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="map_address" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//page[@name='geo_location']//label[@for='date_localization']" position="after">
+                <div>
+                    <field name="map_address"
+                           widget="address_autocomplete"
+                           class="address"
+                           id="address"
+                           placeholder="Find My Address"/>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
