@@ -16,7 +16,8 @@
                            widget="address_autocomplete"
                            class="address"
                            id="address"
-                           placeholder="Find My Address"/>
+                           placeholder="Find My Address"
+                           readonly="1"/>
                 </div>
             </xpath>
 
