@@ -117,80 +117,87 @@ export class AddressAutocompleteField extends Component {
     }
 
     initializeAutocomplete() {
-        if (this.input.el) {
-            const autocomplete = new google.maps.places.Autocomplete(this.input.el, {
-                types: ['address'],
-            });
+        if (!this.input.el) return;
 
-            // Instanciar Geocoder para la búsqueda inversa por coordenadas
-            const geocoder = new google.maps.Geocoder();
+        const autocomplete = new google.maps.places.Autocomplete(this.input.el, {
+            types: ['address'],
+            fields: ['formatted_address', 'geometry'],
+        });
 
-            // Add input validation
-            this.input.el.addEventListener('input', () => {
+        const geocoder = new google.maps.Geocoder();
+        const coordRegex = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
+
+        this.input.el.addEventListener('input', () => {
+            const value = this.input.el.value.trim();
+            const isCoordinates = coordRegex.test(value);
+
+            if (!isCoordinates) {
                 const isValid = this.validateInput(this.input.el.value);
                 if (!isValid) {
-                    // opcional: mostrar aviso visual en vez de romper el flujo
                     console.warn("La dirección contiene caracteres no permitidos.");
                 }
-            });
+            }
+        });
 
-            // 1. Encapsular la lógica de asignación de campos para poder reutilizarla
-        // 1. Encapsular la lógica de asignación de campos para poder reutilizarla
-    const fillAddressFields = async (place) => {
-        if (!place.geometry) return;
+        const saveCoordinates = async (latitude, longitude, displayValue = null) => {
+            if (this.props.record && this.props.record.update) {
+                await this.props.record.update({
+                    latitude: latitude,
+                    longitude: longitude,
+                    partner_latitude: latitude,
+                    partner_longitude: longitude,
+                });
+            }
 
-        const latitude = parseFloat(place.geometry.location.lat());
-        const longitude = parseFloat(place.geometry.location.lng());
-        const formattedAddress = place.formatted_address || this.input.el.value || "";
+            const valueToShow = displayValue || `${latitude}, ${longitude}`;
+            await this.props.update(valueToShow);
+            this.input.el.value = valueToShow;
+            this.initializeMap(latitude, longitude);
+        };
 
-        await this.props.update(formattedAddress);
+        const fillAddressFields = async (place) => {
+            if (!place.geometry || !place.geometry.location) return;
 
-        if (this.props.record && this.props.record.update) {
-            await this.props.record.update({
-                latitude: latitude,
-                longitude: longitude,
-                partner_latitude: latitude,
-                partner_longitude: longitude,
-            });
-        }
+            const latitude = parseFloat(place.geometry.location.lat());
+            const longitude = parseFloat(place.geometry.location.lng());
+            const formattedAddress = place.formatted_address || this.input.el.value || "";
 
-        this.input.el.value = formattedAddress;
-        this.initializeMap(latitude, longitude);
-    };
-            // 2. Listener original para el Autocomplete normal por texto
-            autocomplete.addListener('place_changed', async () => {
-                const place = autocomplete.getPlace();
-                if (place.geometry) {
-                    fillAddressFields(place);
+            await saveCoordinates(latitude, longitude, formattedAddress);
+        };
+
+        autocomplete.addListener('place_changed', async () => {
+            const place = autocomplete.getPlace();
+            if (place.geometry) {
+                await fillAddressFields(place);
+            }
+        });
+
+        this.input.el.addEventListener('change', async () => {
+            const val = this.input.el.value.trim();
+
+            if (!coordRegex.test(val)) return;
+
+            const [latStr, lngStr] = val.split(',');
+            const lat = parseFloat(latStr.trim());
+            const lng = parseFloat(lngStr.trim());
+
+            // Primero guardar el punto exacto y mostrar las coordenadas
+            await saveCoordinates(lat, lng, `${lat}, ${lng}`);
+
+            // Luego, opcionalmente, buscar una dirección descriptiva
+            geocoder.geocode({ location: { lat, lng } }, async (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    // Si quieres mostrar dirección amigable en el input, descomenta:
+                    // await this.props.update(results[0].formatted_address);
+                    // this.input.el.value = results[0].formatted_address;
+
+                    // Si NO quieres perder la referencia exacta, déjalo como coordenadas.
+                    console.info("Dirección aproximada encontrada:", results[0].formatted_address);
+                } else {
+                    console.warn("Google Maps no encontró una dirección para estas coordenadas.");
                 }
             });
-
-            // 3. NUEVO: Listener para detectar el ingreso manual de coordenadas
-            this.input.el.addEventListener('change', () => {
-                const val = this.input.el.value.trim();
-                // Expresión Regular para detectar formato de coordenadas (Ej. "25.7617, -80.1918")
-                const coordRegex = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
-
-                if (coordRegex.test(val)) {
-                    // Separamos y convertimos a números
-                    const [latStr, lngStr] = val.split(',');
-                    const lat = parseFloat(latStr.trim());
-                    const lng = parseFloat(lngStr.trim());
-
-                    // Ejecutamos la búsqueda inversa con Geocoder
-                    geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-                        if (status === 'OK' && results[0]) {
-                            // Opcional: Actualizamos el input visual con la dirección real encontrada
-                            this.input.el.value = results[0].formatted_address;
-                            // Rellenamos los campos llamando a nuestra función reutilizable
-                            fillAddressFields(results[0]);
-                        } else {
-                            console.warn("Google Maps no encontró una dirección para estas coordenadas.");
-                        }
-                    });
-                }
-            });
-        }
+        });
     }
 
     validateInput(value) {
