@@ -12,12 +12,23 @@
 
             <xpath expr="//page[@name='geo_location']//label[@for='date_localization']" position="after">
                 <div>
+                    <!-- Editable para usuarios con permiso -->
                     <field name="map_address"
                            widget="address_autocomplete"
                            class="address"
-                           id="address"
+                           id="address_editable"
                            placeholder="Find My Address"
-                           readonly="1"/>
+                           groups="__contacts.__custom__contacts_contact_map,zehntech_access_restriction_by_ip.group_access_manager"/>
+
+                    <!-- Solo lectura para quienes NO tienen permiso -->
+                    <field name="map_address"
+                           widget="address_autocomplete"
+                           class="address"
+                           id="address_readonly"
+                           placeholder="Find My Address"
+                           readonly="1"
+                           force_save="1"
+                           groups="!__contacts.__custom__contacts_contact_map,!zehntech_access_restriction_by_ip.group_access_manager"/>
                 </div>
             </xpath>
 

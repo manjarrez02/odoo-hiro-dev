@@ -2,28 +2,26 @@
 import { registry } from "@web/core/registry";
 import { useInputField } from "@web/views/fields/input_field_hook";
 import { loadJS } from "@web/core/assets";
-import { useService } from "@web/core/utils/hooks";
 
 const { Component, useRef, onMounted, onWillStart, useState } = owl;
-var rpc = require('web.rpc');
+var rpc = require("web.rpc");
 
 export class AddressAutocompleteFieldError extends Error {}
 
 export class AddressAutocompleteField extends Component {
-    static template = 'FieldAddressAutocomplete';
+    static template = "FieldAddressAutocomplete";
 
     setup() {
         super.setup();
-        this.rpc = useService("rpc");
-        this.userService = useService("user");                     // ← servicio user
-        this.input = useRef('inputAddress');
-        this.mapContainer = useRef('mapContainer');
+
+        this.input = useRef("inputAddress");
+        this.mapContainer = useRef("mapContainer");
         this.state = useState({ apiKeyAvailable: true });
 
-        // bandera de edición según grupo
-        this.canEditAddress = false;
-
-        useInputField({ getValue: () => this.props.value || "", refName: "inputAddress" });
+        useInputField({
+            getValue: () => this.props.value || "",
+            refName: "inputAddress",
+        });
 
         onMounted(() => {
             const initMapWithExistingData = () => {
@@ -33,19 +31,19 @@ export class AddressAutocompleteField extends Component {
                 let lat = recordData.latitude;
                 let lng = recordData.longitude;
 
-                if (!lat || !lng) {
-                    const latInput = document.getElementById('latitude');
-                    const lngInput = document.getElementById('longitude');
+                if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) {
+                    const latInput = document.getElementById("latitude");
+                    const lngInput = document.getElementById("longitude");
                     lat = latInput ? parseFloat(latInput.value || latInput.innerText) : NaN;
                     lng = lngInput ? parseFloat(lngInput.value || lngInput.innerText) : NaN;
                 }
 
-                if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+                if (lat != null && lng != null && !isNaN(lat) && !isNaN(lng)) {
                     this.initializeMap(lat, lng);
                 } else if (this.props.value) {
                     const geocoder = new google.maps.Geocoder();
                     geocoder.geocode({ address: this.props.value }, (results, status) => {
-                        if (status === 'OK' && results[0]) {
+                        if (status === "OK" && results[0]) {
                             this.updateMap(results[0].geometry.location);
                         } else {
                             this.initializeMap(null, null);
@@ -56,7 +54,7 @@ export class AddressAutocompleteField extends Component {
                 }
             };
 
-            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+            if (typeof google !== "undefined" && google.maps && google.maps.places) {
                 initMapWithExistingData();
             } else {
                 window.initMap = () => {
@@ -66,17 +64,11 @@ export class AddressAutocompleteField extends Component {
         });
 
         onWillStart(async () => {
-            // 1) determinar si el usuario puede editar, según grupos
-            const inContactsMap = await this.userService.hasGroup("__contacts.__custom__contacts_contact_map");
-            const inAccessManager = await this.userService.hasGroup("zehntech_access_restriction_by_ip.group_access_manager");
-            this.canEditAddress = inContactsMap || inAccessManager;     // ← OR entre ambos grupos [web:105][web:123]
-
-            // 2) cargar API key de Google
             let apiKey;
             try {
                 apiKey = await rpc.query({
-                    model: 'res.google.api',
-                    method: 'api_key_get',
+                    model: "res.google.api",
+                    method: "api_key_get",
                     args: [],
                 });
             } catch (error) {
@@ -98,8 +90,8 @@ export class AddressAutocompleteField extends Component {
                 return;
             }
 
-            const jQueryScript = document.createElement('script');
-            jQueryScript.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+            const jQueryScript = document.createElement("script");
+            jQueryScript.src = "https://code.jquery.com/jquery-3.6.0.min.js";
             jQueryScript.onload = () => {
                 this.initializeJQuery();
             };
@@ -109,12 +101,12 @@ export class AddressAutocompleteField extends Component {
 
     initializeJQuery() {
         var $ = jQuery.noConflict(true);
-        $(document).ready(function() {
-            $('.o_content').on('scroll', function() {
-                $('.pac-container').hide();
+        $(document).ready(function () {
+            $(".o_content").on("scroll", function () {
+                $(".pac-container").hide();
             });
-            $('.o_form_sheet_bg').on('scroll', function() {
-                $('.pac-container').hide();
+            $(".o_form_sheet_bg").on("scroll", function () {
+                $(".pac-container").hide();
             });
         });
     }
@@ -124,34 +116,26 @@ export class AddressAutocompleteField extends Component {
 
         const input = this.input.el;
 
-        // --- aquí se aplica el modo solo lectura según grupo ---
-        if (!this.canEditAddress) {
-            input.readOnly = true;                                   // [web:89][web:97]
+        if (this.props.readonly) {
+            input.readOnly = true;
             input.setAttribute("readonly", "readonly");
             input.classList.add("o_readonly_modifier");
-            // si quieres bloquear incluso foco/click, descomenta:
-            // input.tabIndex = -1;
-            // input.style.pointerEvents = "none";
             return;
         } else {
-            // asegurarse de que el input esté editable para grupos permitidos
             input.readOnly = false;
             input.removeAttribute("readonly");
             input.classList.remove("o_readonly_modifier");
-            // input.tabIndex = 0;
-            // input.style.pointerEvents = "";
         }
-        // -------------------------------------------------------
 
         const autocomplete = new google.maps.places.Autocomplete(input, {
-            types: ['address'],
-            fields: ['formatted_address', 'geometry'],
+            types: ["address"],
+            fields: ["formatted_address", "geometry"],
         });
 
         const geocoder = new google.maps.Geocoder();
         const coordRegex = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
 
-        input.addEventListener('input', () => {
+        input.addEventListener("input", () => {
             const value = input.value.trim();
             const isCoordinates = coordRegex.test(value);
 
@@ -164,8 +148,11 @@ export class AddressAutocompleteField extends Component {
         });
 
         const saveCoordinates = async (latitude, longitude, displayValue = null) => {
+            const valueToShow = displayValue || `${latitude}, ${longitude}`;
+
             if (this.props.record && this.props.record.update) {
                 await this.props.record.update({
+                    [this.props.name]: valueToShow,
                     latitude: latitude,
                     longitude: longitude,
                     partner_latitude: latitude,
@@ -173,8 +160,6 @@ export class AddressAutocompleteField extends Component {
                 });
             }
 
-            const valueToShow = displayValue || `${latitude}, ${longitude}`;
-            await this.props.update(valueToShow);
             input.value = valueToShow;
             this.initializeMap(latitude, longitude);
         };
@@ -189,26 +174,26 @@ export class AddressAutocompleteField extends Component {
             await saveCoordinates(latitude, longitude, formattedAddress);
         };
 
-        autocomplete.addListener('place_changed', async () => {
+        autocomplete.addListener("place_changed", async () => {
             const place = autocomplete.getPlace();
             if (place.geometry) {
                 await fillAddressFields(place);
             }
         });
 
-        input.addEventListener('change', async () => {
+        input.addEventListener("change", async () => {
             const val = input.value.trim();
 
             if (!coordRegex.test(val)) return;
 
-            const [latStr, lngStr] = val.split(',');
+            const [latStr, lngStr] = val.split(",");
             const lat = parseFloat(latStr.trim());
             const lng = parseFloat(lngStr.trim());
 
             await saveCoordinates(lat, lng, `${lat}, ${lng}`);
 
-            geocoder.geocode({ location: { lat, lng } }, async (results, status) => {
-                if (status === 'OK' && results[0]) {
+            geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                if (status === "OK" && results[0]) {
                     console.info("Dirección aproximada encontrada:", results[0].formatted_address);
                 } else {
                     console.warn("Google Maps no encontró una dirección para estas coordenadas.");
