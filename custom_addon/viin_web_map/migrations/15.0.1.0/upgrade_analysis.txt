@@ -1,0 +1,7 @@
+---Models in module 'viin_web_map'---
+---Fields in module 'viin_web_map'---
+viin_web_map / ir.actions.act_window.view / view_mode (False)             : selection_keys is now '['activity', 'calendar', 'form', 'gantt', 'graph', 'kanban', 'pivot', 'qweb', 'tree', 'viin_map']' ('['activity', 'calendar', 'custom_info', 'form', 'gantt', 'graph', 'kanban', 'org', 'pivot', 'qweb', 'tree', 'viin_cohort', 'viin_dashboard', 'viin_map']')
+viin_web_map / ir.ui.view               / type (False)                  : selection_keys is now '['activity', 'calendar', 'form', 'gantt', 'graph', 'kanban', 'pivot', 'qweb', 'search', 'tree', 'viin_map']' ('['activity', 'calendar', 'custom_info', 'form', 'gantt', 'graph', 'kanban', 'org', 'pivot', 'qweb', 'search', 'tree', 'viin_cohort', 'viin_dashboard', 'viin_map']')
+---XML records in module 'viin_web_map'---
+DEL ir.ui.view: viin_web_map.assets_backend
+DEL ir.ui.view: viin_web_map.qunit_suite

@@ -1,0 +1,4 @@
+---Classes in module ---
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_contacts_map/__init__.py
+

@@ -1,0 +1,133 @@
+$viin_map-table-row-padding: 18px;
+$viin_map-number-color: $o-white;
+$viin_map-number-font-size: 20px;
+
+.leaflet-popup-content {
+    padding: 20px 0 13px 19px;
+    margin: 0;
+    > div {
+        max-height: 415px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+    > div > div {
+        margin-top: 10px;
+    }
+
+    > div > div:first-child {
+        margin-top: 0;
+    }
+}
+
+.o_viin_map_view {
+  height: 100%;
+
+  .o_viin_map_container {
+    height: 100%;
+    position: fixed;
+
+    .o_viin_map_popup_table {
+      vertical-align: top;
+
+      .content_label {
+        font-weight: bold;
+        line-height: $viin_map-table-row-padding;
+        white-space: nowrap;
+        vertical-align: baseline;
+        padding-right: 4px;
+      }
+
+      .content_value {
+        vertical-align: baseline;
+      }
+    }
+
+    div {
+      .o_viin_map_edit {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .o_viin_pin_list_container {
+    background-color: $o-white;
+    height: 100%;
+    padding: 7px 7px 21px;
+    border-left: 1px solid #dce4e6;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    cursor: default;
+
+    .o_viin_pin_list_header {
+      text-transform: uppercase;
+      color: $gray-500;
+      padding: 7px 0;
+
+      i {
+        color: $o-enterprise-color;
+        margin-right: 0.25rem;
+      }
+
+      span {
+        font-weight: bold;
+      }
+    }
+
+    .o_viin_pin_list_details {
+      padding-bottom: 0;
+      padding-left: 0;
+
+      a {
+        color: $gray-900;
+      }
+
+      > li {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        list-style-position: inside;
+
+        &.o_pin_located:hover {
+          text-decoration: none;
+          background-color: $o-gray-100;
+        }
+
+        &:not(.o_pin_located) {
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    ul.o_viin_pin_list_details {
+      cursor: default;
+      padding-bottom: 2px;
+      list-style: none;
+    }
+  }
+
+  .o_viin_numbered_marker {
+    background-image: url("../../lib/leaflet/images/marker-icon-numbered.png");
+    height: 45px !important;
+    width: 28px !important;
+    margin-top: -45px !important;
+    margin-left: -15px !important;
+  }
+
+  .o_viin_number_icon {
+    color: $viin_map-number-color;
+    font-size: $viin_map-number-font-size;
+    text-align: center;
+    margin-top: 10%;
+  }
+
+  .o_viin_map_direction {
+    color: $viin_map-number-color;
+  }
+}
+
+// prevent rtlcss to reverse the map position
+.leaflet-pane, .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-tile-container,
+.leaflet-pane > svg, .leaflet-pane > canvas, .leaflet-zoom-box, .leaflet-image-layer, .leaflet-layer {
+  left: 0 #{"/*rtl:ignore*/"};
+  right: auto #{"/*rtl:ignore*/"};
+}

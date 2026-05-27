@@ -1,0 +1,213 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* viin_web_map
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-04-13 09:54+0000\n"
+"PO-Revision-Date: 2022-04-13 09:54+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: viin_web_map
+#: model_terms:ir.ui.view,arch_db:viin_web_map.res_config_settings_view_form
+msgid ""
+"<i class=\"fa fa-arrow-right\"/>\n"
+"                            Get mapbox® token"
+msgstr ""
+
+#. module: viin_web_map
+#: model_terms:ir.ui.view,arch_db:viin_web_map.res_config_settings_view_form
+msgid "Access Token:"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model,name:viin_web_map.model_ir_actions_act_window_view
+msgid "Action Window View"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/js/viin_map_model.js:0
+#, python-format
+msgid ""
+"An error occured while fetching partner coordinate. Please reload the page!"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model,name:viin_web_map.model_base
+msgid "Base"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model,name:viin_web_map.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model,name:viin_web_map.model_res_partner
+msgid "Contact"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/xml/templates.xml:0
+#, python-format
+msgid "Edit"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model,name:viin_web_map.model_base_geocoder
+msgid "Geo Coder"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields,field_description:viin_web_map.field_res_partner__partner_latitude
+#: model:ir.model.fields,field_description:viin_web_map.field_res_users__partner_latitude
+msgid "Geo Latitude"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.actions.server,name:viin_web_map.ir_cron_fill_coordinates_ir_actions_server
+#: model:ir.cron,cron_name:viin_web_map.ir_cron_fill_coordinates
+#: model:ir.cron,name:viin_web_map.ir_cron_fill_coordinates
+msgid "Geo Localization: coordinate filling"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields,field_description:viin_web_map.field_res_partner__partner_longitude
+#: model:ir.model.fields,field_description:viin_web_map.field_res_users__partner_longitude
+msgid "Geo Longitude"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/xml/templates.xml:0
+#, python-format
+msgid "Get directions"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model,name:viin_web_map.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields,field_description:viin_web_map.field_res_config_settings__mapbox_token_invalid_warning
+msgid "Invalid mapbox® Token Warning"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/js/viin_map_model.js:0
+#, python-format
+msgid "Invalid token"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/js/viin_map_view.js:0
+#, python-format
+msgid "Items"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields.selection,name:viin_web_map.selection__ir_actions_act_window_view__view_mode__viin_map
+#: model:ir.model.fields.selection,name:viin_web_map.selection__ir_ui_view__type__viin_map
+msgid "Map"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/js/viin_map_model.js:0
+#, python-format
+msgid "Map server unreachable"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields,field_description:viin_web_map.field_res_config_settings__mapbox_token
+msgid "Mapbox Token"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields,field_description:viin_web_map.field_res_partner__mapping_address
+#: model:ir.model.fields,field_description:viin_web_map.field_res_users__mapping_address
+msgid "Mapping Address"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields,help:viin_web_map.field_res_config_settings__mapbox_token
+msgid "Necessary for routing and styling in the viin_map view"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/xml/templates.xml:0
+#, python-format
+msgid "Open in Google Maps"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields,help:viin_web_map.field_res_partner__mapping_address
+#: model:ir.model.fields,help:viin_web_map.field_res_users__mapping_address
+msgid "The complete address of the partner which will be used for map view"
+msgstr ""
+
+#. module: viin_web_map
+#: code:addons/viin_web_map/models/res_config_settings.py:0
+#, python-format
+msgid "The mapbox® server is currently unreachable. Please try again later."
+msgstr ""
+
+#. module: viin_web_map
+#: code:addons/viin_web_map/models/res_config_settings.py:0
+#, python-format
+msgid "The token input is not valid"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/js/viin_map_model.js:0
+#, python-format
+msgid ""
+"The view has been switched to another provider but functionalities might be "
+"limited."
+msgstr ""
+
+#. module: viin_web_map
+#: code:addons/viin_web_map/models/res_config_settings.py:0
+#, python-format
+msgid "This referrer is not authorized"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/js/viin_map_model.js:0
+#, python-format
+msgid "Timed out"
+msgstr ""
+
+#. module: viin_web_map
+#. openerp-web
+#: code:addons/viin_web_map/static/src/js/viin_map_model.js:0
+#: code:addons/viin_web_map/static/src/js/viin_map_model.js:0
+#, python-format
+msgid "Unauthorized connection"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model,name:viin_web_map.model_ir_ui_view
+msgid "View"
+msgstr ""
+
+#. module: viin_web_map
+#: model:ir.model.fields,field_description:viin_web_map.field_ir_actions_act_window_view__view_mode
+#: model:ir.model.fields,field_description:viin_web_map.field_ir_ui_view__type
+msgid "View Type"
+msgstr ""

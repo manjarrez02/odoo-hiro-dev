@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_view_map" model="ir.ui.view">
+        <field name="name">res.partner.view.map</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <viin_map res_partner="id">
+                <marker-popup>
+                    <field name="name" string="Name "/>
+                    <field name="mapping_address" string="Address "/>
+                </marker-popup>
+            </viin_map>
+        </field>
+    </record>
+
+    <!-- Contactos -->
+    <record id="contacts.action_contacts" model="ir.actions.act_window">
+        <field name="view_mode">kanban,tree,form,activity,viin_map</field>
+    </record>
+
+    <record id="res_partner_action_contacts_view_map" model="ir.actions.act_window.view">
+        <field name="sequence" eval="99"/>
+        <field name="view_mode">viin_map</field>
+        <field name="view_id" ref="res_partner_view_map"/>
+        <field name="act_window_id" ref="contacts.action_contacts"/>
+    </record>
+
+    <!-- Clientes -->
+    <record id="account.res_partner_action_customer" model="ir.actions.act_window">
+        <field name="view_mode">kanban,tree,form,activity,viin_map</field>
+    </record>
+
+    <record id="res_partner_action_customer_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">kanban</field>
+        <field name="act_window_id" ref="account.res_partner_action_customer"/>
+    </record>
+
+    <record id="res_partner_action_customer_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="account.res_partner_action_customer"/>
+    </record>
+
+    <record id="res_partner_action_customer_view_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">form</field>
+        <field name="act_window_id" ref="account.res_partner_action_customer"/>
+    </record>
+
+    <record id="res_partner_action_customer_view_activity" model="ir.actions.act_window.view">
+        <field name="sequence" eval="4"/>
+        <field name="view_mode">activity</field>
+        <field name="act_window_id" ref="account.res_partner_action_customer"/>
+    </record>
+
+    <record id="res_partner_action_customer_view_map" model="ir.actions.act_window.view">
+        <field name="sequence" eval="99"/>
+        <field name="view_mode">viin_map</field>
+        <field name="view_id" ref="res_partner_view_map"/>
+        <field name="act_window_id" ref="account.res_partner_action_customer"/>
+    </record>
+
+    <!-- Proveedores -->
+    <record id="account.res_partner_action_supplier" model="ir.actions.act_window">
+        <field name="view_mode">kanban,tree,form,activity,viin_map</field>
+    </record>
+
+    <record id="res_partner_action_supplier_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">kanban</field>
+        <field name="act_window_id" ref="account.res_partner_action_supplier"/>
+    </record>
+
+    <record id="res_partner_action_supplier_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="account.res_partner_action_supplier"/>
+    </record>
+
+    <record id="res_partner_action_supplier_view_form" model="ir.actions.act_window.view">
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">form</field>
+        <field name="act_window_id" ref="account.res_partner_action_supplier"/>
+    </record>
+
+    <record id="res_partner_action_supplier_view_activity" model="ir.actions.act_window.view">
+        <field name="sequence" eval="4"/>
+        <field name="view_mode">activity</field>
+        <field name="act_window_id" ref="account.res_partner_action_supplier"/>
+    </record>
+
+    <record id="res_partner_action_supplier_view_map" model="ir.actions.act_window.view">
+        <field name="sequence" eval="99"/>
+        <field name="view_mode">viin_map</field>
+        <field name="view_id" ref="res_partner_view_map"/>
+        <field name="act_window_id" ref="account.res_partner_action_supplier"/>
+    </record>
+</odoo>

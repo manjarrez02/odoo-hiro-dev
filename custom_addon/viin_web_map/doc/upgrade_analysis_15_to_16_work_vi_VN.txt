@@ -1,0 +1,131 @@
+---Classes in module ---
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/validation.py
+--- Không thay đổi
+
+@view_validation.validate('viin_map')
+def schema_map_view(arch, **kwargs):
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/__init__.py
+--- Không thay đổi
+
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/controllers/__init__.py
+--- Không thay đổi
+
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/controllers/main.py
+--- Không thay đổi
+
+class ViinMap(http.Controller):
+
+    @http.route('/viin_map/update_latitude_longitude', type='json', auth='user', website=True)
+    def update_latitude_longitude(self, partners, **kw):
+    @http.route('/viin_map/fetch_coordinate_from_address', type='json', auth='user', website=True, csrf=False)
+    def fetch_coordinate_from_address(self, partner_id, **kw):
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/models/base.py
+--- Không thay đổi
+
+class Base(models.AbstractModel):
+    _inherit = 'base'
+
+
+    @api.model
+    def _get_default_map_view(self):
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/models/res_partner.py
+--- Xử lý # TODO: The method `_fill_coordinates()` is deprecated
+--- Xử lý # TODO: remove check condition the field `coordinate_filling_times` is available
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+
+    mapping_address = fields.Char(string='Mapping Address', compute='_compute_mapping_address', store=True,
+                                   help="The complete address of the partner which will be used for map view")
+    partner_latitude = fields.Float(compute='_compute_coordinates', store=True, readonly=False)
+    partner_longitude = fields.Float(compute='_compute_coordinates', store=True, readonly=False)
+    def _update_latitude_longitude(self, partner_latitude, partner_longitude):
+    def _get_geocoder_context(self):
+    def geo_find(self):
+    @api.depends('street', 'zip', 'city', 'state_id', 'country_id')
+    def _compute_coordinates(self):
+    @api.depends('street', 'street2', 'zip', 'city', 'country_id')
+    def _compute_mapping_address(self):
+    @api.model
+    def _fill_coordinates(self):
+    @api.model
+    def _cron_fill_coordinates(self):
+    @api.model
+    def _geo_localize(self, street='', zip='', city='', state='', country=''):
+        # TODO: fix this in Odoo core: https://github.com/odoo/odoo/blob/a126f007573a41d22108d9d7887f92b6926ef3ec/addons/base_geolocalize/models/res_partner.py#L25-L32
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/models/ir_ui_view.py
+--- Không thay đổi.
+
+class View(models.Model):
+    _inherit = 'ir.ui.view'
+
+
+    type = fields.Selection(selection_add=[('viin_map', "Map")], ondelete={'viin_map': 'cascade'})
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/models/res_config_settings.py
+--- Không thay đổi.
+
+class ResConfigSettings(models.TransientModel):
+    _inherit = 'res.config.settings'
+
+
+    mapbox_token = fields.Char(config_parameter='viin_web_map.mapbox_token', string='Mapbox Token',
+                                help='Necessary for routing and styling in the viin_map view',
+                                copy=True, default='', store=True)
+    mapbox_token_invalid_warning = fields.Char(string='Invalid mapbox® Token Warning', compute='_compute_mapbox_token_invalid_warning')
+    @api.depends('mapbox_token')
+    def _compute_mapbox_token_invalid_warning(self):
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/models/__init__.py
+--- Không thay đổi
+
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/models/ir_action.py
+--- Không thay đổi
+
+class ActWindowView(models.Model):
+    _inherit = 'ir.actions.act_window.view'
+
+
+    view_mode = fields.Selection(selection_add=[('viin_map', "Map")], ondelete={'viin_map': 'cascade'})
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/models/base_geocoder.py
+--- Không thay đổi
+
+class GeoCoder(models.AbstractModel):
+    _inherit = "base.geocoder"
+
+
+    @api.model
+    def _geo_query_address_default(self, street=None, zip=None, city=None, state=None, country=None):
+    @api.model
+    def _geo_query_address_mapbox(self, street=None, zip=None, city=None, state=None, country=None):
+    @api.model
+    def _call_mapbox(self, addr, **kw):
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/models/ir_http.py
+--- Không thay đổi
+
+class IrHttp(models.AbstractModel):
+    _inherit = 'ir.http'
+
+
+    def session_info(self):
+        """
+        Add mapbox® token to http session for usage in js client
+        """
+
+
+FILE: /home/royle/Viindoo/erponline-enterprise-16.0/viin_web_map/migrations/15.0.1.0.1/post-migration.py
+--- Không thay đổi
+
+def _update_cron_method(env):
+def migrate(cr, version):
