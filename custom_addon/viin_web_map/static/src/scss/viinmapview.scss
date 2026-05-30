@@ -131,3 +131,25 @@ $viin_map-number-font-size: 20px;
   left: 0 #{"/*rtl:ignore*/"};
   right: auto #{"/*rtl:ignore*/"};
 }
+
+.o_viin_numbered_marker {
+    background: transparent;
+    border: none;
+}
+
+.o_viin_numbered_marker .o_viin_number_icon {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    margin: 0;
+    border-radius: 50%;
+    text-align: center;
+    color: #fff;
+    background: #2b6cb0;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.o_viin_numbered_marker_selected .o_viin_number_icon {
+    background: #dc2626;
+}

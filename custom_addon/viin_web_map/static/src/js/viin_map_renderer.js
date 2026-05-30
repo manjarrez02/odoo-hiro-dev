@@ -25,6 +25,26 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
             this.geo_provider = state.geo_provider;
             this.mapBoxToken = state.mapBoxToken;
 
+            this.selectedMarker = null;
+
+            this.defaultMarkerIcon = window.L.icon({
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            this.selectedMarkerIcon = window.L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
             if (this.geo_provider === 'mapbox' && this.mapBoxToken) {
                 this.tileDataUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}';
             } else {
@@ -39,7 +59,9 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
             _.each(this.polylines, function (pol) {
                 pol.off('click');
             });
-            this.lMap.remove();
+            if (this.lMap) {
+                this.lMap.remove();
+            }
             return this._super(...arguments);
         },
 
@@ -64,8 +86,8 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
         on_detach_callback: function () {
             this.isInDom = false;
             this.state.timmers.forEach((t) => {
-                clearTimeout(t)
-            })
+                clearTimeout(t);
+            });
         },
 
         _render: function () {
@@ -95,11 +117,10 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
             });
 
             window.L.tileLayer(this.tileDataUrl, {
-				tileSize: 512,
+                tileSize: 512,
                 minZoom: 4,
                 maxZoom: 20,
-				attribution: '© <a href="https://www.google.com/maps/about/" target="_blank">Google Map</a> © <a href="https://www.mapbox.com/about/maps/" target="_blank">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
-
+                attribution: '© <a href="https://www.google.com/maps/about/" target="_blank">Google Map</a> © <a href="https://www.mapbox.com/about/maps/" target="_blank">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
                 zoomOffset: -1,
                 accessToken: this.mapBoxToken,
                 id: 'mapbox/streets-v11',
@@ -127,7 +148,7 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
                     $openButton.on('click', () => {
                         self.trigger_up('marker_edit_clicked', {id: record.id});
                     });
-                } else {
+                } else if ($openButton.length) {
                     $openButton[0].remove();
                 }
                 $popups = $popups ? $popups.add($popup) : $popup;
@@ -157,54 +178,114 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
             };
         },
 
+        _makeNumberedIcon: function (index, selected) {
+            return window.L.divIcon({
+                className: selected ? 'o_viin_numbered_marker o_viin_numbered_marker_selected' : 'o_viin_numbered_marker',
+                html: `<p class="o_viin_number_icon">${index}</p>`
+            });
+        },
+
+        _resetSelectedMarker: function () {
+            if (!this.selectedMarker) {
+                return;
+            }
+
+            if (this.numbering) {
+                const originalIndex = this.selectedMarker.options.viinIndex;
+                this.selectedMarker.setIcon(this._makeNumberedIcon(originalIndex, false));
+            } else {
+                this.selectedMarker.setIcon(this.defaultMarkerIcon);
+            }
+        },
+
+        _highlightMarker: function (marker) {
+            if (!marker) {
+                return;
+            }
+
+            if (this.selectedMarker && this.selectedMarker !== marker) {
+                this._resetSelectedMarker();
+            }
+
+            if (this.numbering) {
+                marker.setIcon(this._makeNumberedIcon(marker.options.viinIndex, true));
+            } else {
+                marker.setIcon(this.selectedMarkerIcon);
+            }
+
+            this.selectedMarker = marker;
+        },
+
         _renderMarkers: function () {
-            // Remove old markers
             _.each(this.markers, marker => {
                 this.lMap.removeLayer(marker);
             });
             this.markers = [];
+            this.selectedMarker = null;
+
             var self = this;
             var group_by_longlat = [];
+
             _.each(this.state.records, record => {
                 if (!record.partner || !record.partner.partner_latitude || !record.partner.partner_longitude) {
                     return;
                 }
-                // find existing longlat in group_by_longlat
-                var longlat_existed = false
+
+                var longlat_existed = false;
                 for (var i = 0; i < group_by_longlat.length; i++) {
                     if (group_by_longlat[i]['longlat']['long'] == record.partner.partner_longitude &&
                         group_by_longlat[i]['longlat']['lat'] == record.partner.partner_latitude) {
-                            group_by_longlat[i]['records'].push(record)
-                            longlat_existed = true
-                        }
-                }
-                if(!longlat_existed) {
-                    var record_longlat = {
-                        'longlat': {'long': record.partner.partner_longitude, 'lat': record.partner.partner_latitude},
-                        'records': [record]
+                        group_by_longlat[i]['records'].push(record);
+                        longlat_existed = true;
                     }
-                    group_by_longlat.push(record_longlat)
                 }
-            })
+
+                if (!longlat_existed) {
+                    group_by_longlat.push({
+                        'longlat': {
+                            'long': record.partner.partner_longitude,
+                            'lat': record.partner.partner_latitude
+                        },
+                        'records': [record]
+                    });
+                }
+            });
 
             _.each(group_by_longlat, longlat => {
                 let marker, offset;
+                const index = this.state.records.indexOf(longlat['records'][0]) + 1;
+
                 if (this.numbering) {
-                    const icon = window.L.divIcon({
-                        className: 'o_viin_numbered_marker',
-                        html: `<p class ="o_viin_number_icon">${this.state.records.indexOf(longlat['records'][0]) + 1}</p>`
-                    });
-                    marker = window.L.marker([longlat['longlat']['lat'], longlat['longlat']['long']], {icon: icon});
+                    marker = window.L.marker(
+                        [longlat['longlat']['lat'], longlat['longlat']['long']],
+                        {
+                            icon: this._makeNumberedIcon(index, false),
+                            viinIndex: index
+                        }
+                    );
                     offset = new window.L.Point(0, -35);
                 } else {
-                    marker = window.L.marker([longlat['longlat']['lat'], longlat['longlat']['long']]);
+                    marker = window.L.marker(
+                        [longlat['longlat']['lat'], longlat['longlat']['long']],
+                        {
+                            icon: this.defaultMarkerIcon,
+                            viinIndex: index
+                        }
+                    );
                     offset = new window.L.Point(0, 0);
                 }
-                marker.addTo(this.lMap).bindPopup(function() {
-                    return self._renderMarkerPopup(longlat['records'])
-                },  {offset: offset});
+
+                marker
+                    .addTo(this.lMap)
+                    .bindPopup(function () {
+                        return self._renderMarkerPopup(longlat['records']);
+                    }, {offset: offset})
+                    .on('click', function () {
+                        self._highlightMarker(marker);
+                    });
+
                 this.markers.push(marker);
-            })
+            });
         },
 
         _renderRoutes: function () {
@@ -214,7 +295,6 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
                 return;
             }
 
-            // Remove old routes
             _.each(this.polylines, pol => {
                 this.lMap.removeLayer(pol);
             });
@@ -224,7 +304,6 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
                 return;
             }
 
-            // Add new routes
             _.each(route.routes[0].legs, leg => {
                 const latLngs = [];
                 _.each(leg.steps, step => {
@@ -246,6 +325,7 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
                         this.setStyle({color: 'darkblue', opacity: 1.0});
                         this.bringToFront();
                     });
+
                 self.polylines.push(polyline);
             });
         },
@@ -253,25 +333,32 @@ odoo.define('viin_web_map.ViinMapRenderer', function (require) {
         _renderPinList: function () {
             this.$pinList = $(qweb.render('ViinMapView.pinlist', {widget: this}));
             const $div = this.$el.find('.o_viin_pin_list_container');
+
             if ($div.length) {
                 $div.replaceWith(this.$pinList);
             } else {
                 this.$el.append(this.$pinList);
             }
+
             this.$('.o_viin_pin_list_container li a').on('click', this._openPin.bind(this));
-			// Add 'updating' tooltip
-			$('.o_viin_pin_list_container li .text-muted').attr('data-toogle', 'tooltip');
-			$('.o_viin_pin_list_container li .text-muted').attr('title', 'Updating');
+
+            $('.o_viin_pin_list_container li .text-muted').attr('data-toogle', 'tooltip');
+            $('.o_viin_pin_list_container li .text-muted').attr('title', 'Updating');
         },
 
         _openPin: function (e) {
             e.preventDefault();
-            // Centering map to the pin
-            this.lMap.panTo(e.target.dataset, {animate: true});
+
+            const data = e.currentTarget.dataset;
+
+            this.lMap.panTo([parseFloat(data.lat), parseFloat(data.lng)], {animate: true});
+
             const marker = this.markers.find((m) => {
-                return m._latlng.lat === e.target.dataset.lat && m._latlng.lng === e.target.dataset.lng;
+                return m._latlng.lat == parseFloat(data.lat) && m._latlng.lng == parseFloat(data.lng);
             });
+
             if (marker) {
+                this._highlightMarker(marker);
                 marker.openPopup();
             }
         },
