@@ -1,0 +1,555 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* optimal_route_generator
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-06 21:10+0000\n"
+"PO-Revision-Date: 2026-06-06 21:10+0000\n"
+"Last-Translator: \n"
+"Language-Team: Spanish (Mexico)\n"
+"Language: es_MX\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: optimal_route_generator
+#: model:ir.actions.report,print_report_name:optimal_route_generator.action_report_route_history
+msgid "'Route Report - %s' % (object.sequence_name or object.name)"
+msgstr "'Reporte de ruta - %s' % (object.sequence_name or object.name)"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Avoid:</strong>"
+msgstr "<strong>Evitar:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Departure:</strong>"
+msgstr "<strong>Salida:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Final address:</strong>"
+msgstr "<strong>Dirección final:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Final contact:</strong>"
+msgstr "<strong>Contacto final:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Folio:</strong>"
+msgstr "<strong>Folio:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Observations:</strong>"
+msgstr "<strong>Observaciones:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Origin address:</strong>"
+msgstr "<strong>Dirección de origen:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Origin:</strong>"
+msgstr "<strong>Origen:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Route:</strong>"
+msgstr "<strong>Ruta:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Total estimated time:</strong>"
+msgstr "<strong>Tiempo estimado total:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "<strong>Total stops:</strong>"
+msgstr "<strong>Total de paradas:</strong>"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "Address"
+msgstr "Dirección"
+
+#. module: optimal_route_generator
+#: model:res.groups,name:optimal_route_generator.group_route_history
+msgid "Allow Route History?"
+msgstr "¿Permitir historial de rutas?"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__avoid_ferries
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__avoid_ferries
+msgid "Avoid ferries"
+msgstr "Evitar ferris"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__avoid_highways
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__avoid_highways
+msgid "Avoid highways"
+msgstr "Evitar autopistas"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__avoid_tolls
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__avoid_tolls
+msgid "Avoid tolls"
+msgstr "Evitar peajes"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_wizard_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_history_form
+msgid "Close"
+msgstr "Cerrar"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_res_partner
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__create_uid
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__create_uid
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__create_uid
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__create_date
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__create_date
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__create_date
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/wizard/route_wizard.py:0
+#, python-format
+msgid "Debes seleccionar origen y al menos un destino."
+msgstr "Debes seleccionar origen y al menos un destino."
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__departure_time
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__departure_time
+msgid "Departure Date and Time"
+msgstr "Fecha y hora de salida"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__destination_ids
+msgid "Destination Contacts"
+msgstr "Contactos destino"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__destination_ids
+msgid "Destinations (Ordered)"
+msgstr "Destinos (ordenados)"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__display_name
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__display_name
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__display_name
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/wizard/route_wizard.py:0
+#, python-format
+msgid "El %s '%s' no tiene coordenadas geográficas."
+msgstr "El %s '%s' no tiene coordenadas geográficas."
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "El %s debe incluir 'lat' y 'lon'."
+msgstr "El %s debe incluir 'lat' y 'lon'."
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "El %s debe ser un dict."
+msgstr "El %s debe ser un dict."
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "El %s tiene coordenadas fuera de rango."
+msgstr "El %s tiene coordenadas fuera de rango."
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "El %s tiene coordenadas inválidas."
+msgstr "El %s tiene coordenadas inválidas."
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "Ferries"
+msgstr "Ferris"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__final_id
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__final_id
+msgid "Final Contact"
+msgstr "Contacto final"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__sequence_name
+msgid "Folio"
+msgstr "Folio"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__note
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__note
+msgid "General Notes"
+msgstr "Notas generales"
+
+#. module: optimal_route_generator
+#: model:ir.actions.act_window,name:optimal_route_generator.action_open_route_wizard
+#: model:ir.actions.server,name:optimal_route_generator.action_generate_history_route_from_list
+#: model:ir.actions.server,name:optimal_route_generator.action_generate_partner_route_from_list
+#: model:ir.actions.server,name:optimal_route_generator.action_generate_purchase_route
+#: model:ir.actions.server,name:optimal_route_generator.action_generate_sale_route_from_list
+msgid "Generate Optimal Route"
+msgstr "Generar ruta óptima"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_history.py:0
+#, python-format
+msgid "Generated Route"
+msgstr "Ruta generada"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_route_history
+msgid "Generated Route History"
+msgstr "Historial de rutas generadas"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__google_url
+msgid "Google Map URL"
+msgstr "URL de Google Maps"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__google_url
+msgid "Google Maps URL"
+msgstr "URL de Google Maps"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "Google Routes API no devolvió rutas."
+msgstr "Google Routes API no devolvió rutas."
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "Google Routes API permite hasta 25 paradas intermedias en este flujo. Recibidas: %s"
+msgstr "Google Routes API permite hasta 25 paradas intermedias en este flujo. Recibidas: %s"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "Google devolvió un orden de waypoints inválido."
+msgstr "Google devolvió un orden de waypoints inválido."
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "Highways"
+msgstr "Autopistas"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__history_id
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__history_id
+msgid "History"
+msgstr "Historial"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__id
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__id
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__id
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/wizard/route_wizard.py:0
+#, python-format
+msgid "La ruta generada no tiene suficientes puntos para abrir Google Maps."
+msgstr "La ruta generada no tiene suficientes puntos para abrir Google Maps."
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history____last_update
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line____last_update
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard____last_update
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line____last_update
+msgid "Last Modified on"
+msgstr "Última modificación el"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__write_uid
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__write_uid
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__write_uid
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__write_date
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__write_date
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__write_date
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_history_form
+msgid "Modify / Reoptimize"
+msgstr "Modificar / Reoptimizar"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_wizard_form
+msgid "Modify Route"
+msgstr "Modificar ruta"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_history.py:0
+#, python-format
+msgid "Modify Route %s"
+msgstr "Modificar ruta %s"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_history.py:0
+#: code:addons/optimal_route_generator/models/route_history.py:0
+#: code:addons/optimal_route_generator/models/route_history.py:0
+#, python-format
+msgid "New"
+msgstr "Nuevo"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "No fue posible consultar Google Routes API para optimizar la ruta: %s"
+msgstr "No fue posible consultar Google Routes API para optimizar la ruta: %s"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_generator.py:0
+#, python-format
+msgid "No se encontró la API key de Google Maps. Configúrala en ir.config_parameter con la llave '%s'."
+msgstr "No se encontró la API key de Google Maps. Configúrala en ir.config_parameter con la llave '%s'."
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "None"
+msgstr "Ninguno"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "Observations"
+msgstr "Observaciones"
+
+#. module: optimal_route_generator
+#: model:ir.actions.server,name:optimal_route_generator.action_open_map
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_history_form
+msgid "Open Map"
+msgstr "Abrir mapa"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_route_wizard
+msgid "Optimal Route Wizard"
+msgstr "Asistente de ruta óptima"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_wizard_form
+msgid "Optimize / Generate Map"
+msgstr "Optimizar / Generar mapa"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__optimize
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__optimize
+msgid "Optimize Route"
+msgstr "Optimizar ruta"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "Order"
+msgstr "Orden"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__origin_id
+msgid "Origin"
+msgstr "Origen"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__origin_id
+msgid "Origin Contact"
+msgstr "Contacto de origen"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_purchase_order
+msgid "Purchase Order"
+msgstr "Orden de compra"
+
+#. module: optimal_route_generator
+#: model:ir.actions.act_window,name:optimal_route_generator.action_route_history
+#: model:ir.ui.menu,name:optimal_route_generator.menu_route_history
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_history_form
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_history_tree
+msgid "Route History"
+msgstr "Historial de rutas"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_report_optimal_route_generator_route_history_report_document
+msgid "Route History Report"
+msgstr "Reporte de historial de rutas"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_route_history_line
+msgid "Route History Stop"
+msgstr "Parada del historial de ruta"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__name
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__name
+msgid "Route Name"
+msgstr "Nombre de la ruta"
+
+#. module: optimal_route_generator
+#: model:ir.actions.report,name:optimal_route_generator.action_report_route_history
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "Route Report"
+msgstr "Reporte de ruta"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_route_wizard_line
+msgid "Route Wizard Stop"
+msgstr "Parada del asistente de ruta"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/wizard/route_wizard.py:0
+#, python-format
+msgid "Route from %s (%s)"
+msgstr "Ruta desde %s (%s)"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_wizard_form
+msgid "Save"
+msgstr "Guardar"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__sequence
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__sequence
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__source_id
+msgid "Source ID"
+msgstr "ID de origen"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__partner_id
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__partner_id
+msgid "Stop"
+msgstr "Parada"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__note
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__note
+msgid "Stop Note"
+msgstr "Notas"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__line_ids
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__line_ids
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_history_form
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_wizard_form
+msgid "Stops"
+msgstr "Paradas"
+
+#. module: optimal_route_generator
+#: model:ir.model,name:optimal_route_generator.model_tsp_service
+msgid "TSP Optimization Service"
+msgstr "Servicio de optimización TSP"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/models/route_history.py:0
+#, python-format
+msgid "This route does not have a generated Google Maps URL yet."
+msgstr "Esta ruta aún no tiene una URL de Google Maps generada."
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__leg_duration_display
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.view_route_history_form
+msgid "Time from previous point"
+msgstr "Tiempo desde el punto anterior"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history_line__leg_duration_seconds
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__leg_duration_seconds
+msgid "Time from previous point (seconds)"
+msgstr "Tiempo desde el punto anterior (segundos)"
+
+#. module: optimal_route_generator
+#: model_terms:ir.ui.view,arch_db:optimal_route_generator.route_history_report_document
+msgid "Tolls"
+msgstr "Peajes"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__total_duration_display
+msgid "Total Duration"
+msgstr "Duración total"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_history__total_duration_seconds
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard__total_duration_seconds
+msgid "Total Duration (seconds)"
+msgstr "Duración total (segundos)"
+
+#. module: optimal_route_generator
+#: model:ir.model.fields,field_description:optimal_route_generator.field_route_wizard_line__wizard_id
+msgid "Wizard"
+msgstr "Asistente"
+
+#. module: optimal_route_generator
+#. odoo-python
+#: code:addons/optimal_route_generator/wizard/route_wizard.py:0
+#, python-format
+msgid "You must generate the map search at least once to save."
+msgstr "Debes generar la búsqueda del mapa al menos una vez antes de guardar."

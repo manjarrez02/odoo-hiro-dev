@@ -1,0 +1,67 @@
+<odoo>
+    <record id="view_route_wizard_form" model="ir.ui.view">
+        <field name="name">route.wizard.form</field>
+        <field name="model">route.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Modify Route" create="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="history_id" invisible="1"/>
+                            <field name="source_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="optimize"/>
+                            <field name="departure_time"/>
+                            <field name="avoid_tolls"/>
+                            <field name="avoid_highways"/>
+                            <field name="avoid_ferries"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="origin_id" options="{'no_create': True}" required="1"/>
+                        </group>
+                        <group>
+                            <field name="final_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group string="Stops">
+                        <field name="line_ids">
+                            <tree editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="partner_id" options="{'no_create': True}" required="1"/>
+                                <field name="note"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <group>                       
+                        <field name="google_url" widget="url" readonly="1"/>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Optimize / Generate Map"
+                            type="object"
+                            name="action_generate_route"
+                            class="btn-primary"/>
+                    <button string="Save"
+                            type="object"
+                            name="action_save_route"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_route_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Optimal Route</field>
+        <field name="res_model">route.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Grupo de acceso básico -->
+        <record id="group_route_history" model="res.groups">
+            <field name="name">Allow Route History?</field>
+        </record>
+    </data>
+</odoo>

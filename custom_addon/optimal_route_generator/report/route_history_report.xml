@@ -1,0 +1,13 @@
+<odoo>
+    <record id="action_report_route_history" model="ir.actions.report">
+        <field name="name">Route Report</field>
+        <field name="model">route.history</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">optimal_route_generator.route_history_report_document</field>
+        <field name="report_file">optimal_route_generator.route_history_report_document</field>
+        <field name="binding_model_id" ref="model_route_history"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="optimal_route_generator.paperformat_route_history_letter"/>
+        <field name="print_report_name">'Route Report - %s' % (object.sequence_name or object.name)</field>
+    </record>
+</odoo>

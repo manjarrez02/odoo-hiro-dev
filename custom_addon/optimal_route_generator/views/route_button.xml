@@ -1,0 +1,53 @@
+<odoo>
+ 
+    <record id="action_generate_purchase_route" model="ir.actions.server">
+        <field name="name">Generate Optimal Route</field>
+        <field name="model_id" ref="purchase.model_purchase_order" />
+        <field name="binding_model_id" ref="purchase.model_purchase_order" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_generate_purchase_route()</field>
+    </record>
+
+     <record id="action_generate_partner_route_from_list" model="ir.actions.server">
+        <field name="name">Generate Optimal Route</field>
+        <field name="model_id" ref="base.model_res_partner" />
+        <field name="binding_model_id" ref="base.model_res_partner" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_generate_contact_route()</field>
+    </record>
+
+    <record id="action_generate_sale_route_from_list" model="ir.actions.server">
+        <field name="name">Generate Optimal Route</field>
+        <field name="model_id" ref="sale.model_sale_order" />
+        <field name="binding_model_id" ref="sale.model_sale_order" />
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_generate_sale_route()</field>
+    </record>
+
+
+    <record id="action_generate_history_route_from_list" model="ir.actions.server">
+        <field name="name">Generate Optimal Route</field>
+        <field name="model_id" ref="optimal_route_generator.model_route_history" />
+        <field name="binding_model_id" ref="optimal_route_generator.model_route_history" />
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_generate_route()</field>
+    </record>
+
+
+      <record id="action_open_map" model="ir.actions.server">
+        <field name="name">Open Map</field>
+        <field name="model_id" ref="optimal_route_generator.model_route_history" />
+        <field name="binding_model_id" ref="optimal_route_generator.model_route_history" />
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_open_map()</field>
+    </record>
+
+
+
+</odoo>
+

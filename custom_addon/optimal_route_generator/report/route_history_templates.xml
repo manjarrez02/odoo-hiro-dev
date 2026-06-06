@@ -1,0 +1,69 @@
+<odoo>
+    <template id="route_history_report_document">
+        <t t-call="web.html_container">
+            <t t-foreach="report_docs" t-as="r">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Route Report</h2>
+                        <table class="table table-sm" style="width:100%; margin-bottom: 18px;">
+                            <tr>
+                                <td><strong>Folio:</strong> <span t-esc="r['doc'].sequence_name"/></td>
+                                <td><strong>Route:</strong> <span t-esc="r['doc'].name"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Departure:</strong> <span t-esc="r['departure_local']"/></td>
+                                <td><strong>Total estimated time:</strong> <span t-esc="r['total_duration_display']"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Origin:</strong> <span t-esc="r['origin_name']"/></td>
+                                <td><strong>Final contact:</strong> <span t-esc="r['final_name']"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Origin address:</strong> <span t-esc="r['origin_address']"/></td>
+                                <td><strong>Final address:</strong> <span t-esc="r['final_address']"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total stops:</strong> <span t-esc="r['total_stops']"/></td>
+                                <td>
+                                    <strong>Avoid:</strong>
+                                    <span t-if="r['doc'].avoid_tolls">Tolls </span>
+                                    <span t-if="r['doc'].avoid_highways">Highways </span>
+                                    <span t-if="r['doc'].avoid_ferries">Ferries</span>
+                                    <span t-if="not (r['doc'].avoid_tolls or r['doc'].avoid_highways or r['doc'].avoid_ferries)">None</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <t t-if="r['doc'].note">
+                            <div style="margin-bottom: 14px;">
+                                <strong>Observations:</strong>
+                                <div t-esc="r['doc'].note"/>
+                            </div>
+                        </t>
+
+                        <table class="table table-sm table-bordered" style="width:100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width:10%;">Order</th>
+                                    <th style="width:22%;">Contact</th>
+                                    <th style="width:38%;">Address</th>
+                                    <th style="width:15%;">Time from previous point</th>
+                                    <th style="width:15%;">Observations</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="r['lines']" t-as="line">
+                                    <td><span t-esc="line['sequence']"/></td>
+                                    <td><span t-esc="line['partner_name']"/></td>
+                                    <td><span t-esc="line['address']"/></td>
+                                    <td style="text-align:center;"><span t-esc="line['leg_duration_display']"/></td>
+                                    <td><span t-esc="line['note']"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

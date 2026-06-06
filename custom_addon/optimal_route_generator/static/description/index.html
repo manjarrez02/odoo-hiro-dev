@@ -1,0 +1,243 @@
+<!-- Ruta Optima – Module Landing Page with embedded assets -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ruta Optima – Smart Logistics & Route Optimization</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary-color: #00438B;
+            --accent-color: #00A86B;
+            --bg-white: #fff;
+            --text-color: #121212;
+            --text-light: #64728f;
+        }
+        body {
+            font-family: "Montserrat", sans-serif;
+            background: #f6f8fb;
+        }
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('/assets/banner.png');
+            background-size: cover;
+            background-position: center;
+            padding: 80px 20px;
+            text-align: center;
+            border-radius: 12px;
+            color: white;
+        }
+        .hero h1 { font-size: 44px; font-weight: 800; }
+        .hero p { font-size: 18px; margin-top: 10px; }
+        .feature-box { border-radius: 12px; background: #fff; padding: 28px; box-shadow: 0px 6px 20px rgba(0,0,0,0.06); }
+        .tab-highlight { padding: 30px; background-color: #ffffff; border-radius: 12px; }
+        .assets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 18px; }
+        .asset-card { background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 6px 14px rgba(0,0,0,0.04); }
+        .asset-card img { width: 100%; height: auto; border-radius: 6px; }
+        .caption { margin-top: 8px; font-weight: 700; color: #0b2948; }
+        .desc { color: #556b7a; font-size: 0.95rem; }
+        footer { margin-top: 40px; color: #6b7785; }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+<div class="d-flex justify-content-center mt-2">
+            <div style="background-color: #f0eaea;  min-height: 200px; border-radius: 12px; padding: 32px; text-align: left;margin-left: 30px;">
+            <h1>Ruta Optima</h1>
+            <a href="mailto:info@kabaygroup.com" class=" btn btn-success btn-lg mt-3" style="align-items: center;">Contact us</a>
+            <p>Optimize routes, save time and reduce logistics costs directly from Odoo.</p>
+                <a href="https://youtu.be/XeMgOgUJp7A" target="_blank" style="display: inline-block; text-decoration: none; background-color: #e22c2c; color: white; width: 100%; text-align: center; padding: 12px 32px; border-radius: 8px; font-weight: bold;">Watch Detailed on Youtube</a>
+            </div>
+        </div>
+
+        <!-- INTRO -->
+        <div class="text-center mt-5">
+            <h2 class="fw-bold" style="color: var(--primary-color)">What is Ruta Optima?</h2>
+            <p class="mt-3 text-muted">An intelligent route planning and optimization module for distribution, sales and field services.</p>
+        </div>
+
+        <!-- FEATURE BOXES -->
+        <div class="row mt-4">
+            <div class="col-lg-4 p-3">
+                <div class="feature-box">
+                    <h5 class="fw-bold">Automatic Optimization</h5>
+                    <p>Calculate the most efficient route using TSP heuristics (Nearest Neighbor + 2 opt).</p>
+                </div>
+            </div>
+            <div class="col-lg-4 p-3">
+                <div class="feature-box">
+                    <h5 class="fw-bold">Real-time Monitoring</h5>
+                    <p>GPS tracking integration to follow drivers and deliveries on the map.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 p-3">
+                <div class="feature-box">
+                    <h5 class="fw-bold">Cost Reduction</h5>
+                    <p>Reduce fuel and travel time by planning optimal visiting sequences.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB SECTION -->
+        <div class="mt-5 bg-white border rounded shadow-sm">
+            <ul class="nav nav-tabs justify-content-center py-2">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#screens">Screenshots</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#releases">Releases</a></li>
+            </ul>
+
+            <div class="tab-content p-4">
+                <!-- Screenshots -->
+                <div id="screens" class="tab-pane fade show active">
+                    <div class="tab-highlight">
+                        <h3 class="fw-bold mb-3 text-center">Module Screenshots & Installation Guide</h3>
+
+                        <div class="row">
+                                <div class="asset-card">
+                                    <div class="caption">Optimal Route</div>
+                                    <div class="desc">Optimize routes, save time and reduce logistics costs directly from Odoo.</div>
+                                    <img  style="width: 800px;" src="./assets/modules/module.png" alt="Optimal Route">
+                                </div>
+                                <br />
+                                <div class="asset-card">
+                                    <div class="caption">Install Step 1 | Install the module</div>
+                                    <div class="desc">Install the module</div>
+                                    <img  style="width: 800px;" src="assets/install/1. install.png" alt="Install Step 1">
+                                </div>
+                                <br />
+
+                                <div class="asset-card">
+                                    <div class="caption">General Settings | Integrations</div>
+                                    <div class="desc">Active the Odoo's Geo Locations </div>
+                                    <img  style="width: 800px;" src="./assets//install/2. general_settings.png" alt="General Settings">
+                                </div>
+
+                                <br />
+                                <div class="asset-card">
+                                    <div class="caption">Permissions | Access rights</div>
+                                    <div class="desc">Enable this user group to allow selected users to generate optimized routes, view route histories, and access route-planning actions within Contacts, Sales, and Purchases</div>
+                                    <img  style="width: 800px;" src="./assets/install/3. permission.png" alt="Permissions">
+                                </div>
+                        </div>
+
+                        <hr />
+                        <div class="row">
+
+                            <div class="asset-card">
+                                <div class="caption">Generate Optimal Route | Contacts</div>
+                                <div class="desc">Wizard that allows selection of origin and multiple contacts as destinations.</div>
+                                <img   style="width: 800px;" src="./assets/screentshots/1 generate optimal route in contacts.png" alt="Generate Route in Contacts">
+                            </div>
+                                <br />
+
+                            <div class="asset-card">
+                                <div class="caption">Contacts Selection View</div>
+                                <div class="desc">Alternative view of contact selection and route options.</div>
+                                <img   style="width: 800px;" src="./assets/screentshots/2 generate optimal route in contacts.png" alt="Generate Route Contacts 2">
+                            </div>
+                                <br />
+
+                            <div class="asset-card">
+                                <div class="caption">Alert Popup | Access to the Browser</div>
+                                <div class="desc">This popup requests your browser’s permission to open external map links directly from Odoo.
+                                    Allowing this ensures that Google Maps routes can be launched safely and smoothly in a new browser tab..</div>
+                                    <img   style="width: 800px;" src="./assets/screentshots/3 generate optimal route in contacts alert popup.png" alt="Missing Coordinates Alert">
+                            </div>
+                                <br />
+
+                            <div class="asset-card">
+                                <div class="caption">Optimized Route Example</div>
+                                <div class="desc">Map showing a successfully generated route with markers and path.</div>
+                                <img   style="width: 800px;" src="./assets/screentshots/4 generate optimal route in contacts good result in mapa.png" alt="Good Map Result">
+                            </div>
+                                <br />
+
+                            <div class="asset-card">
+                                <div class="caption">Non-Optimized Route Example</div>
+                                <div class="desc">Since the 'Generate Optimal Route' option was not activated, the system displayed the locations exactly in the order the contacts were selected.
+                                    This results in a disorganized route that increases both travel time and operational costs</div>
+                                    <img   style="width: 800px;" src="./assets/screentshots/5 generate optimal route in contacts bad result in mapa.png" alt="Bad Map Result">
+                            </div>
+                                <br />
+
+                            <div class="asset-card">
+                                <div class="caption">Route from Sales Orders</div>
+                                <div class="desc">"Generate routes directly from Sales Orders and quotations to plan deliveries more efficiently.
+                                    This feature allows you to instantly organize all customer addresses associated with an order and create a complete delivery route without manual entry.
+                                    By centralizing route creation inside the sales workflow, businesses reduce planning time, avoid human errors, and ensure faster, more accurate deliveries</div>
+                                    <img   style="width: 800px;" src="./assets/screentshots/6 generate optimal route in sales and quotations.png" alt="Route from Sales">
+                            </div>
+                                <br />
+
+                            <div class="asset-card">
+                                <div class="caption">Route from Purchase Orders</div>
+                                <div class="desc">Generate routes directly from Purchase Orders to plan supplier pickups and material collection with greater accuracy.
+                                    This feature organizes all supplier locations linked to a purchase order and creates a complete pickup route automatically.
+                                    By integrating route planning into the purchasing workflow, companies reduce coordination time, avoid unnecessary trips, and ensure faster, cost-effective supply replenishment</div>
+                                    <img   style="width: 800px;" src="./assets/screentshots/7 generate optimal route in purchase.png" alt="Route from Purchases">
+                            </div>
+                                <br />
+
+                            <div class="asset-card">
+                                <div class="caption">Route History | Menu</div>
+                                <div class="desc">The Route History menu provides a complete record of all routes that have been generated and executed through the system..</div>
+                                <img   style="width: 800px;" src="./assets/screentshots/8 view route history menu.png" alt="Route History Menu">
+                            </div>
+                                <br />
+
+                            <div class="asset-card">
+                                <div class="caption">Route History | Data</div>
+                                <div class="desc">From this section, users can review every past delivery or pickup route, including key operational details that help improve logistics, auditing, and decision-making..</div>
+                                <img   style="width: 800px;" src="./assets/screentshots/9 view route history data.png" alt="Route History Data">
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div id="features" class="tab-pane fade">
+                    <div class="tab-highlight">
+                        <h3 class="fw-bold text-center mb-4">Advanced Features</h3>
+                        <ul>
+                            <li> TSP-based route optimization (Nearest Neighbor + 2 opt)</li>
+                            <li> Integration with Contacts, Sales and Purchases</li>
+                            <li> Google Maps directions link generation with waypoints in optimal order</li>
+                            <li> Route history and auditing</li>
+                            <li> Permission management for route creation and viewing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Releases -->
+                <div id="releases" class="tab-pane fade">
+                    <div class="p-3">
+                        <h5 class="fw-bold">Version 1.0.0</h5>
+                        <p class="text-muted">Release date: December 2025</p>
+                        <span class="badge bg-primary">Initial</span>
+                        <ul class="mt-3">
+                            <li>Initial release of Ruta Optima module.</li>
+                            <li>Route optimization engine and Google Maps integration.</li>
+                            <li>History tracking and Sales/Purchase integration.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer class="text-center mt-4">
+            <small style="color: red;">the system calculates the most efficient compromise rather than an exact, ideal route</small>
+
+        </footer>
+
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

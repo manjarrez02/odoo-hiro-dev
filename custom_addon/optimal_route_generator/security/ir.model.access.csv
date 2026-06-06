@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tsp_service,name_tsp_service,model_tsp_service,base.group_user,1,1,1,1
+access_route_wizard,name_route_wizard,model_route_wizard,base.group_user,1,1,1,1
+access_route_wizard_line,name_route_wizard_line,model_route_wizard_line,base.group_user,1,1,1,1
+access_route_history,name_route_history,model_route_history,base.group_user,1,1,1,1
+access_route_history_line,name_route_history_line,model_route_history_line,base.group_user,1,1,1,1
