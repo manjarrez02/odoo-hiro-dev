@@ -1,0 +1,12 @@
+.o_form_view.o_family_price_pending .o_family_price_refresh_btn {
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.35);
+    font-weight: 600;
+}
+
+.o_family_price_pending_alert {
+    margin-bottom: 12px;
+}
+
+body.o_family_price_pending_test .o_family_price_pending_alert {
+    display: block !important;
+}

@@ -1,0 +1,32 @@
+<odoo>
+    <data>
+        <record id="view_sale_order_family_update_wizard_form" model="ir.ui.view">
+            <field name="name">sale.order.family.update.wizard.form</field>
+            <field name="model">sale.order.family.update.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Cambios pendientes">
+                    <sheet>
+                        <field name="sale_order_id" invisible="1"/>
+                        <div class="oe_title">
+                            <h2>Recalcular precios por familia</h2>
+                        </div>
+                        <div class="mt16 mb16">
+                            Hay cambios pendientes en precios por familia.<br/>
+                            ¿Deseas aplicar el recálculo antes de confirmar?
+                        </div>
+                    </sheet>
+                    <footer>
+                        <button name="action_apply_and_confirm"
+                                string="Aplicar y confirmar"
+                                type="object"
+                                class="btn-primary"/>
+                        <button name="action_confirm_without_apply"
+                                string="Confirmar sin aplicar"
+                                type="object"/>
+                        <button string="Cancelar" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -9,14 +9,13 @@ odoo.define("pos_all_in_one.screens", function(require){
 	const PosHomePosGlobalState = (PosGlobalState) => class PosHomePosGlobalState extends PosGlobalState {
 		async _processData(loadedData) {
 			await super._processData(...arguments);
-			let self = this;
-			self._loadProductTemplate(loadedData['product.template']);
+			const templates = loadedData['product.template'] || [];
+			this._loadProductTemplate(templates);
 		}
 
-		_loadProductTemplate(template){
-			var self = this
-			self.product_templates = template;
-			self.db.add_product_templates(self.product_templates);
+		_loadProductTemplate(templates) {
+			this.product_templates = templates || [];
+			this.db.add_product_templates(this.product_templates);
 		}
 	}
 	Registries.Model.extend(PosGlobalState, PosHomePosGlobalState);
@@ -28,20 +27,37 @@ odoo.define("pos_all_in_one.screens", function(require){
 			this._super(options);
 		},
 		add_product_templates: function(product_templates){
-			for(var temp=0 ; temp < product_templates.length; temp++){
+			console.log("product_templates =", product_templates);
+			console.log("isArray =", Array.isArray(product_templates));
+			product_templates = product_templates || [];
+
+			for (var temp = 0; temp < product_templates.length; temp++) {
 				var product_template_attribute_value_ids = [];
-				var prod_temp =  product_templates[temp] ; 
+				var prod_temp = product_templates[temp];
+				console.log("prod_temp =", prod_temp);
+
 				this.product_template_by_id[prod_temp.id] = prod_temp;
-				this.product_tmpl_id.push(prod_temp)
-				for (var prod = 0; prod <prod_temp.product_variant_ids.length; prod++){
-					var product = this.product_by_id[prod_temp.product_variant_ids[prod]]
-					for (var i = 0; i < product.product_template_attribute_value_ids.length; i++){
-						product_template_attribute_value_ids.push(product.product_template_attribute_value_ids[i]);
+				this.product_tmpl_id.push(prod_temp);
+
+				var variants = prod_temp.product_variant_ids || [];
+				for (var prod = 0; prod < variants.length; prod++) {
+					var product = this.product_by_id[variants[prod]];
+					console.log("product =", product);
+
+					if (!product) {
+						continue;
 					}
-					product.template_name = prod_temp.name
+
+					var ptav_ids = product.product_template_attribute_value_ids || [];
+					for (var i = 0; i < ptav_ids.length; i++) {
+						product_template_attribute_value_ids.push(ptav_ids[i]);
+					}
+
+					product.template_name = prod_temp.name;
 					product.product_variant_count = prod_temp.product_variant_count;
 				}
-				const unique_attribute_value_ids = [...new Set(product_template_attribute_value_ids)]
+
+				const unique_attribute_value_ids = [...new Set(product_template_attribute_value_ids)];
 				this.product_template_by_id[prod_temp.id].product_template_attribute_value_ids = unique_attribute_value_ids;
 			}
 		},

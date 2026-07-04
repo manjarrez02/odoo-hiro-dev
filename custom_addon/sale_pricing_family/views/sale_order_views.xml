@@ -1,0 +1,31 @@
+<odoo>
+    <data>
+        <record id="sale_order_form_pricing_family" model="ir.ui.view">
+            <field name="name">sale.order.form.pricing.family</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//header" position="inside">
+                    <field name="has_pending_family_updates" invisible="1" force_save="1"/>
+
+                    <button name="action_recompute_family_prices"
+                            string="Recalcular precios por familia"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': ['|', ('state', 'not in', ['draft', 'sent']), ('has_pending_family_updates', '=', False)]}"/>
+
+                    <button name="action_recompute_family_prices"
+                            string="Recalcular precios por familia"
+                            type="object"
+                            attrs="{'invisible': ['|', ('state', 'not in', ['draft', 'sent']), ('has_pending_family_updates', '=', True)]}"/>
+                </xpath>
+
+                <xpath expr="//field[@name='order_line']/tree//field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="widget">family_qty_field</attribute>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,279 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_pricing_family
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-04 18:40+0000\n"
+"PO-Revision-Date: 2026-07-04 18:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: sale_pricing_family
+#: model_terms:ir.ui.view,arch_db:sale_pricing_family.view_sale_order_family_update_wizard_form
+msgid "Aplicar y confirmar"
+msgstr "Aplicar y confirmar"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/sale_order_save_confirm.js:0
+#, python-format
+msgid "Aplicar y guardar"
+msgstr "Aplicar y guardar"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/sale_order_save_confirm.js:0
+#: model_terms:ir.ui.view,arch_db:sale_pricing_family.view_sale_order_family_update_wizard_form
+#, python-format
+msgid "Cambios pendientes"
+msgstr "Cambios pendientes"
+
+#. module: sale_pricing_family
+#. odoo-python
+#: code:addons/sale_pricing_family/models/sale_order.py:0
+#, python-format
+msgid "Cambios pendientes en precios por familia"
+msgstr "Cambios pendientes en precios por familia"
+
+#. module: sale_pricing_family
+#: model_terms:ir.ui.view,arch_db:sale_pricing_family.view_sale_order_family_update_wizard_form
+msgid "Cancelar"
+msgstr "Cancelar"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__company_id
+msgid "Company"
+msgstr "Empresa"
+
+#. module: sale_pricing_family
+#: model:ir.model,name:sale_pricing_family.model_sale_order_family_update_wizard
+msgid "Confirm pending family price updates"
+msgstr "Confirmar actualizaciones pendientes de precios por familia"
+
+#. module: sale_pricing_family
+#: model_terms:ir.ui.view,arch_db:sale_pricing_family.view_sale_order_family_update_wizard_form
+msgid "Confirmar sin aplicar"
+msgstr "Confirmar sin aplicar"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__create_uid
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_family_update_wizard__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__create_date
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_family_update_wizard__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__display_name
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_family_update_wizard__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/pricing_family_orderline.js:0
+#, python-format
+msgid "Greater than allowed"
+msgstr "Mayor de lo permitido"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/sale_order_save_confirm.js:0
+#, python-format
+msgid "Guardar sin aplicar"
+msgstr "Guardar sin aplicar"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/sale_order_save_confirm.js:0
+#, python-format
+msgid ""
+"Hay cambios pendientes en precios por familia. ¿Deseas aplicar el recálculo "
+"antes de guardar?"
+msgstr ""
+"Hay cambios pendientes en precios por familia. ¿Deseas aplicar el recálculo "
+"antes de guardar?"
+
+#. module: sale_pricing_family
+#: model_terms:ir.ui.view,arch_db:sale_pricing_family.view_sale_order_family_update_wizard_form
+msgid ""
+"Hay cambios pendientes en precios por familia.<br/>\n"
+"                            ¿Deseas aplicar el recálculo antes de confirmar?"
+msgstr ""
+"Hay cambios pendientes en precios por familia.<br/>\n"
+"                            ¿Deseas aplicar el recálculo antes de confirmar?"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__id
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_family_update_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/add_product.js:0
+#, python-format
+msgid "It is not allowed to mix refunds and sales"
+msgstr "No está permitido mezclar devoluciones y ventas"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family____last_update
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_family_update_wizard____last_update
+msgid "Last Modified on"
+msgstr "Última modificación el"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__write_uid
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_family_update_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__write_date
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_family_update_wizard__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/pricing_family_orderline.js:0
+#, python-format
+msgid "No puede reembolsar productos fuera de la orden"
+msgstr "No puede reembolsar productos fuera de la orden"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/pricing_family_orderline.js:0
+#, python-format
+msgid ""
+"Only a negative quantity is allowed for this refund line. Click on +/- to "
+"modify the quantity to be refunded."
+msgstr ""
+"Solo se permite una cantidad negativa para esta línea de devolución. Haz clic en +/- para "
+"modificar la cantidad a reembolsar."
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order__has_pending_family_updates
+msgid "Pending Family Price Updates"
+msgstr "Actualizaciones pendientes de precios por familia"
+
+#. module: sale_pricing_family
+#: model:ir.model,name:sale_pricing_family.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesión de punto de venta"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/pricing_family_orderline.js:0
+#, python-format
+msgid "Positive quantity not allowed"
+msgstr "Cantidad positiva no permitida"
+
+#. module: sale_pricing_family
+#: model:ir.actions.act_window,name:sale_pricing_family.action_product_pricing_family
+#: model:ir.ui.menu,name:sale_pricing_family.menu_product_pricing_family
+msgid "Pricing Families"
+msgstr "Familias de precios"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_product__pricing_family_id
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_template__pricing_family_id
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_line__pricing_family_id
+msgid "Pricing Family"
+msgstr "Familia de precios"
+
+#. module: sale_pricing_family
+#: model:ir.model,name:sale_pricing_family.model_product_template
+msgid "Product"
+msgstr "Producto"
+
+#. module: sale_pricing_family
+#: model:ir.model,name:sale_pricing_family.model_product_pricing_family
+msgid "Product Pricing Family"
+msgstr "Familia de precios de producto"
+
+#. module: sale_pricing_family
+#: model:ir.model,name:sale_pricing_family.model_product_product
+msgid "Product Variant"
+msgstr "Variante de producto"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/pricing_family_orderline.js:0
+#, python-format
+msgid "Producto fuera de orden"
+msgstr "Producto fuera de orden"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_product_pricing_family__product_tmpl_ids
+#: model_terms:ir.ui.view,arch_db:sale_pricing_family.view_product_pricing_family_form
+msgid "Products"
+msgstr "Productos"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,help:sale_pricing_family.field_product_product__pricing_family_id
+#: model:ir.model.fields,help:sale_pricing_family.field_product_template__pricing_family_id
+msgid ""
+"Products in the same pricing family accumulate quantities for pricelist "
+"rules."
+msgstr ""
+"Los productos en la misma familia de precios acumulan cantidades para las reglas de lista de precios."
+
+#. module: sale_pricing_family
+#: model_terms:ir.ui.view,arch_db:sale_pricing_family.sale_order_form_pricing_family
+#: model_terms:ir.ui.view,arch_db:sale_pricing_family.view_sale_order_family_update_wizard_form
+msgid "Recalcular precios por familia"
+msgstr "Recalcular precios por familia"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/add_product.js:0
+#, python-format
+msgid "Refund and Sales not allowed"
+msgstr "No se permiten devoluciones y ventas juntas"
+
+#. module: sale_pricing_family
+#: model:ir.model.fields,field_description:sale_pricing_family.field_sale_order_family_update_wizard__sale_order_id
+msgid "Sale Order"
+msgstr "Orden de venta"
+
+#. module: sale_pricing_family
+#: model:ir.model,name:sale_pricing_family.model_sale_order
+msgid "Sales Order"
+msgstr "Pedido de venta"
+
+#. module: sale_pricing_family
+#: model:ir.model,name:sale_pricing_family.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de pedido de venta"
+
+#. module: sale_pricing_family
+#. odoo-javascript
+#: code:addons/sale_pricing_family/static/src/js/pricing_family_orderline.js:0
+#, python-format
+msgid ""
+"The requested quantity to be refunded is higher than the refundable quantity"
+" of %s."
+msgstr ""
+"La cantidad solicitada para reembolso es mayor que la cantidad reembolsable de %s."
