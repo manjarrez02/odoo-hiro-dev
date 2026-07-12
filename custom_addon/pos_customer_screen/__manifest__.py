@@ -21,7 +21,7 @@
     'description': "Allows Seller's to promote there new products and customers can also see there products.",
     'author': "Acespritech Solutions Pvt. Ltd.",
     'website': "www.acespritech.com",
-    'depends': ['point_of_sale','pos_all_in_one','x_pos_custom_view','bi_remove_pos_lines','bus', 'web', 'hr'],
+    'depends': ['point_of_sale','pos_all_in_one','x_pos_custom_view','bi_remove_pos_lines', 'sale_pricing_family','bus', 'web', 'hr'],
     'data': [
         'security/ir.model.access.csv',
         'views/pos_assets.xml',
