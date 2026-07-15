@@ -12,26 +12,43 @@ class ReportRouteHistory(models.AbstractModel):
         return f"{hours:02d}:{minutes:02d}"
 
     def _partner_address(self, partner):
-        parts = [partner.street, partner.street2, partner.city, partner.state_id.name if partner.state_id else False, partner.zip, partner.country_id.name if partner.country_id else False]
+        parts = [
+            partner.street,
+            partner.street2,
+            partner.city,
+            partner.state_id.name if partner.state_id else False,
+            partner.zip,
+            partner.country_id.name if partner.country_id else False
+        ]
         return ", ".join([p for p in parts if p])
 
     @api.model
     def _get_report_values(self, docids, data=None):
         docs = self.env['route.history'].browse(docids)
         report_docs = []
+
         for doc in docs:
             departure_local = ''
             if doc.departure_time:
-                departure_local = fields.Datetime.context_timestamp(doc, doc.departure_time).strftime('%Y-%m-%d %H:%M')
+                departure_local = fields.Datetime.context_timestamp(
+                    doc, doc.departure_time
+                ).strftime('%Y-%m-%d %H:%M')
+
             lines = []
-            for line in doc.line_ids.sorted(key=lambda l: (l.sequence, l.id)):
+            for idx, line in enumerate(
+                doc.line_ids.sorted(key=lambda l: (l.sequence, l.id)),
+                start=1
+            ):
                 lines.append({
-                    'sequence': line.sequence,
+                    'sequence': chr(ord('A') + idx),
                     'partner_name': line.partner_id.display_name,
+                    'city': line.partner_id.city or '',
+                    'neighborhood_name': line.partner_id.neighborhood_id.name if line.partner_id.neighborhood_id else '',
                     'address': self._partner_address(line.partner_id),
                     'leg_duration_display': self._format_duration(line.leg_duration_seconds),
                     'note': line.note or '',
                 })
+
             report_docs.append({
                 'doc': doc,
                 'departure_local': departure_local,
@@ -43,6 +60,7 @@ class ReportRouteHistory(models.AbstractModel):
                 'total_stops': len(lines),
                 'lines': lines,
             })
+
         return {
             'doc_ids': docids,
             'doc_model': 'route.history',

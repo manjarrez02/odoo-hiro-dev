@@ -44,18 +44,20 @@
                         <table class="table table-sm table-bordered" style="width:100%; border-collapse: collapse;">
                             <thead>
                                 <tr>
-                                    <th style="width:10%;">Order</th>
+                                    <th style="width:8%;">Order</th>
                                     <th style="width:22%;">Contact</th>
-                                    <th style="width:38%;">Address</th>
+                                    <th style="width:15%;">Municipio</th>
+                                    <th style="width:15%;">Colonia</th>
                                     <th style="width:15%;">Time from previous point</th>
-                                    <th style="width:15%;">Observations</th>
+                                    <th style="width:25%;">Observations</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr t-foreach="r['lines']" t-as="line">
                                     <td><span t-esc="line['sequence']"/></td>
                                     <td><span t-esc="line['partner_name']"/></td>
-                                    <td><span t-esc="line['address']"/></td>
+                                    <td><span t-esc="line['city']"/></td>
+                                    <td><span t-esc="line['neighborhood_name']"/></td>
                                     <td style="text-align:center;"><span t-esc="line['leg_duration_display']"/></td>
                                     <td><span t-esc="line['note']"/></td>
                                 </tr>
