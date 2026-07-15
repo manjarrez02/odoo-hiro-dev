@@ -40,7 +40,7 @@ class ReportRouteHistory(models.AbstractModel):
                 start=1
             ):
                 lines.append({
-                    'sequence': chr(ord('A') + idx),
+                    'sequence': chr(ord('A') + idx -1),
                     'partner_name': line.partner_id.display_name,
                     'city': line.partner_id.city or '',
                     'neighborhood_name': line.partner_id.neighborhood_id.name if line.partner_id.neighborhood_id else '',
