@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="purchase_order_horizontal" inherit_id="purchase.report_purchaseorder_document">
+    <template id="purchase_quotation_horizontal" inherit_id="purchase.report_purchasequotation_document">
         
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.external_layout">
@@ -9,7 +9,7 @@
                     <!-- Encabezado del documento -->
                     <div class="row">
                         <div class="col-12">
-                            <h4 class="mb-2">Orden de Compra: <span t-field="o.name"/></h4>
+                            <h4 class="mb-2">Solicitud de Cotización: <span t-field="o.name"/></h4>
                         </div>
                     </div>
                     
@@ -17,38 +17,31 @@
                     <div class="row">
                         <div class="col-6">
                             <strong>Proveedor:</strong>
-                            <div t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                            <div t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/>
                         </div>
                         <div class="col-6">
                             <table class="table table-sm table-borderless">
                                 <tr>
-                                    <td><strong>Fecha de orden:</strong></td>
+                                    <td><strong>Fecha de solicitud:</strong></td>
                                     <td><span t-field="o.date_order"/></td>
                                 </tr>
-                                <tr>
-                                    <td><strong>Fecha límite:</strong></td>
+                                <tr t-if="o.date_planned">
+                                    <td><strong>Fecha esperada:</strong></td>
                                     <td><span t-field="o.date_planned"/></td>
                                 </tr>
                             </table>
                         </div>
-                    </div>
-                    <div class="row mt-2">
-                    <div class="col-12 mb-3">
-                        <div t-if="o.partner_ref">
-                                <strong>Referencia proveedor:</strong> <span t-field="o.partner_ref"/>
-                            </div>
-                        </div>
-                    </div>
+                    </div>                
+                    
                     <!-- Tabla horizontal de líneas -->
-                    <table class="table table-sm table-po-horizontal" style="width: 100%; table-layout: fixed;">
+                    <table class="table table-sm table-bordered" style="width: 100%; table-layout: fixed;">
                         <thead class="table-active">
                             <tr>
-                                <th style="width: 10%;">Cantidad</th>
-                                <th style="width: 25%;">Producto</th>
-                                <th style="width: 12%;">Cantidad empaque</th>
-                                <th style="width: 25%;">Empaque</th>
-                                <th style="width: 14%;">Precio Unit.</th>
-                                <th style="width: 14%;">Subtotal</th>
+                                <th style="width: 12%;">Cantidad</th>
+                                <th style="width: 28%;">Descripción Interna</th>
+                                <th style="width: 28%;">Descripción Proveedor</th>
+                                <th style="width: 12%;">Cant. Empaque</th>
+                                <th style="width: 20%;">Empaque</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -77,8 +70,11 @@
                                         <div t-if="line.product_id.barcode">
                                             [<span t-field="line.product_id.barcode"/>]
                                         </div>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.product_supplier_name"/>
                                         <div t-if="line.product_supplier_code">
-                                            CP: [<span t-field="line.product_supplier_code"/>]
+                                            [<span t-field="line.product_supplier_code"/>]
                                         </div>
                                     </td>
                                     <td class="text-right">
@@ -86,46 +82,14 @@
                                     </td>
                                     <td>
                                         <span t-field="line.product_packaging_id.name"/>
-                                        <div t-if="line.product_packaging_id.barcode">
+                                        <div t-if="line.product_packaging_id and line.product_packaging_id.barcode">
                                             [<span t-field="line.product_packaging_id.barcode"/>]
-                                        </div>                                     
-                                    </td>
-                                    <td class="text-right">
-                                        <span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                    </td>
-                                    <td class="text-right">
-                                        <span t-field="line.price_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </div>
                                     </td>
                                 </t>
                             </tr>
                         </tbody>
                     </table>
-                    
-                    <!-- Totales -->
-                    <div class="row mt-3 justify-content-end">
-                        <div class="col-5">
-                            <table class="table table-sm table-borderless">
-                                <tr>
-                                    <td><strong>Subtotal:</strong></td>
-                                    <td class="text-right">
-                                        <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Impuestos:</strong></td>
-                                    <td class="text-right">
-                                        <span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                    </td>
-                                </tr>
-                                <tr class="border-top">
-                                    <td><strong>Total:</strong></td>
-                                    <td class="text-right">
-                                        <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                     
                     <!-- Notas / Términos -->
                     <div t-if="o.notes" class="mt-3">

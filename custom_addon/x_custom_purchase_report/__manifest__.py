@@ -6,6 +6,7 @@
     'depends': ['purchase'],
     'data': [
         'reports/purchase_order_report.xml',
+        'reports/purchasequotation_document.xml',
     ],
     'installable': True,
     'application': False,
