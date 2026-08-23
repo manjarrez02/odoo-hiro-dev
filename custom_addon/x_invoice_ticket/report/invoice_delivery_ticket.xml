@@ -13,71 +13,75 @@
         <field name="binding_type">report</field>
         <field name="paperformat_id" ref="paperformat_roll_paper"/>
     </record>
+
     <!-- Template of Thermal invoice report -->
     <template id="delivery_ticket">
         <t t-call="web.html_container">
             <t t-call="web.basic_layout">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-if = "doc.move_type == 'out_invoice' or doc.move_type == 'out_refund'">
+                    <t t-if="doc.move_type == 'out_invoice' or doc.move_type == 'out_refund'">
                         <t t-set="lang" t-value="doc.partner_id.lang"/>
                         <div class="thermal-report-page">
-                            <div style = "text-align: center;">
-                                <img style="margin-top:0; text-align: center; max-width: 288px; max-height: 144px; width: auto; height: auto;" src='/web/binary/company_logo'/>
+                            <div style="text-align: center;">
+                                <img style="margin-top:0; text-align: center; max-width: 288px; max-height: 144px; width: auto; height: auto;" src="/web/binary/company_logo"/>
                             </div>
                             <div style="text-align: center; font-size: 13px; margin-top: 0px">
-                                    <span style = "line-height: 14px;" t-field="doc.company_id.name"/><br/>
-                                    <span style = "line-height: 14px;" t-field="doc.company_id.company_registry"/><br/>
-                                    <span style = "line-height: 14px;" t-field="doc.company_id.vat"/><br/>                               
-                                    <span style = "line-height: 14px;" t-field="doc.company_id.street"/>
-                                    <t t-if = "doc.company_id.city">
-                                        ,
-                                        <span style = "line-height: 14px;" t-field="doc.company_id.city"/>
-                                    </t>
-                                    <t t-if = "doc.company_id.state_id.name">
-                                        ,
-                                        <span style = "line-height: 14px;" t-field="doc.company_id.state_id.name"/>
-                                    </t>
-                                    <t t-if = "doc.company_id.zip">
-                                        , C.P 
-                                        <span style = "line-height: 14px;" t-field="doc.company_id.zip"/>                                
-                                    </t>
+                                <span style="line-height: 14px;" t-field="doc.company_id.name"/><br/>
+                                <span style="line-height: 14px;" t-field="doc.company_id.company_registry"/><br/>
+                                <span style="line-height: 14px;" t-field="doc.company_id.vat"/><br/>
+                                <span style="line-height: 14px;" t-field="doc.company_id.street"/>
+                                <t t-if="doc.company_id.city">
+                                    ,
+                                    <span style="line-height: 14px;" t-field="doc.company_id.city"/>
+                                </t>
+                                <t t-if="doc.company_id.state_id.name">
+                                    ,
+                                    <span style="line-height: 14px;" t-field="doc.company_id.state_id.name"/>
+                                </t>
+                                <t t-if="doc.company_id.zip">
+                                    , C.P
+                                    <span style="line-height: 14px;" t-field="doc.company_id.zip"/>
+                                </t>
                             </div>
-                            <t t-if = "doc.move_type == 'out_refund'">
+                            <t t-if="doc.move_type == 'out_refund'">
                                 <br/>
                                 <div style="text-align: center; font-size: 20px; font-weight: bold;"> NOTA DE CRÉDITO </div>
                                 <br/>
-                            </t>                            
-                            <t t-if = "doc.state == 'draft'">
+                            </t>
+                            <t t-if="doc.state == 'draft'">
                                 <div style="text-align: center; font-size: 20px; font-weight: bold;"> BORRADOR </div>
                             </t>
-                            <t t-if = "doc.state == 'cancel'">
+                            <t t-if="doc.state == 'cancel'">
                                 <div style="text-align: center; font-size: 20px; font-weight: bold;"> CANCELADA </div>
                             </t>
-                            <br/>                                                  
-                            <div style="font-size: 13px; text-align: left; width:100%;"><b>Cliente:</b></div> 
-                            <div style="font-size: 13px; text-align: left; width:100%;"><t t-esc="doc.partner_id.name"/></div>     
+                            <br/>
+                            <div style="font-size: 13px; text-align: left; width:100%;"><b>Cliente:</b></div>
+                            <div style="font-size: 13px; text-align: left; width:100%;"><t t-esc="doc.partner_id.name"/></div>
                             <div style="text-align: left; font-size: 13px;">
-
-                                    <span style = "line-height: 14px;" t-field="doc.partner_id.street"/>
-                                    ,
-                                    <span style = "line-height: 14px;" t-field="doc.partner_id.neighborhood_id.name"/>
-                                    ,                                 
-                                    <span style = "line-height: 14px;" t-field="doc.partner_id.city"/>
-                                    ,
-                                    <span style = "line-height: 14px;" t-field="doc.partner_id.state_id"/>
-                                    , C.P 
-                                    <span style = "line-height: 14px;" t-field="doc.partner_id.custom_zip"/>                                
+                                <span style="line-height: 14px;" t-field="doc.partner_id.street"/>
+                                ,
+                                <span style="line-height: 14px;" t-field="doc.partner_id.neighborhood_id.name"/>
+                                ,
+                                <span style="line-height: 14px;" t-field="doc.partner_id.city"/>
+                                ,
+                                <span style="line-height: 14px;" t-field="doc.partner_id.state_id"/>
+                                , C.P
+                                <span style="line-height: 14px;" t-field="doc.partner_id.custom_zip"/>
                             </div>
 
                             <div style="margin-top: 0px;">
                                 <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
                                     <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
                                 </svg>
-                            </div>                               
-                            
-                            <t t-set = "lines_discount" t-value = "0"/>
-                            <t t-set = "general_discount" t-value = "0"/>
-                                
+                            </div>
+
+                            <t t-set="lines_discount" t-value="0"/>
+                            <t t-set="general_discount" t-value="0"/>
+
+                            <!-- Calcular información de empaques para todas las líneas -->
+                            <t t-set="packaging_info"
+                               t-value="doc._get_line_packaging_info(doc.invoice_line_ids)"/>
+
                             <table style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; border: none; margin-top: -5px;">
                                 <!-- Primera fila -->
                                 <tr>
@@ -86,10 +90,10 @@
                                 </tr>
                             </table>
                             <!-- Segunda fila -->
-                            <table style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; border: none;">                
+                            <table style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; border: none;">
                                 <tr>
                                     <th style="width: 60%; padding: 1px; font-size: 13px; text-align: left; border: none; border-collapse: collapse; border-style: hidden;"><b>CANTIDAD</b></th>
-                                    <th style="width: 10%; padding: 1px; font-size: 13px; text-align: right; border: none; border-collapse: collapse; border-style: hidden;"><b>P.U.</b></th>                        
+                                    <th style="width: 10%; padding: 1px; font-size: 13px; text-align: right; border: none; border-collapse: collapse; border-style: hidden;"><b>P.U.</b></th>
                                     <th style="width: 30%; padding: 1px; font-size: 13px; text-align: right; border: none; border-collapse: collapse; border-style: hidden;"><b>IMPORTE</b></th>
                                 </tr>
                             </table>
@@ -99,13 +103,6 @@
                                     <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
                                 </svg>
                             </div>
-
-                            <!-- Todos los product_ids únicos -->
-                            <t t-set="product_ids" t-value="doc.invoice_line_ids.mapped('product_id').ids"/>
-
-                            <!-- Cargar TODOS los empaques de una sola vez (orden: product_id, qty desc) -->
-                            <t t-set="pkgs_all"
-                            t-value="env['product.packaging'].search([('product_id','in', product_ids), ('qty','>', 0)], order='product_id, qty desc')"/>                            
 
                             <tr t-foreach="doc.invoice_line_ids" t-as="line">
                                 <t t-if="line.display_type == 'line_section'">
@@ -120,61 +117,59 @@
                                     </span>
                                 </t>
                                 <t t-else="">
-                                    <!-- Proceso para determinar los posibles empaques -->
-                                    <t t-set="qty_in_product_uom"
-                                    t-value="line.product_uom_id and line.product_uom_id._compute_quantity(line.quantity, line.product_id.uom_id) or line.quantity"/>
+                                    <!-- Obtener empaque calculado en Python -->
+                                    <t t-set="info" t-value="packaging_info.get(line.id, {})"/>
+                                    <t t-set="best_pkg" t-value="info.get('best_pkg', False)"/>
+                                    <t t-set="best_count" t-value="info.get('best_count', 0)"/>
 
-                                    <!-- Empaques del producto, ordenados por tamaño de mayor a menor -->
-                                    <t t-set="pkgs"
-                                    t-value="env['product.packaging'].search([('product_id','=', line.product_id.id), ('qty','>', 0)], order='qty desc')"/>
-
-                                    <!-- Encontrar el mejor empaque que divida exacto -->
-                                    <t t-set="best_pkg" t-value="False"/>
-                                    <t t-set="best_count" t-value="0"/>
-
-                                    <t t-foreach="pkgs" t-as="p">
-                                    <!-- comprobación de divisibilidad con tolerancia -->
-                                    <t t-set="ratio" t-value="qty_in_product_uom / p.qty"/>
-                                    <t t-if="abs(ratio - int(ratio)) &lt; 1e-6">
-                                        <t t-set="best_pkg" t-value="p"/>
-                                        <t t-set="best_count" t-value="int(ratio)"/>
-                                        <t t-break="1"/>
-                                    </t>
-                                    </t>
-
-                                    <t t-if = "line.price_unit != 0">
-                                        <table class="product-first-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
+                                    <t t-if="line.price_unit != 0">
+                                        <!-- Primera fila: CLAVE / DESCRIPCIÓN -->
+                                        <table class="product-first-row"
+                                               style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
                                             <tr>
-                                                <th style="width: 30%; padding: 1px; font-size: 12px; border: none;" t-field="line.product_id.barcode"></th>
-                                                <th style="width: auto; padding: 1px; font-size: 12px; border: none; white-space: normal;  overflow-wrap: anywhere" t-field="line.name"></th>
-                                            </tr>                    
-                                        </table> 
-                                        <table class="product-second-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; ">                
+                                                <th style="width: 30%; padding: 1px; font-size: 12px; border: none;"
+                                                    t-field="line.product_id.barcode">
+                                                </th>
+                                                <th style="width: auto; padding: 1px; font-size: 12px; border: none; white-space: normal; overflow-wrap: anywhere"
+                                                    t-field="line.name">
+                                                </th>
+                                            </tr>
+                                        </table>
+
+                                        <!-- Segunda fila: CANTIDAD / P.U. / IMPORTE -->
+                                        <table class="product-second-row"
+                                               style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px;">
                                             <tr>
-                                                <th style="width: 25%; padding: 1px; font-size: 12px; border: none;" t-field="line.quantity"></th>
-                                                <th style="width: 25%; padding: 1px; font-size: 12px; text-align: leftt; border: none;">
+                                                <th style="width: 25%; padding: 1px; font-size: 12px; border: none;"
+                                                    t-field="line.quantity">
+                                                </th>
+                                                <th style="width: 25%; padding: 1px; font-size: 12px; text-align: left; border: none;">
                                                     <t t-if="line.discount != 0">
-                                                        <t t-set = "lines_discount" t-value = "lines_discount+(line.price_unit*line.discount/100*line.quantity)"/>
+                                                        <t t-set="lines_discount"
+                                                           t-value="lines_discount + (line.price_unit * line.discount / 100 * line.quantity)"/>
                                                         Desct: <span t-field="line.discount"/>%
                                                     </t>
                                                 </th>
                                                 <th style="width: 25%; padding: 1px; font-size: 12px; text-align: right; border: none;">
                                                     <t t-if="line.discount != 0">
                                                         <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
-                                                        >                                            
-                                                        <t t-esc= "'{0:,.2f}'.format(line.price_unit*(100-line.discount)/100)"/>
+                                                        &gt;
+                                                        <t t-esc="'{0:,.2f}'.format(line.price_unit * (100 - line.discount) / 100)"/>
                                                     </t>
-                                                    <t t-else=''>
+                                                    <t t-else="">
                                                         <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
                                                     </t>
                                                 </th>
                                                 <th style="width: 25%; padding: 1px; font-size: 12px; text-align: right; border: none;">
-                                                    <span t-esc = "'{0:,.2f}'.format(line.price_subtotal)"/>
+                                                    <span t-esc="'{0:,.2f}'.format(line.price_subtotal)"/>
                                                 </th>
-                                            </tr>                                                        
+                                            </tr>
                                         </table>
+
+                                        <!-- Tercera fila: empaque (solo si hay best_pkg) -->
                                         <t t-if="best_pkg">
-                                            <table class="product-third-row" style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; font-style:italic;">                    
+                                            <table class="product-third-row"
+                                                   style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; font-style:italic;">
                                                 <tr>
                                                     <th style="width:20%; padding:1px; font-size:12px; text-align:right; border: none;">
                                                         <span t-esc="best_count"/>
@@ -184,33 +179,37 @@
                                                     </th>
                                                 </tr>
                                             </table>
-                                        </t>    
-                                    </t>  
-                                    <t t-else = "">
-                                        <t t-if = "line.product_id.name == 'Descuento'">
-                                            <t t-set = "general_discount" t-value = "general_discount+(line.price_subtotal*(-1))"/>
                                         </t>
                                     </t>
 
+                                    <t t-else="">
+                                        <t t-if="line.product_id.name == 'Descuento'">
+                                            <t t-set="general_discount"
+                                               t-value="general_discount + (line.price_subtotal * (-1))"/>
+                                        </t>
+                                    </t>
                                 </t>
+
                                 <div style="margin-top: -5px;">
                                     <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
                                         <line x1="0" y1="1" x2="100%" y2="1" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
                                     </svg>
-                                </div>                                    
+                                </div>
                             </tr>
+
                             <div style="margin-top: -5px;">
                                 <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
                                     <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
                                 </svg>
                             </div>
-                            <t t-if = "general_discount">                    
-                            <div style="display: inline-block; width: 59%; text-align: right; font-size: 14px;">
-                                SUBTOTAL
-                            </div>
-                            <div style="display: inline-block; width: 39%; text-align: right; font-size: 14px;">
-                                $ <span t-esc="'{0:,.2f}'.format(doc.amount_total+general_discount)"/>
-                            </div> 
+
+                            <t t-if="general_discount">
+                                <div style="display: inline-block; width: 59%; text-align: right; font-size: 14px;">
+                                    SUBTOTAL
+                                </div>
+                                <div style="display: inline-block; width: 39%; text-align: right; font-size: 14px;">
+                                    $ <span t-esc="'{0:,.2f}'.format(doc.amount_total + general_discount)"/>
+                                </div>
                                 <div style="display: inline-block; width: 59%; text-align: right; font-size: 14px;">
                                     DESCUENTO
                                 </div>
@@ -218,45 +217,49 @@
                                     $ <span t-esc="'{0:,.2f}'.format(-general_discount)"/>
                                 </div>
                             </t>
+
                             <div style="display: inline-block; width: 59%; text-align: right; font-size: 14px;">
                                 TOTAL
                             </div>
                             <div style="display: inline-block; width: 39%; text-align: right; font-size: 14px;">
                                 $ <span t-esc="'{0:,.2f}'.format(doc.amount_total)"/>
-                            </div>                        
-                            <t t-if = "general_discount+lines_discount and  doc.move_type == 'out_invoice'">
-                                <div style="text-align: center; font-size: 14px;">                            	
+                            </div>
+
+                            <t t-if="general_discount + lines_discount and doc.move_type == 'out_invoice'">
+                                <div style="text-align: center; font-size: 14px;">
                                     <br/>
-                                    USTED AHORRÓ: 
-                                    $ <span t-esc="'{0:,.2f}'.format(general_discount+lines_discount)"/>
-                                </div>                        
+                                    USTED AHORRÓ:
+                                    $ <span t-esc="'{0:,.2f}'.format(general_discount + lines_discount)"/>
+                                </div>
                             </t>
-                            <div style = "font-size: 14px; text-align: left; width: 100%;">
-                                <br/>                    
-                                VENDEDOR: 
+
+                            <div style="font-size: 14px; text-align: left; width: 100%;">
+                                <br/>
+                                VENDEDOR:
                                 <t t-set="full_name" t-value="doc.invoice_user_id.name"/>
                                 <t t-if="full_name">
                                     <t t-set="name_parts" t-value="full_name.split(' ')"/>
-                                    <t t-if="len(name_parts) &gt; 2">
+                                    <t t-if="len(name_parts) > 2">
                                         <t t-esc="name_parts[0]"/> <t t-esc="name_parts[1][0]"/>. <t t-esc="name_parts[2][0]"/>.
-                                    </t>                            
-                                    <t t-elif="len(name_parts) &gt; 1">
+                                    </t>
+                                    <t t-elif="len(name_parts) > 1">
                                         <t t-esc="name_parts[0]"/> <t t-esc="name_parts[1][0]"/>.
                                     </t>
                                     <t t-else="">
                                         <t t-esc="full_name"/>
                                     </t>
                                 </t>
-                                <t t-else="">                                
+                                <t t-else="">
                                     <t t-esc="' '"/>
-                                </t>                               
-                            </div>  
+                                </t>
+                            </div>
+
                             <br/>
-                            <div style='font-weight: bold; text-align: center; font-size: 14px;'>
+                            <div style="font-weight: bold; text-align: center; font-size: 14px;">
                                 RELACIÓN DE PAQUETES POR PEDIDO
                             </div>
 
-                            <div style='font-size: 14px;'>                                
+                            <div style="font-size: 14px;">
                                 <br/>
                                 <br/>
                                 EMPACÓ: _____________________________________
@@ -270,7 +273,7 @@
                                     <tr>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;">CANT</th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">DESCRIPCIÓN</th>
-                                        <th style="border: none; padding: 5px; width: 10%;"></th> <!-- Sin encabezado en la columna 3 -->
+                                        <th style="border: none; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;">CANT</th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">DESCRIPCIÓN</th>
                                     </tr>
@@ -280,38 +283,38 @@
                                     <tr>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">AROS</th>
-                                        <th style="border: none; padding: 5px; width: 10%;"></th> <!-- Sin encabezado en la columna 3 -->
+                                        <th style="border: none; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">HOJA T/C</th>
                                     </tr>
                                     <tr>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">PELOTAS</th>
-                                        <th style="border: none; padding: 5px; width: 10%;"></th> <!-- Sin encabezado en la columna 3 -->
+                                        <th style="border: none; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">HOJA T/O</th>
                                     </tr>
                                     <tr>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">CUERDAS</th>
-                                        <th style="border: none; padding: 5px; width: 10%;"></th> <!-- Sin encabezado en la columna 3 -->
+                                        <th style="border: none; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">ROLLOS</th>
                                     </tr>
                                     <tr>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">CUADERNOS</th>
-                                        <th style="border: none; padding: 5px; width: 10%;"></th> <!-- Sin encabezado en la columna 3 -->
+                                        <th style="border: none; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">CAJAS VARIOS</th>
-                                    </tr>      
+                                    </tr>
                                     <tr>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">EXTENDIDOS</th>
-                                        <th style="border: none; padding: 5px; width: 10%;"></th> <!-- Sin encabezado en la columna 3 -->
+                                        <th style="border: none; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 10%;"></th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;">UNICEL</th>
-                                    </tr>                                                                        
+                                    </tr>
                                 </tbody>
                             </table>
                             <br/>
@@ -320,11 +323,11 @@
                                     <tr>
                                         <th style="border: none; padding: 5px; width: 10%;">PAQUETES TOTALES</th>
                                         <th style="border: 1px solid black; padding: 5px; width: 35%;"></th>
-                                    </tr>                                                                        
+                                    </tr>
                                 </tbody>
                             </table>
 
-                            <t t-if = "doc.move_type == 'out_invoice'">
+                            <t t-if="doc.move_type == 'out_invoice'">
                                 <div style="font-size: 12px; text-align: center; width: 100%; font-weight: bold;">
                                     <br/>
                                     REVISE SU MERCANCÍA. NO SE ACEPTAN RECLAMOS POR FALTANTES DESPUÉS DE LA ENTREGA.
@@ -332,47 +335,49 @@
                                     <br/>
                                     RECIBÍ MERCANCÍA COMPLETA
                                     <br/>
-                                </div>     
+                                </div>
                             </t>
-                            <t t-if = "doc.move_type == 'out_refund'">
+                            <t t-if="doc.move_type == 'out_refund'">
                                 <div style="font-size: 12px; text-align: center; width: 100%; font-weight: bold;">
                                     <br/>
                                     SOLICITO LA DEVOLUCIÓN DE LA MERCANCÍA INDICADA
                                     <br/>
-                                </div>     
-                            </t>  
+                                </div>
+                            </t>
+
                             <div style="margin-top: 30px;">
                                 <svg width="100%" height="2" xmlns="http://www.w3.org/2000/svg">
                                     <line x1="0" y1="0" x2="100%" y2="0" stroke="black" stroke-width="2"/>
                                 </svg>
-                            </div>  
-                            <div style="font-size: 14px; text-align: center; width: 100%; ">
-                                <t t-esc = "doc.partner_id.name"/>
                             </div>
-                            <div style="font-size: 14px; text-align: center; width: 100%; ">                                                
+
+                            <div style="font-size: 14px; text-align: center; width: 100%;">
+                                <t t-esc="doc.partner_id.name"/>
+                            </div>
+                            <div style="font-size: 14px; text-align: center; width: 100%;">
                                 <br/>
                                 <br/>
                                 <b>EXIJA SU RECIBO DE PAGO.</b>
                                 <br/>
-                                <b>SI NO LO RECIBE, REPORTELO, Y SERÁ GRATIFICADO.</b>
+                                <b>SI NO LO RECIBE, REPÓRTELO, Y SERÁ GRATIFICADO.</b>
                                 <br/>
                                 <br/>
-                                <b>Folio:</b> <t t-esc = "doc.name"/>
-                                <br/>         
-                                <b>Fecha:</b> <t t-esc = "doc.invoice_date and doc.invoice_date.strftime('%d/%m/%Y')"/>
+                                <b>Folio:</b> <t t-esc="doc.name"/>
+                                <br/>
+                                <b>Fecha:</b> <t t-esc="doc.invoice_date and doc.invoice_date.strftime('%d/%m/%Y')"/>
                             </div>
-                            <div style="font-size: 13px; text-align: center; width: 100%; white-space:pre-line; font-weight: bold;  line-height: 15px;">
-                                <span style = "line-height: 15px;" t-field="doc.company_id.x_invoice_ticket_footer"/>
+                            <div style="font-size: 13px; text-align: center; width: 100%; white-space:pre-line; font-weight: bold; line-height: 15px;">
+                                <span style="line-height: 15px;" t-field="doc.company_id.x_invoice_ticket_footer"/>
                             </div>
                             <div style="font-size: 14px; text-align: center; width: 100%;">
                                 <br/>
-                                Fecha y hora de impresión: 
+                                Fecha y hora de impresión:
                                 <t t-esc="datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-6))).strftime('%d/%m/%Y %H:%M:%S')"/>
                             </div>
                         </div>
                     </t>
-                    <t t-else = "">
-                        <div>FORMARTO INVALIDO</div>
+                    <t t-else="">
+                        <div>FORMATO INVÁLIDO</div>
                     </t>
                 </t>
             </t>
