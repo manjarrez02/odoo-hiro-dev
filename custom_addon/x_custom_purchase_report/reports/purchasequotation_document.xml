@@ -38,10 +38,9 @@
                         <thead class="table-active">
                             <tr>
                                 <th style="width: 12%;">Cantidad</th>
-                                <th style="width: 28%;">Descripción Interna</th>
-                                <th style="width: 28%;">Descripción Proveedor</th>
-                                <th style="width: 12%;">Cant. Empaque</th>
-                                <th style="width: 20%;">Empaque</th>
+                                <th style="width: 38%;">Descripción Interna</th>
+                                <th style="width: 12%;">Cant. Empaque</th>          
+                                <th style="width: 38%;">Descripción Proveedor</th>              
                             </tr>
                         </thead>
                         <tbody>
@@ -71,19 +70,13 @@
                                             [<span t-field="line.product_id.barcode"/>]
                                         </div>
                                     </td>
+                                    <td class="text-right">
+                                        <span t-field="line.product_packaging_qty"/>
+                                    </td>                                    
                                     <td>
                                         <span t-field="line.product_supplier_name"/>
                                         <div t-if="line.product_supplier_code">
                                             [<span t-field="line.product_supplier_code"/>]
-                                        </div>
-                                    </td>
-                                    <td class="text-right">
-                                        <span t-field="line.product_packaging_qty"/>
-                                    </td>
-                                    <td>
-                                        <span t-field="line.product_packaging_id.name"/>
-                                        <div t-if="line.product_packaging_id and line.product_packaging_id.barcode">
-                                            [<span t-field="line.product_packaging_id.barcode"/>]
                                         </div>
                                     </td>
                                 </t>
