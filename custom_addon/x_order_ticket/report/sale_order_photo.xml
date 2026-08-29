@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Acción de reporte independiente -->
+    <record id="report_order_print_letter_so_action" model="ir.actions.report">
+        <field name="name">Cotizacion/Orden con imagen</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">x_order_ticket.order_ticket_letter_photo</field>
+        <field name="report_file">x_order_ticket.order_ticket_letter_photo</field>
+        <field name="print_report_name">(object._get_report_base_filename())</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_letter_order"/>
+    </record>
+
+
+    <!-- Plantilla QWeb independiente: Order Ticket Letter con imagen de producto -->
+    <template id="order_ticket_letter_photo">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-foreach="docs" t-as="doc">
+                    <div class="page" style="width: 100%; max-width: 100%;">
+
+
+                        <!-- Espacio vertical inicial para evitar solapamiento con el layout -->
+                        <div class="row mb-3">
+                            <div class="col-12" style="height: 25px;"></div>
+                        </div>
+
+
+                        <!-- Título según estado (estilo Odoo) -->
+                        <div class="row mb-2">
+                            <div class="col-12 text-center" style="font-size: 20px; font-weight: bold;">
+                                <t t-if="doc.state == 'draft' or doc.state == 'sent'">
+                                    COTIZACION
+                                </t>
+                                <t t-elif="doc.state == 'sale' or doc.state == 'done'">
+                                    ORDEN DE VENTA
+                                </t>
+                                <t t-elif="doc.state == 'cancel'">
+                                    CANCELADA
+                                </t>
+                            </div>
+                        </div>
+
+
+                        <!-- Mensaje solo para orden confirmada (justo debajo del estado) -->
+                        <t t-if="doc.state == 'sale' or doc.state == 'done'">
+                            <div class="row mb-2">
+                                <div class="col-12 text-center" style="font-size: 12px; font-weight: bold;">
+                                    ESTE RECIBO NO AMPARA LA COMPRA DE LOS PRODUCTOS AQUI DESCRITOS.
+                                </div>
+                            </div>
+                        </t>
+
+                        <div class="row mb-3">
+                            <div class="col-12" style="height: 10px;"></div>
+                        </div>
+
+                        <!-- Folio (izquierda) y Fecha (derecha, bien cargada) -->
+                        <div class="row mb-2">
+                            <div class="col-6" style="font-size: 14px;">
+                                <strong>Folio:</strong> <t t-esc="doc.name"/>
+                            </div>
+                            <div class="col-6 text-right" style="font-size: 14px; text-align: right !important;">
+                                <strong>Fecha:</strong> <t t-esc="doc.date_order.strftime('%d/%m/%Y')"/>
+                            </div>
+                        </div>
+
+
+                        <!-- Vencimiento (solo cotizacion) -->
+                        <t t-if="doc.state == 'draft' or doc.state == 'sent'">
+                            <t t-if="doc.validity_date">
+                                <div class="row mb-2">
+                                    <div class="col-12" style="font-size: 14px;">
+                                        <strong>VIGENCIA:</strong> <t t-esc="doc.validity_date.strftime('%d/%m/%Y')"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+
+
+                        <!-- Cliente -->
+                        <div class="row mb-2">
+                            <div class="col-12" style="font-size: 14px;">
+                                <strong>Cliente:</strong> <t t-esc="doc.partner_id.name"/><br/>
+                                <span t-field="doc.partner_id.street"/>,
+                                <span t-field="doc.partner_id.neighborhood_id.name"/>,
+                                <span t-field="doc.partner_id.city"/>,
+                                <span t-field="doc.partner_id.state_id"/>, C.P
+                                <span t-field="doc.partner_id.custom_zip"/>
+                            </div>
+                        </div>
+
+
+                        <!-- Vendedor (arriba, después de cliente) -->
+                        <div class="row mb-2">
+                            <div class="col-12" style="font-size: 13px;">
+                                <strong>Vendedor:</strong>
+                                <t t-set="full_name" t-value="doc.user_id.name"/>
+                                <t t-if="full_name">
+                                    <t t-set="name_parts" t-value="full_name.split(' ')"/>
+                                    <t t-if="len(name_parts) &gt; 2">
+                                        <t t-esc="name_parts[0]"/> <t t-esc="name_parts[1][0]"/>. <t t-esc="name_parts[2][0]"/>.
+                                    </t>
+                                    <t t-elif="len(name_parts) &gt; 1">
+                                        <t t-esc="name_parts[0]"/> <t t-esc="name_parts[1][0]"/>.
+                                    </t>
+                                    <t t-else="">
+                                        <t t-esc="full_name"/>
+                                    </t>
+                                </t>
+                            </div>
+                        </div>
+
+
+                        <!-- Espacio entre vendedor y tabla -->
+                        <div class="row mb-3">
+                            <div class="col-12" style="height: 15px;"></div>
+                        </div>
+
+
+                        <!-- CÃ¡lculos de descuento -->
+                        <t t-set="lines_discount" t-value="0"/>
+                        <t t-set="general_discount" t-value="0"/>
+
+
+                        <!-- Tabla de lÃ¬neas con columna IMAGEN (20% ancho, imagen alta) -->
+                        <table class="table table-sm" style="width: 100%; font-size: 13px;">
+                            <thead class="table-active">
+                                <tr>
+                                    <th style="width: 20%; text-align: center;"><strong>IMAGEN</strong></th>
+                                    <th style="width: 14%;"><strong>CLAVE</strong></th>
+                                    <th style="width: 31%;"><strong>DESCRIPCION</strong></th>
+                                    <th style="width: 12%; text-align: center;"><strong>CANTIDAD</strong></th>
+                                    <th style="width: 11%; text-align: right;"><strong>P.U.</strong></th>
+                                    <th style="width: 12%; text-align: right;"><strong>IMPORTE</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.order_line" t-as="line">
+                                    <!-- SecciÃ³n -->
+                                    <t t-if="line.display_type == 'line_section'">
+                                        <td colspan="6" style="background-color: #f8f9fa; font-weight: bold; font-size: 13px;">
+                                            <span t-field="line.name"/>
+                                        </td>
+                                    </t>
+                                    <!-- Nota -->
+                                    <t t-elif="line.display_type == 'line_note'">
+                                        <td colspan="6" style="background-color: #f8f9fa; font-size: 13px;">
+                                            <span t-field="line.name"/>
+                                        </td>
+                                    </t>
+                                    <!-- Producto -->
+                                    <t t-else="">
+                                        <!-- IMAGEN (columna ~20% del ancho; imagen alta) -->
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <t t-if="line.product_id and line.product_id.product_tmpl_id.image_128">
+                                                <img t-att-src="'/web/image/product.template/%s/image_128' % line.product_id.product_tmpl_id.id"
+                                                     style="height: 100px; width: 100px; object-fit: contain;"
+                                                     alt="Imagen del producto"/>
+                                            </t>
+                                        </td>
+                                        <!-- CLAVE -->
+                                        <td style="font-size: 13px;">
+                                            <span t-field="line.product_id.barcode"/>
+                                        </td>
+                                        <!-- DESCRIPCION (con empaque si existe, con espacio extra) -->
+                                        <td style="font-size: 13px; white-space: normal; overflow-wrap: anywhere;">
+                                            <span t-field="line.name"/>
+                                            <t t-if="line.product_packaging_qty">
+                                                <br/>
+                                                <br/>
+                                                <em style="font-size: 12px;">
+                                                    <span t-esc="'{:g}'.format(line.product_packaging_qty)"/>
+                                                    <t t-esc="' '"/>
+                                                    <span t-field="line.product_packaging_id"/>
+                                                </em>
+                                            </t>
+                                        </td>
+                                        <!-- CANTIDAD -->
+                                        <td style="text-align: center; font-size: 13px;">
+                                            <span t-field="line.product_uom_qty"/>
+                                        </td>
+                                        <td style="text-align: right; font-size: 13px;">
+                                            <t t-if="line.discount != 0">
+                                                <t t-set="lines_discount" t-value="lines_discount + (line.price_unit * line.discount / 100 * line.product_uom_qty)"/>
+                                                <!-- Precio Unitario Post-Descuento -->
+                                                <span t-esc="'{0:,.2f}'.format(line.price_unit * (1 - line.discount / 100))"/>
+                                                <br/>
+                                                <!-- Leyenda inferior -->
+                                                <small style="color: #666;"><t t-esc="'{:g}'.format(line.discount)"/>% de desc. incluido</small>
+                                            </t>
+                                            <t t-else="">
+                                                <!-- Precio Unitario Regular sin descuento -->
+                                                <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
+                                            </t>
+                                        </td>
+                                        <!-- IMPORTE -->
+                                        <td style="text-align: right; font-size: 13px;">
+                                            <span t-esc="'{0:,.2f}'.format(line.price_subtotal)"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                        <!-- Totales (mÃ¡s a la derecha y texto mÃ¡s grande) -->
+                        <div class="row mt-3 justify-content-end">
+                            <div class="col-3">
+                                <table class="table table-sm table-borderless" style="width: 100%;">
+                                    <t t-if="general_discount">
+                                        <tr>
+                                            <td class="text-right" style="font-size: 15px;"><strong>Subtotal:</strong></td>
+                                            <td class="text-right" style="font-size: 15px;">
+                                                $ <span t-esc="'{0:,.2f}'.format(doc.amount_total + general_discount)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-right" style="font-size: 15px;"><strong>Descuento:</strong></td>
+                                            <td class="text-right" style="font-size: 15px;">
+                                                $ <span t-esc="'{0:,.2f}'.format(-general_discount)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <tr class="border-top">
+                                        <td class="text-right" style="font-size: 16px;"><strong>Total:</strong></td>
+                                        <td class="text-right" style="font-size: 16px;">
+                                            $ <span t-esc="'{0:,.2f}'.format(doc.amount_total)"/>
+                                        </td>
+                                    </tr>
+                                    <!-- Usted ahorra alineado a la derecha -->
+                                    <t t-if="general_discount + lines_discount">
+                                        <tr>
+                                            <td class="text-right" style="font-size: 16px;"><strong>Usted ahorra:</strong></td>
+                                            <td class="text-right" style="font-size: 16px;">
+                                                $ <span t-esc="'{0:,.2f}'.format(general_discount + lines_discount)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12" style="height: 10px;"></div>
+                        </div>
+
+                        <!-- Leyenda de disponibilidad y cambios -->
+                        <div class="row mt-2">
+                            <div class="col-12 text-center" style="font-size: 15px; font-style: italic;">
+                                Cotizacion sujeta a disponibilidad y cambios sin previo aviso.
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12" style="height: 5px;"></div>
+                        </div>
+
+                        <!-- Pie de empresa (solo texto con sitio web) -->
+                        <div class="row mt-2">
+                            <div class="col-12 text-center" style="font-size: 15px; font-style: italic;">
+                                Visite www.comercializadorahiro.com.mx y conozca nuestros términos y condiciones, y aviso de privacidad.
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12" style="height: 5px;"></div>
+                        </div>
+
+                        <!-- Fecha y hora de impresiÃ³n -->
+                        <div class="row mt-2">
+                            <div class="col-12 text-center" style="font-size: 13px;">
+                                Fecha y hora de impresión:
+                                <t t-esc="datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-6))).strftime('%d/%m/%Y %H:%M:%S')"/>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

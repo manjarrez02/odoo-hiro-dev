@@ -9,6 +9,7 @@
     'data': [
         'data/roll_paper.xml',
         'report/order_ticket.xml',
+        'report/sale_order_photo.xml',
     ],
     'installable': True,
     'application': False,
