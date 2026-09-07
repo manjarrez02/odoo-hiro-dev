@@ -15,17 +15,43 @@ odoo.define('pos_customer_screen.models', function (require) {
         }
         async load_server_data(){
             if (odoo.config_id) {
-                const pos_session = await this.env.services.rpc({
+                const pos_config = await this.env.services.rpc({
                     model: 'pos.config',
                     method: 'search_read',
                     domain: [['id', '=', odoo.config_id]],
+                    fields: ['current_session_id'],
                 });
-                let pos_session_id = pos_session[0].current_session_id[0];
+                if (!pos_config.length || !pos_config[0].current_session_id) {
+                    console.error("Customer Display: No active POS session found for config_id", odoo.config_id);
+                    return;
+                }
+                let pos_session_id = pos_config[0].current_session_id[0];
                 const loadedData = await this.env.services.rpc({
                     model: 'pos.session',
-                    method: 'load_pos_data',
+                    method: 'load_customer_display_data',
                     args: [[pos_session_id]],
                 });
+
+                // Fallbacks defensivos para extensiones JS de módulos de terceros
+                loadedData['account.move'] = loadedData['account.move'] || [];
+                loadedData['account.journal'] = loadedData['account.journal'] || [];
+                loadedData['product.template'] = loadedData['product.template'] || [];
+                loadedData['stock.warehouse'] = loadedData['stock.warehouse'] || [];
+                loadedData['stock.location'] = loadedData['stock.location'] || [];
+                loadedData['stock.picking'] = loadedData['stock.picking'] || [];
+                loadedData['pos_sessions'] = loadedData['pos_sessions'] || [];
+                loadedData['pos_order'] = loadedData['pos_order'] || [];
+                loadedData['pos.order'] = loadedData['pos.order'] || [];
+                loadedData['pos.loyalty.setting'] = loadedData['pos.loyalty.setting'] || [];
+                loadedData['pos.redeem.rule'] = loadedData['pos.redeem.rule'] || [];
+                loadedData['users'] = loadedData['users'] || [];
+                loadedData['users1'] = loadedData['users1'] || [];
+                loadedData['pos.gift.coupon'] = loadedData['pos.gift.coupon'] || [];
+                loadedData['poscurrency'] = loadedData['poscurrency'] || [];
+                loadedData['product.barcode'] = loadedData['product.barcode'] || [];
+                loadedData['res.config.settings'] = loadedData['res.config.settings'] || [];
+                loadedData['pos.receipt'] = loadedData['pos.receipt'] || [];
+
                 await this._processData(loadedData);
                 return this.after_load_server_data();
             } else {
@@ -102,7 +128,10 @@ odoo.define('pos_customer_screen.models', function (require) {
             }
             var orderLines = [];
             for (let item of this.orderlines){
-                orderLines.push(item.export_as_JSON());
+                let line_data = item.export_as_JSON();
+                line_data.uom_name = item.get_unit() ? item.get_unit().name : (item.product && item.product.uom_id ? item.product.uom_id[1] : '');
+                line_data.lst_price = item.product ? item.product.lst_price : item.price;
+                orderLines.push(line_data);
             }
             if(this.get_partner()){
                 client_name = this.get_partner().name;

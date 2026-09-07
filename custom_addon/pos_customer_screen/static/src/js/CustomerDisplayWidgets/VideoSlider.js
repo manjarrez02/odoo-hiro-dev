@@ -34,16 +34,23 @@ odoo.define('pos_customer_screen.VideoSlider', function(require) {
             return this.props.width;
         }
         get videoSrc(){
-            if(this.videoList[this.state.activeVideo].is_youtube_video){
-                if(this.videoList[this.state.activeVideo].name){
-                    this.state.title = this.videoList[this.state.activeVideo].name;
+            const active = this.videoList[this.state.activeVideo];
+            if (!active) {
+                return "";
+            }
+            if (active.name) {
+                this.state.title = active.name;
+            }
+            if (active.is_youtube_video) {
+                return "https://www.youtube.com/embed/" + active.video_id + "?autoplay=1";
+            } else {
+                if (active.video_url) {
+                    return active.video_url;
                 }
-                return "https://www.youtube.com/embed/"+this.videoList[this.state.activeVideo].video_id + "?autoplay=1";
-            }else{
-                if(this.videoList[this.state.activeVideo].name){
-                    this.state.title = this.videoList[this.state.activeVideo].name;
+                if (active.local_video_id) {
+                    return "data:video/mp4;base64," + active.local_video_id;
                 }
-                return "data:video/mp4;base64," + this.videoList[this.state.activeVideo].local_video_id; 
+                return `/web/content/ad.video/${active.id}/local_video_id`;
             }
         }
     }

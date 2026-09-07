@@ -15,13 +15,14 @@
                         <t t-esc="props.line.qty"/>
                     </em>
                     <span> </span>
-                    <t t-esc="env.pos.db.get_product_by_id(props.line.product_id).uom_id[1]"/>
+                    <t t-esc="props.line.uom_name || (env.pos.db.get_product_by_id(props.line.product_id) ? env.pos.db.get_product_by_id(props.line.product_id).uom_id[1] : '')"/>
                     at
                    
-                    <t t-if="env.pos.round_decimals_currency(props.line.price_subtotal_incl / props.line.qty ) &lt; (env.pos.db.get_product_by_id(props.line.product_id).lst_price)">
+                    <t t-set="line_lst_price" t-value="props.line.lst_price || (env.pos.db.get_product_by_id(props.line.product_id) ? env.pos.db.get_product_by_id(props.line.product_id).lst_price : props.line.price_unit)"/>
+                    <t t-if="env.pos.round_decimals_currency(props.line.price_subtotal_incl / props.line.qty ) &lt; line_lst_price">
                         <t t-if="props.line.qty > 0">
                             <s>
-                                <t t-esc="env.pos.format_currency(env.pos.db.get_product_by_id(props.line.product_id).lst_price)"/>
+                                <t t-esc="env.pos.format_currency(line_lst_price)"/>
                             </s>      
                             <t t-esc="env.pos.format_currency(props.line.price_subtotal_incl / props.line.qty )"/>        
                         </t>                   
