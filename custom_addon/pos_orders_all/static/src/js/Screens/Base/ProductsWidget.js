@@ -180,118 +180,111 @@ odoo.define('pos_orders_all.ProductsWidget', function(require) {
                 let config_loc = self.env.pos.config.stock_location_id
                 
                 if (self.env.pos.config.show_stock_location == 'specific'){
+                    let cfg_loc_id = config_loc ? config_loc[0] : null;
                     if(self.env.pos.config.pos_stock_type == 'onhand'){
                         $.each(prods, function( i, prd ){
-                            prd['qty_available'] = 0;
-                            let loc_onhand = JSON.parse(prd.quant_text);
-
-
-
-                            var quantity_available=0
-                            $.each(loc_onhand, function( k, v ){
-                                if(config_loc[0] == k){
-                                    quantity_available = quantity_available + v[0];
+                            var quantity_available = prd.qty_available || 0;
+                            if (prd.quant_text) {
+                                try {
+                                    let loc_onhand = typeof prd.quant_text === 'string' ? JSON.parse(prd.quant_text) : prd.quant_text;
+                                    if (loc_onhand && cfg_loc_id && (cfg_loc_id in loc_onhand)) {
+                                        let v = loc_onhand[cfg_loc_id];
+                                        quantity_available = Array.isArray(v) ? v[0] : (typeof v === 'number' ? v : 0);
+                                    }
+                                } catch(e) {
+                                    quantity_available = prd.qty_available || 0;
                                 }
-                            })
+                            }
 
                             if(prd['bi_on_hand'] > 0){
-                                var bi_on_hand = order.get_display_product_qty(prd)
-                                quantity_available = quantity_available - bi_on_hand
+                                var bi_on_hand = order ? order.get_display_product_qty(prd) : 0;
+                                quantity_available = quantity_available - bi_on_hand;
                             }
                             else{
-                                var reserved_qty = order.get_display_product_qty(prd);
-                                quantity_available = quantity_available -reserved_qty
+                                var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
+                                quantity_available = quantity_available - reserved_qty;
                             }
-                            prd['qty_available']=quantity_available
-
+                            prd['qty_available'] = quantity_available;
                         });
                     }else if(self.env.pos.config.pos_stock_type == 'virtual'){
                         $.each(prods, function( i, prd ){
-                            let loc_available = JSON.parse(prd.quant_text);
-                            prd['virtual_available'] = 0;
-                            var virtual_available=0
-                            let total = 0;
-                            let out = 0;
-                            let inc = 0;
-                            $.each(loc_available, function( k, v ){
-                                if(config_loc[0] == k){
-                                    total += v[0];
-                                    if(v[1]){
-                                        out += v[1];
+                            var virtual_available = prd.virtual_available || prd.qty_available || 0;
+                            if (prd.quant_text) {
+                                try {
+                                    let loc_available = typeof prd.quant_text === 'string' ? JSON.parse(prd.quant_text) : prd.quant_text;
+                                    if (loc_available && cfg_loc_id && (cfg_loc_id in loc_available)) {
+                                        let v = loc_available[cfg_loc_id];
+                                        if (Array.isArray(v)) {
+                                            virtual_available = (v[0] || 0) + (v[2] || 0) - (v[1] || 0);
+                                        } else if (typeof v === 'number') {
+                                            virtual_available = v;
+                                        }
                                     }
-                                    if(v[2]){
-                                        inc += v[2];
-                                    }
-                                    let final_data = (total + inc) - out
-                                    virtual_available = final_data;
+                                } catch(e) {
+                                    virtual_available = prd.virtual_available || prd.qty_available || 0;
                                 }
-                            })
-                            if(prd['bi_on_virtual']>0){
-                                var bi_on_virtual = order.get_display_product_qty(prd);
-                                virtual_available = virtual_available - bi_on_virtual
+                            }
+                            if(prd['bi_on_virtual'] > 0){
+                                var bi_on_virtual = order ? order.get_display_product_qty(prd) : 0;
+                                virtual_available = virtual_available - bi_on_virtual;
                             }
                             else{
-                                var reserved_qty = order.get_display_product_qty(prd);
+                                var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
                                 virtual_available = virtual_available - reserved_qty;
                             }
-                            prd['virtual_available']=virtual_available
+                            prd['virtual_available'] = virtual_available;
                         });
                     }
                     else if(self.env.pos.config.pos_stock_type == 'both'){
                         $.each(prods, function( i, prd ){
-                            let loc_available = JSON.parse(prd.quant_text);
-                            prd['virtual_available'] = 0;
-                            prd['qty_available'] = 0;
-                            var virtual_available=0
-                            var quantity_available=0
-                            let total = 0;
-                            let out = 0;
-                            let inc = 0;
-                            $.each(loc_available, function( k, v ){
-                                if(config_loc[0] == k){
-                                    total += v[0];
-                                    if(v[1]){
-                                        out += v[1];
+                            var quantity_available = prd.qty_available || 0;
+                            var virtual_available = prd.virtual_available || prd.qty_available || 0;
+                            if (prd.quant_text) {
+                                try {
+                                    let loc_available = typeof prd.quant_text === 'string' ? JSON.parse(prd.quant_text) : prd.quant_text;
+                                    if (loc_available && cfg_loc_id && (cfg_loc_id in loc_available)) {
+                                        let v = loc_available[cfg_loc_id];
+                                        if (Array.isArray(v)) {
+                                            quantity_available = v[0] || 0;
+                                            virtual_available = (v[0] || 0) + (v[2] || 0) - (v[1] || 0);
+                                        } else if (typeof v === 'number') {
+                                            quantity_available = v;
+                                            virtual_available = v;
+                                        }
                                     }
-                                    if(v[2]){
-                                        inc += v[2];
-                                    }
-                                    let final_data = (total + inc) - out
-                                    virtual_available = final_data;
-                                    quantity_available = quantity_available + v[0];
+                                } catch(e) {
+                                    quantity_available = prd.qty_available || 0;
+                                    virtual_available = prd.virtual_available || prd.qty_available || 0;
                                 }
-                            })
+                            }
 
                             if(prd['bi_on_hand'] > 0){
-                                var bi_on_hand = order.get_display_product_qty(prd)
-                                quantity_available = quantity_available - bi_on_hand
+                                var bi_on_hand = order ? order.get_display_product_qty(prd) : 0;
+                                quantity_available = quantity_available - bi_on_hand;
                             }
                             else{
-                                var reserved_qty = order.get_display_product_qty(prd);
-                                quantity_available = quantity_available -reserved_qty
+                                var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
+                                quantity_available = quantity_available - reserved_qty;
                             }
-                            prd['qty_available']=quantity_available
-                            if(prd['bi_on_virtual']>0){
-                                var bi_on_virtual = order.get_display_product_qty(prd);
-                                virtual_available = virtual_available - bi_on_virtual
+                            prd['qty_available'] = quantity_available;
+                            if(prd['bi_on_virtual'] > 0){
+                                var bi_on_virtual = order ? order.get_display_product_qty(prd) : 0;
+                                virtual_available = virtual_available - bi_on_virtual;
                             }
                             else{
-                                var reserved_qty = order.get_display_product_qty(prd);
+                                var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
                                 virtual_available = virtual_available - reserved_qty;
                             }
-                            prd['virtual_available']=virtual_available
+                            prd['virtual_available'] = virtual_available;
                         });
                     }
                 }else{
                     $.each(prods, function( i, prd ){
-                        
-                        let quantity_available = prd.qty_available;
-                        let qty_virtual_available = prd.virtual_available;
-                        var reserved_qty = order.get_display_product_qty(prd);
-                        quantity_available = quantity_available -reserved_qty
-                        qty_virtual_available = qty_virtual_available -reserved_qty
-                        
-
+                        let quantity_available = prd.qty_available || 0;
+                        let qty_virtual_available = prd.virtual_available || quantity_available;
+                        var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
+                        quantity_available = quantity_available - reserved_qty;
+                        qty_virtual_available = qty_virtual_available - reserved_qty;
 
                         prd['bi_qty_available'] = quantity_available;
                         prd['bi_virtual_available'] = qty_virtual_available;

@@ -26,7 +26,7 @@ class PosSession(models.Model):
         return {
             'search_params': {
                 'domain': [('config_id', '=', self.config_id.id)],
-                'fields': ['name', 'image', 'config_id'],
+                'fields': ['name', 'config_id'],
             },
         }
 

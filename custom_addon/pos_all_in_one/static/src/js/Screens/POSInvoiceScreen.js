@@ -5,264 +5,329 @@ odoo.define('pos_all_in_one.POSInvoiceScreen', function (require) {
 	const PosComponent = require('point_of_sale.PosComponent');
 	const Registries = require('point_of_sale.Registries');
 	const { useListener } = require("@web/core/utils/hooks");
-	const { useRef } = owl;
-	const rpc = require('web.rpc');
+	const { onWillStart, onWillUnmount, useRef, useState } = owl;
 	let core = require('web.core');
 	let _t = core._t;
 
 	class POSInvoiceScreen extends PosComponent {
 		setup() {
 			super.setup();
-			this.filter_state = '';
-			this.state = {
-				query: null,
-				selectedPosOrder: this.props.partner,
-				filter_state: this.filter_state,
-			};
+			this.state = useState({
+				query: '',
+				selectedPosOrder: null,
+				filter_state: '',
+				orders: [],
+				loading: true,
+			});
 			useListener('click-showDetails', this.showDetails);
-			this.orders = this.get_invoices()[0] || [];
-			this.orderlines = this.get_invoices()[1] || [];
-			this.updateOrderList = debounce(this.updateOrderList, 70);
-			this.searchWordInput = useRef('search-word-input-invoice');
-		}
+			this.searchWordInputRef = useRef('search-word-input-invoice');
+			this.searchWordInput = this.searchWordInputRef;
+			this.serverSearchDebounced = debounce(this._serverSearch.bind(this), 300);
+			onWillUnmount(this.serverSearchDebounced.cancel);
 
-		cancel() {
-			this.trigger('close-temp-screen');
-		}
-
-        _clearSearch() {
-            this.searchWordInput.el.value = '';
-            this.state.query = '';
-            this.render(true);
-        }
-
-		async register_payment() {
-			var self = this;
-			const partner_id = self.state.selectedPosOrder;
-			if (!partner_id) {
-
-				self.showPopup('ErrorPopup', {
-					'title': _t('Unknown customer'),
-					'body': _t('You cannot Register Payment. Select Invoice first.'),
-				});
-				return false;
-			}
-
-			self.showPopup('RegisterPaymentPopupWidget', {'invoice':self.state.selectedPartner});
+			onWillStart(async () => {
+				await this.load_invoices();
+			});
 		}
 
 		get currentOrder() {
 			return this.env.pos.get_order();
 		}
 
-		get invoices() {
-			let self = this;
-			let query = this.state.query;
-			if(query){
-				query = query.trim();
-				query = query.toLowerCase();
-			}
-			if(this.orders){
-				if ((query && query !== '') || 
-					(this.props.selected_partner_id)) {
-					return this.search_orders(this.orders,query);
-				} else {
-					return this.orders;
-				}
-			}
-			else{
-				let odrs = this.get_invoices()[0] || [];
-				if (query && query !== '') {
-					return this.search_orders(odrs,query);
-				} else {
-					return odrs;
-				}
-			}
+		get orders() {
+			return this.state.orders;
+		}
+
+		set orders(val) {
+			this.state.orders = val || [];
+		}
+
+		get orderlines() {
+			return [];
+		}
+
+		set orderlines(val) {
 		}
 
 		get pos_order_lines() {
-			return this.orderlines;
+			return [];
 		}
 
-		search_orders(orders,query){
-			let self = this;
-			let selected_orders = [];
-			let search_text = query;
-			let selected_partner = self.props.selected_partner_id;
-			orders.forEach(function(odr) {
-				if ((odr.partner_id == '' || !odr.partner_id) && search_text) {
-					if (((odr.name.toLowerCase()).indexOf(search_text) != -1) || 
-						((odr.state.toLowerCase()).indexOf(search_text) != -1) || 
-						((odr.payment_state.toLowerCase()).indexOf(search_text) != -1)) {
-						selected_orders.push(odr);
-					}
-				}
-				else
-				{
-					if(search_text){
-						if (((odr.name.toLowerCase()).indexOf(search_text) != -1) || 
-							((odr.state.toLowerCase()).indexOf(search_text) != -1)|| 
-							((odr.payment_state.toLowerCase()).indexOf(search_text) != -1)||
-							((odr.partner_id[1].toLowerCase()).indexOf(search_text) != -1)) {
-							selected_orders.push(odr);
-						}
-					}
-					
-					if(selected_partner){
-						if (odr.partner_id[0] == selected_partner){
-							selected_orders.push(odr);
-						}
-					}
-				}
-			});
-			return selected_orders;
+		cancel() {
+			this.trigger('close-temp-screen');
 		}
 
-		invoicedFilter(){
-			this.state.filter_state  = 'Partially Paid';
-			this.state.query = 'partial';
-			const invoices = this.invoices;
-			this.render();
-		}
-
-		notPaidFilter(){
-			this.state.filter_state  = 'Not Paid';
-			this.state.query = 'not_paid';
-			const pos_orders = this.pos_orders;
-			this.render();
-		}
-
-
-		refresh_orders(){
-			$('.input-search-orders').val('');
+		_clearSearch() {
+			if (this.searchWordInputRef && this.searchWordInputRef.el) {
+				this.searchWordInputRef.el.value = '';
+			}
 			this.state.query = '';
-			this.props.selected_partner_id = false;
-			this.get_invoices();
-			this.state.filter_state  = '';
-			this.render();
 		}
 
-		updateOrderList(event) {
-			this.state.query = event.target.value;
-			const invoices = this.invoices;
-			if (event.code === 'Enter' && invoices.length === 1) {
-				this.state.selectedPosOrder = invoices[0];
-			} else {
-				this.render();
+		async _serverSearch(query) {
+			query = (query || (this.searchWordInputRef && this.searchWordInputRef.el && this.searchWordInputRef.el.value) || this.state.query || '').trim();
+			if (!query || query.length < 1) return;
+
+			const search_domain = [
+				'|', '|',
+				['name', 'ilike', query],
+				['ref', 'ilike', query],
+				['partner_id', 'ilike', query]
+			];
+
+			search_domain.unshift(['move_type', 'in', ['out_invoice', 'out_refund']]);
+
+			const pos_config = this.env.pos.config;
+			const companyId = (this.env.pos.company && this.env.pos.company.id) || 
+			                  (pos_config && pos_config.company_id && pos_config.company_id[0]);
+			const allowedCompanies = (this.env.session && this.env.session.user_context && this.env.session.user_context.allowed_company_ids) || (companyId ? [companyId] : []);
+			if (allowedCompanies.length > 0) {
+				search_domain.unshift(['company_id', 'in', allowedCompanies.concat([false])]);
+			}
+
+			const fields = [
+				'id', 'name', 'ref', 'partner_id', 'amount_total', 'amount_residual',
+				'currency_id', 'state', 'payment_state', 'invoice_date', 'move_type'
+			];
+
+			try {
+				const results = await this.rpc({
+					model: 'account.move',
+					method: 'search_read',
+					args: [search_domain, fields, 0, 50, 'invoice_date desc, id desc'],
+					kwargs: { context: this.env.session.user_context },
+				});
+
+				if (results && results.length > 0) {
+					if (!this.env.pos.db.invoice_by_id) {
+						this.env.pos.db.invoice_by_id = {};
+					}
+					const existingIds = new Set(this.state.orders.map(o => o.id));
+					for (const inv of results) {
+						if (!inv.partner_id) inv.partner_id = [false, ''];
+						if (!inv.currency_id) inv.currency_id = [this.env.pos.currency.id, this.env.pos.currency.name];
+						if (!inv.ref) inv.ref = '';
+						if (!existingIds.has(inv.id)) {
+							this.state.orders.unshift(inv);
+							this.env.pos.db.invoice_by_id[inv.id] = inv;
+						}
+					}
+				}
+			} catch (err) {
+				console.error("Error searching invoices from server:", err);
 			}
 		}
 
-		clickPosOrder(invoices) {
-			let order = invoices;
+		async _onPressEnterKey() {
+			this.serverSearchDebounced.cancel();
+			const query = (this.searchWordInputRef && this.searchWordInputRef.el && this.searchWordInputRef.el.value) || this.state.query || '';
+			await this._serverSearch(query);
+		}
+
+		updateOrderList(event) {
+			const val = event.target.value;
+			this.state.query = val;
+
+			const isEnter = (event.key === 'Enter' || event.keyCode === 13 || event.which === 13 || event.code === 'Enter' || event.code === 'NumpadEnter');
+
+			if (isEnter) {
+				const currentMatches = this.invoices;
+				if (currentMatches.length === 1) {
+					this.state.selectedPosOrder = currentMatches[0];
+				}
+				this.serverSearchDebounced.cancel();
+				this._serverSearch(val);
+			} else if (val && val.trim().length >= 2) {
+				this.serverSearchDebounced(val);
+			}
+		}
+
+		get invoices() {
+			let query = (this.state.query || '').trim().toLowerCase();
+			let filter_state = this.state.filter_state;
+			let allOrders = this.state.orders || [];
+
+			let filtered = allOrders;
+
+			if (filter_state === 'Partially Paid') {
+				filtered = filtered.filter(odr => odr.payment_state === 'partial');
+			} else if (filter_state === 'Not Paid') {
+				filtered = filtered.filter(odr => odr.payment_state === 'not_paid');
+			}
+
+			if (query !== '') {
+				filtered = this.search_orders(filtered, query);
+			}
+
+			if (this.props.selected_partner_id) {
+				filtered = filtered.filter(odr => odr.partner_id && odr.partner_id[0] === this.props.selected_partner_id);
+			}
+
+			return filtered;
+		}
+
+		search_orders(orders, query) {
+			if (!query) return orders || [];
+			const search_text = query.toLowerCase();
+			return (orders || []).filter(odr => {
+				const name = odr.name ? String(odr.name).toLowerCase() : '';
+				const ref = odr.ref ? String(odr.ref).toLowerCase() : '';
+				const state = odr.state ? String(odr.state).toLowerCase() : '';
+				const payment_state = odr.payment_state ? String(odr.payment_state).toLowerCase() : '';
+				const partnerName = (odr.partner_id && odr.partner_id[1]) ? String(odr.partner_id[1]).toLowerCase() : '';
+
+				return name.includes(search_text) || 
+				       ref.includes(search_text) || 
+				       state.includes(search_text) || 
+				       payment_state.includes(search_text) || 
+				       partnerName.includes(search_text);
+			});
+		}
+
+		invoicedFilter() {
+			if (this.state.filter_state === 'Partially Paid') {
+				this.state.filter_state = '';
+			} else {
+				this.state.filter_state = 'Partially Paid';
+			}
+		}
+
+		notPaidFilter() {
+			if (this.state.filter_state === 'Not Paid') {
+				this.state.filter_state = '';
+			} else {
+				this.state.filter_state = 'Not Paid';
+			}
+		}
+
+		async refresh_orders() {
+			if (this.searchWordInputRef && this.searchWordInputRef.el) {
+				this.searchWordInputRef.el.value = '';
+			}
+			this.state.query = '';
+			this.state.filter_state = '';
+			this.props.selected_partner_id = false;
+			await this.load_invoices();
+		}
+
+		clickPosOrder(order) {
 			if (this.state.selectedPosOrder === order) {
 				this.state.selectedPosOrder = null;
 			} else {
 				this.state.selectedPosOrder = order;
 			}
-			this.showDetails(order)
-			this.render();
+			this.showDetails(order);
 		}
 
 		get_current_day() {
 			let today = new Date();
 			let dd = today.getDate();
-			let mm = today.getMonth()+1; //January is 0!
+			let mm = today.getMonth() + 1;
 			let yyyy = today.getFullYear();
-			if(dd<10){
-				dd='0'+dd;
-			} 
-			if(mm<10){
-				mm='0'+mm;
-			} 
-			today = yyyy+'-'+mm+'-'+dd;
-			return today;
+			if (dd < 10) dd = '0' + dd;
+			if (mm < 10) mm = '0' + mm;
+			return yyyy + '-' + mm + '-' + dd;
 		}
 
 		get_inv_domain() {
-			let self = this; 
-			let current = self.env.pos.pos_session.id;
-			let pos_config = self.env.pos.config;
-			return [['state', '=', 'posted'], ['move_type','=','out_invoice'], ['payment_state', '!=', 'paid']];
+			let domain = [
+				['state', '=', 'posted'],
+				['move_type', 'in', ['out_invoice', 'out_refund']],
+				['payment_state', '!=', 'paid']
+			];
+
+			const pos_config = this.env.pos.config;
+			const companyId = (this.env.pos.company && this.env.pos.company.id) || 
+			                  (pos_config && pos_config.company_id && pos_config.company_id[0]);
+			if (companyId) {
+				domain.push(['company_id', '=', companyId]);
+			}
+			return domain;
 		}
 
-		async get_invoices () {
-			let self = this;
-			let inv_domain = self.get_inv_domain();
+		async load_invoices() {
+			const inv_domain = this.get_inv_domain();
+			const fields = [
+				'id', 'name', 'ref', 'partner_id', 'amount_total', 'amount_residual',
+				'currency_id', 'state', 'payment_state', 'invoice_date', 'move_type'
+			];
 
-			var	fields = ['name','partner_id','amount_total','amount_residual','currency_id','state','payment_state','ref']
-			let load_invoice = [];
-			let load_invoice_line = [];
-			let inv_ids = [];
 			try {
-				await self.rpc({
+				const output = await this.rpc({
 					model: 'account.move',
 					method: 'search_read',
-					args: [inv_domain,fields],
-				}).then(function(output) {
-					load_invoice = output;					
-					self.env.pos.db.invoice_by_id = {};
-					load_invoice.forEach(function(inv) {
-						inv_ids.push(inv.id)
-						self.env.pos.db.invoice_by_id[inv.id] = inv;		
-					});
+					args: [inv_domain, fields, 0, 100, 'invoice_date desc, id desc'],
+					kwargs: { context: this.env.session.user_context },
+				});
 
-					let fields_domain = [['move_id','in',inv_ids]];
-					let fields = ['name','move_id']
-					self.rpc({
-						model: 'account.move.line',
-						method: 'search_read',
-						args: [fields_domain,fields],
-					}).then(function(output1) {
-						load_invoice_line = output1;
-						self.orders = load_invoice;
-						self.orderlines = output1;
-						self.env.pos.db.invoice_line_id = {};
-						output1.forEach(function(ol) {
-							self.env.pos.db.invoice_line_id[ol.id] = ol;						
-						});
-						self.render();
-						return [load_invoice,load_invoice_line]
-					});
-				}); 
-			}catch (error) {
-				if (error.message.code < 0) {
+				const invoices = output || [];
+				if (!this.env.pos.db.invoice_by_id) {
+					this.env.pos.db.invoice_by_id = {};
+				}
+				for (const inv of invoices) {
+					if (!inv.partner_id) inv.partner_id = [false, ''];
+					if (!inv.currency_id) inv.currency_id = [this.env.pos.currency.id, this.env.pos.currency.name];
+					if (!inv.ref) inv.ref = '';
+					this.env.pos.db.invoice_by_id[inv.id] = inv;
+				}
+				this.state.orders = invoices;
+			} catch (error) {
+				console.error("Error loading invoices in POS:", error);
+				this.state.orders = [];
+				if (error && error.message && error.message.code < 0) {
 					await this.showPopup('OfflineErrorPopup', {
 						title: this.env._t('Offline'),
-						body: this.env._t('Unable to load orders.'),
+						body: this.env._t('Unable to load invoices.'),
 					});
-				} else {
-					throw error;
 				}
+			} finally {
+				this.state.loading = false;
 			}
-
 		}
 
-		showDetails(invoices){
-			let self = this;
-			let o_id = invoices.id;
-			let orders =  self.orders;
-			let orderlines =  self.orderlines;
-			let orders1 = [invoices];
-			
-			let pos_lines = [];
+		async get_invoices() {
+			await this.load_invoices();
+			return [this.state.orders, []];
+		}
 
-			for(let n=0; n < orderlines.length; n++){
-				if (orderlines[n]['move_id'][0] ==o_id){
-					pos_lines.push(orderlines[n])
-				}
+		async showDetails(invoices) {
+			const order = (invoices && invoices.detail) ? invoices.detail : invoices;
+			if (!order || !order.id) return;
+
+			let pos_lines = [];
+			try {
+				pos_lines = await this.rpc({
+					model: 'account.move.line',
+					method: 'search_read',
+					args: [[['move_id', '=', order.id]], ['id', 'name', 'move_id', 'price_unit', 'quantity', 'price_subtotal']],
+					kwargs: { context: this.env.session.user_context },
+				});
+			} catch (e) {
+				console.warn("Could not load invoice lines on demand:", e);
 			}
-			self.showPopup('PosInvoiceDetail', {
-				'order': invoices, 
-				'orderline':pos_lines,
+
+			this.showPopup('PosInvoiceDetail', {
+				'order': order, 
+				'orderline': pos_lines || [],
 			});
 		}
 
-		registerPayment(invoice){
-			var self = this;
-			self.showPopup('RegisterInvoicePaymentPopupWidget', {'invoice':invoice});
+		registerPayment(invoice) {
+			this.showPopup('RegisterInvoicePaymentPopupWidget', { 'invoice': invoice });
+		}
+
+		async register_payment() {
+			const partner_id = this.state.selectedPosOrder;
+			if (!partner_id) {
+				this.showPopup('ErrorPopup', {
+					'title': _t('Unknown customer'),
+					'body': _t('You cannot Register Payment. Select Invoice first.'),
+				});
+				return false;
+			}
+			this.showPopup('RegisterPaymentPopupWidget', { 'invoice': partner_id });
 		}
 	}
-
 
 	POSInvoiceScreen.template = 'POSInvoiceScreen';
 	POSInvoiceScreen.hideOrderSelector = true;

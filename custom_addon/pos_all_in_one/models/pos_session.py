@@ -76,6 +76,7 @@ class POSSession(models.Model):
 	def _loader_params_pos_order(self):
 		return {
 			'search_params': {
+				'domain': [('session_id', '=', self.id)],
 				'fields': [
 					'is_partial','amount_due',
 				],
@@ -89,9 +90,11 @@ class POSSession(models.Model):
 
 	def _loader_params_product_product(self):
 		res = super(POSSession, self)._loader_params_product_product()
-		fields = res.get('search_params').get('fields')
-		fields.extend(['type','name','product_template_attribute_value_ids','product_variant_count','product_ids','allow_discount'])
-		res['search_params']['fields'] = fields
+		fields = res.get('search_params', {}).get('fields', [])
+		fields.extend(['name','product_template_attribute_value_ids','product_variant_count','allow_discount'])
+		# Excluimos explícitamente product_ids (Many2many pesado) y campos computados de stock
+		excluded_fields = {'quant_ids', 'product_ids', 'virtual_available', 'incoming_qty', 'outgoing_qty', 'qty_available', 'quant_text'}
+		res['search_params']['fields'] = list(dict.fromkeys([f for f in fields if f not in excluded_fields]))
 		return res
 
 	def _pos_data_process(self, loaded_data):
@@ -101,7 +104,7 @@ class POSSession(models.Model):
 
 
 	def _loader_params_product_template(self):
-		return {'search_params': {'domain': [('sale_ok','=',True),('available_in_pos','=',True)], 'fields': ['name','display_name','product_variant_ids','product_variant_count','product_ids','allow_discount']}}
+		return {'search_params': {'domain': [('sale_ok','=',True),('available_in_pos','=',True)], 'fields': ['name','display_name','product_variant_ids','product_variant_count','allow_discount']}}
 
 	def _get_pos_ui_product_template(self, params):
 		return self.env['product.template'].search_read(**params['search_params'])
@@ -132,10 +135,10 @@ class POSSession(models.Model):
 		return self.env['stock.picking.type'].search_read(**params['search_params'])
 
 	def _loader_params_stock_location(self):
-		# ('usage', '=', 'internal'),
 		return {
 			'search_params': {
-				'domain': [['company_id', '=', self.config_id.company_id.id]],
+				'domain': [('company_id', '=', self.config_id.company_id.id), ('usage', 'in', ['internal', 'transit'])],
+				'fields': ['id', 'name', 'display_name', 'usage', 'location_id', 'company_id'],
 			}
 		}
 
@@ -145,7 +148,7 @@ class POSSession(models.Model):
 	def _loader_params_stock_picking(self):
 		return {
 			'search_params': {
-				'domain': [],
+				'domain': [('id', '=', 0)],
 				'fields': ['id','name','state'],
 			}
 		}
@@ -233,9 +236,10 @@ class POSSession(models.Model):
 	def _loader_params_pos_pos_sessions(self):
 		return {
 			'search_params': {
+				'domain': [('config_id', '=', self.config_id.id)],
 				'fields': [
 					'id', 'name', 'user_id', 'config_id', 'start_at', 'stop_at', 'sequence_number',
-					'payment_method_ids', 'statement_line_ids', 'state', 'update_stock_at_closing'
+					'payment_method_ids', 'state', 'update_stock_at_closing'
 				],
 			},
 		}

@@ -343,15 +343,15 @@ Lo siguiente solo es para reparar el comportamient del botón de pago del módul
                                         <td><t t-esc="env.pos.format_currency(productInfo.all_prices.price_with_tax)"/></td>
                                     </tr>
                                 </table>
-                                <t t-if = "productInfo.pricelists.length > 0">
+                                <t t-if="productInfo.pricelists and productInfo.pricelists.length > 0">
                                     <table>
-                                        <t t-foreach="productInfo.pricelists" t-as="pricelist" t-key = "pricelist">
+                                        <t t-foreach="productInfo.pricelists" t-as="pricelist" t-key="(pricelist.price_list || '') + '_' + (pricelist.min_quantity || '') + '_' + pricelist_index">
                                             <tr>                         
                                                 <td>
-                                                    A partir de <t t-esc = "pricelist.min_quantity"/>: 
+                                                    A partir de <t t-esc="pricelist.min_quantity"/>: 
                                                 </td>
                                                 <td>
-                                                    <t t-esc = "env.pos.format_currency(pricelist.fixed_price)"/>
+                                                    <t t-esc="env.pos.format_currency(pricelist.fixed_price)"/>
                                                 </td>
                                             </tr>
                                         </t>
@@ -359,14 +359,14 @@ Lo siguiente solo es para reparar el comportamient del botón de pago del módul
                                 </t>
                             </div>
                         </div>
-                        <div class="section-inventory" t-if="productInfo.warehouses.length > 0">
+                        <div class="section-inventory" t-if="productInfo.warehouses and productInfo.warehouses.length > 0">
                             <div class="section-title">
                                 <span>Inventory <t t-if="env.pos.pos_session.update_stock_at_closing">(as of opening)</t></span>
                                 <div class="section-title-line"></div>
                             </div>
                             <div class="section-inventory-body">
                                 <table class="mobile-table">
-                                    <t t-foreach="productInfo.locations" t-as="location" t-key="location.name">
+                                    <t t-foreach="productInfo.locations || []" t-as="location" t-key="(location.warehouse_name || '') + '_' + (location.name || '') + '_' + location_index">
                                         <tr>
                                             <td><span class="table-name"><t t-esc="location.warehouse_name"/> / <t t-esc="location.name"/></span>:</td>
                                             <td><t t-esc="location.available_quantity"/> <t t-esc="location.uom"/> available,</td>
@@ -375,14 +375,14 @@ Lo siguiente solo es para reparar el comportamient del botón de pago del módul
                                 </table>
                             </div>
                         </div>
-                        <div class="section-packaging" t-if="productInfo.warehouses.length > 0">
+                        <div class="section-packaging" t-if="productInfo.packaging and productInfo.packaging.length > 0">
                             <div class="section-title">
                                 <span>Empaquetado </span>
                                 <div class="section-title-line"></div>
                             </div>
                             <div class="section-packaging-body">
                                 <table class="mobile-table">
-                                    <t t-foreach="productInfo.packaging" t-as="pack" t-key="pack.name">
+                                    <t t-foreach="productInfo.packaging || []" t-as="pack" t-key="(pack.name || '') + '_' + pack_index">
                                         <tr>
                                             <td><span class="table-name"><t t-esc="pack.name"/></span>:</td>
                                             <td style="padding-left: 1em;"><t t-esc="pack.qty"/> Unidades</td>

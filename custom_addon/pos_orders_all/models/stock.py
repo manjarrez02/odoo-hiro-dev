@@ -36,6 +36,9 @@ class stock_quant(models.Model):
 			categories = ssn_obj._get_pos_ui_product_category(ssn_obj._loader_params_product_category())
 			product_category_by_id = {category['id']: category for category in categories}
 			product[0]['categ'] = product_category_by_id[product[0]['categ_id'][0]]
+			loc_id = ssn_obj.config_id.stock_location_id.id if ssn_obj and ssn_obj.config_id and ssn_obj.config_id.stock_location_id else False
+			loc_str = str(loc_id) if loc_id else "0"
+			product[0]['quant_text'] = json.dumps({loc_str: [product[0].get('qty_available', 0.0), 0, 0]})
 			notification_id = str(uuid.uuid4())
 
 			vals = {
@@ -82,44 +85,29 @@ class product(models.Model):
 	@api.depends('stock_quant_ids', 'stock_quant_ids.product_id', 'stock_quant_ids.location_id',
 				 'stock_quant_ids.quantity')
 	def _compute_avail_locations(self):
-		for rec in self:
-			final_data = {}
-			rec.quant_text = json.dumps(final_data)
-			if rec.type == 'product':
-				quants = self.env['stock.quant'].sudo().search(
-					[('product_id', 'in', rec.ids), ('location_id.usage', '=', 'internal')])
-				outgoing = self.env['stock.move'].sudo().search(
-					[('product_id', '=', rec.id), ('state', 'not in', ['done']),
-					 ('location_id.usage', '=', 'internal'),
-					 ('picking_id.picking_type_code', 'in', ['outgoing'])])
-				incoming = self.env['stock.move'].sudo().search(
-					[('product_id', '=', rec.id), ('state', 'not in', ['done']),
-					 ('location_dest_id.usage', '=', 'internal'),
-					 ('picking_id.picking_type_code', 'in', ['incoming'])])
-				for quant in quants:
-					loc = quant.location_id.id
-					if loc in final_data:
-						last_qty = final_data[loc][0]
-						final_data[loc][0] = last_qty + quant.quantity
-					else:
-						final_data[loc] = [quant.quantity, 0, 0]
+		products = self.filtered(lambda p: p.type == 'product')
+		(self - products).quant_text = json.dumps({})
+		if not products:
+			return True
 
-				for out in outgoing:
-					loc = out.location_id.id
-					if loc in final_data:
-						last_qty = final_data[loc][1]
-						final_data[loc][1] = last_qty + out.product_qty
-					else:
-						final_data[loc] = [0, out.product_qty, 0]
+		# Agregación en lote mediante read_group para evitar búsquedas N+1 en bucle
+		quants_data = self.env['stock.quant'].sudo().read_group(
+			[('product_id', 'in', products.ids), ('location_id.usage', '=', 'internal')],
+			['product_id', 'location_id', 'quantity:sum'],
+			['product_id', 'location_id'],
+			lazy=False
+		)
+		stock_map = {}
+		for item in quants_data:
+			p_id = item['product_id'][0]
+			l_id = item['location_id'][0]
+			qty = item.get('quantity', 0.0)
+			if p_id not in stock_map:
+				stock_map[p_id] = {}
+			stock_map[p_id][l_id] = [qty, 0, 0]
 
-				for inc in incoming:
-					loc = inc.location_dest_id.id
-					if loc in final_data:
-						last_qty = final_data[loc][2]
-						final_data[loc][2] = last_qty + inc.product_qty
-					else:
-						final_data[loc] = [0, 0, inc.product_qty]
-				rec.quant_text = json.dumps(final_data)
+		for rec in products:
+			rec.quant_text = json.dumps(stock_map.get(rec.id, {}))
 		return True
 
 
