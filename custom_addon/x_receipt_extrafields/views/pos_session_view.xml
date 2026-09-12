@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_session_form_inherit_invoice_payments" model="ir.ui.view">
+        <field name="name">pos.session.form.inherit.invoice.payments</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_show_payments_list']" position="after">
+                <button
+                    name="action_view_invoice_payments"
+                    type="object"
+                    class="oe_stat_button"
+                    icon="fa-file-text-o">
+                    <field name="invoice_payment_count" widget="statinfo" string="Cobros Facturas"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

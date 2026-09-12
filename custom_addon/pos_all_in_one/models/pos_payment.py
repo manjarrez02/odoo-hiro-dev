@@ -11,6 +11,7 @@ class PaymentNote(models.Model):
 	_inherit = 'account.payment'
 	
 	notes_pos = fields.Text('Notes')
+	is_pos_invoice_payment = fields.Boolean('POS Invoice Payment', default=False, index=True)
 
 
 class POSConfigPayment(models.Model):
@@ -62,6 +63,7 @@ class pos_create_customer_payment(models.Model):
 			'partner_type':'customer', 
 			'partner_id':partner_id, 
 			'pos_session_id': session_id,
+			'is_pos_invoice_payment': True,
 			'journal_id':int(journal),
 			'currency_id': inv_obj.currency_id.id,
 			'ref': inv_obj.name,

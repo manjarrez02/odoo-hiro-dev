@@ -28,8 +28,10 @@ class OpenSessionReportCustom(models.AbstractModel):
             # Obtener todos los pagos relacionados con las sesiones especificadas
             invoice_payments = self.env['account.payment'].search([
                 ('pos_session_id', 'in', sessions.ids),
-                ('pos_payment_method_id', '=', None),   
-                ('state', '=', 'posted')
+                ('state', '=', 'posted'),
+                '|',
+                ('is_pos_invoice_payment', '=', True),
+                ('pos_payment_method_id', '=', False),
             ])  
 
         # Crear un diccionario para almacenar las sumas por journal_id

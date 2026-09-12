@@ -30,6 +30,10 @@
                             <td style="text-align:right;"><t t-esc="opening_balance"/></td>
                         </tr>
                         <tr>
+                            <td colspan="3" >Cobro de Facturas:</td>
+                            <td style="text-align:right;"><t t-esc="invoice_total" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        </tr>
+                        <tr>
                             <td colspan="3" >Balance al cierre:</td>
                             <td style="text-align:right;"><t t-esc="clsoing_balance"/></td>
                         </tr>

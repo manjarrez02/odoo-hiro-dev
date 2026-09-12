@@ -19,31 +19,6 @@ odoo.define('my_pos_extension.custom_pos', function (require) {
                 args: [[this.pos_session.id]]
             });
 
-            // Inicializar payment_amount en default_cash_details
-            if (closingData.default_cash_details) {
-                const journalId = closingData.default_cash_details.journal_id;
-                const matchingInvoicePayments = closingData.invoice_payments_by_journal.filter(invoice => invoice.journal_id === journalId);
-                const totalMatchingAmount = matchingInvoicePayments.reduce((sum, invoice) => sum + invoice.amount, 0);
-                closingData.default_cash_details.payment_amount += totalMatchingAmount;
-                closingData.default_cash_details.amount += totalMatchingAmount;
-            }
-
-            // Sumar los amounts a otherPaymentMethods
-            if (closingData.other_payment_methods) {
-                closingData.other_payment_methods.forEach(paymentMethod => {
-                    // Filtrar los pagos que coinciden con el journal_id del método de pago
-                    const matchingInvoicePayments = closingData.invoice_payments_by_journal.filter(
-                        invoice => invoice.journal_id === paymentMethod.journal_id // Suponiendo que el ID del método de pago coincide con el journal_id
-                    );
-
-                    // Sumar todos los amounts de las coincidencias
-                    const totalMatchingAmount = matchingInvoicePayments.reduce((sum, invoice) => sum + invoice.amount, 0);
-
-                    // Actualizar payment_amount
-                    paymentMethod.amount = (paymentMethod.amount || 0) + totalMatchingAmount;
-                });
-            }
-
             const ordersDetails = closingData.orders_details;
             const paymentsAmount = closingData.payments_amount;
             const payLaterAmount = closingData.pay_later_amount;
@@ -57,7 +32,7 @@ odoo.define('my_pos_extension.custom_pos', function (require) {
     
             // component state and refs definition
             const state = {notes: '', acceptClosing: false, payments: {}};
-            if (cashControl) {
+            if (cashControl && defaultCashDetails) {
                 state.payments[defaultCashDetails.id] = {counted: 0, difference: -defaultCashDetails.amount, number: 0};
             }
             if (otherPaymentMethods.length > 0) {

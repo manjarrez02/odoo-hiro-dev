@@ -60,8 +60,6 @@ odoo.define('pos_orders_all.productScreen', function(require) {
                 if(call_super){
                     super._clickProduct(event);
                 }
-                this.showScreen('PaymentScreen');
-                this.showScreen('ProductScreen');
 			}
 
 			async _setValue(val) {
@@ -115,8 +113,6 @@ odoo.define('pos_orders_all.productScreen', function(require) {
                                 }
                             }
                             this.currentOrder.get_selected_orderline().set_quantity(val);
-                            this.showScreen('PaymentScreen');
-                            this.showScreen('ProductScreen');
                         } else if (this.env.pos.numpadMode === 'discount') {
                             super._setValue(val)
                         } else if (this.env.pos.numpadMode === 'price') {

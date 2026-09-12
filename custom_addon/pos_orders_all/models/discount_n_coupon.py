@@ -288,84 +288,101 @@ class PosSession(models.Model):
 		# En lugar de 134,617 consultas N+1 en el ORM, calculamos las existencias
 		# de todos los productos en una sola consulta SQL agrupada (<15 ms).
 		# Compatible con carga inicial y restauración de órdenes pendientes (_loadMissingProducts).
-		stock_location = self.config_id.stock_location_id
-		stock_map = {}
-		prod_ids = tuple(p['id'] for p in products)
+		session = self[:1] if self else self.env['pos.session']
+		config = session.config_id if session else self.env['pos.config']
+		stock_location = config.stock_location_id if config else False
+		if not stock_location and config and config.picking_type_id:
+			stock_location = config.picking_type_id.default_location_src_id
 
-		if stock_location and self.config_id.show_stock_location == 'specific':
-			if len(prod_ids) == 1:
-				self.env.cr.execute("""
-					SELECT product_id,
-					       COALESCE(SUM(quantity - reserved_quantity), 0.0) AS qty_available,
-					       COALESCE(SUM(quantity), 0.0) AS qty_on_hand
-					  FROM stock_quant
-					 WHERE location_id = %s AND product_id = %s
-					 GROUP BY product_id
-				""", (stock_location.id, prod_ids[0]))
-			elif len(prod_ids) < 500:
-				self.env.cr.execute("""
-					SELECT product_id,
-					       COALESCE(SUM(quantity - reserved_quantity), 0.0) AS qty_available,
-					       COALESCE(SUM(quantity), 0.0) AS qty_on_hand
-					  FROM stock_quant
-					 WHERE location_id = %s AND product_id IN %s
-					 GROUP BY product_id
-				""", (stock_location.id, prod_ids))
+		company = (session.company_id or (config.company_id if config else False) or self.env.company)
+		company_id = int(company.id) if (company and company.id) else int(self.env.company.id or 1)
+
+		stock_map = {}
+		prod_ids = tuple(p['id'] for p in products if p and 'id' in p)
+		if not prod_ids:
+			return
+
+		show_specific = bool(stock_location and config and config.show_stock_location == 'specific')
+
+		try:
+			if show_specific:
+				loc_id = int(stock_location.id)
+				if len(prod_ids) == 1:
+					self.env.cr.execute("""
+						SELECT product_id,
+						       COALESCE(SUM(quantity - reserved_quantity), 0.0) AS qty_available,
+						       COALESCE(SUM(quantity), 0.0) AS qty_on_hand
+						  FROM stock_quant
+						 WHERE location_id = %s AND product_id = %s
+						 GROUP BY product_id
+					""", (loc_id, prod_ids[0]))
+				elif len(prod_ids) < 500:
+					self.env.cr.execute("""
+						SELECT product_id,
+						       COALESCE(SUM(quantity - reserved_quantity), 0.0) AS qty_available,
+						       COALESCE(SUM(quantity), 0.0) AS qty_on_hand
+						  FROM stock_quant
+						 WHERE location_id = %s AND product_id IN %s
+						 GROUP BY product_id
+					""", (loc_id, prod_ids))
+				else:
+					self.env.cr.execute("""
+						SELECT product_id,
+						       COALESCE(SUM(quantity - reserved_quantity), 0.0) AS qty_available,
+						       COALESCE(SUM(quantity), 0.0) AS qty_on_hand
+						  FROM stock_quant
+						 WHERE location_id = %s
+						 GROUP BY product_id
+					""", (loc_id,))
+				for row in self.env.cr.dictfetchall():
+					stock_map[row['product_id']] = {
+						'available': row['qty_available'],
+						'on_hand': row['qty_on_hand']
+					}
 			else:
-				self.env.cr.execute("""
-					SELECT product_id,
-					       COALESCE(SUM(quantity - reserved_quantity), 0.0) AS qty_available,
-					       COALESCE(SUM(quantity), 0.0) AS qty_on_hand
-					  FROM stock_quant
-					 WHERE location_id = %s
-					 GROUP BY product_id
-				""", (stock_location.id,))
-			for row in self.env.cr.dictfetchall():
-				stock_map[row['product_id']] = {
-					'available': row['qty_available'],
-					'on_hand': row['qty_on_hand']
-				}
-		else:
-			if len(prod_ids) == 1:
-				self.env.cr.execute("""
-					SELECT sq.product_id,
-					       COALESCE(SUM(sq.quantity - sq.reserved_quantity), 0.0) AS qty_available,
-					       COALESCE(SUM(sq.quantity), 0.0) AS qty_on_hand
-					  FROM stock_quant sq
-					  JOIN stock_location sl ON sl.id = sq.location_id
-					 WHERE sl.usage = 'internal'
-					   AND sq.company_id = %s
-					   AND sq.product_id = %s
-					 GROUP BY sq.product_id
-				""", (self.company_id.id, prod_ids[0]))
-			elif len(prod_ids) < 500:
-				self.env.cr.execute("""
-					SELECT sq.product_id,
-					       COALESCE(SUM(sq.quantity - sq.reserved_quantity), 0.0) AS qty_available,
-					       COALESCE(SUM(sq.quantity), 0.0) AS qty_on_hand
-					  FROM stock_quant sq
-					  JOIN stock_location sl ON sl.id = sq.location_id
-					 WHERE sl.usage = 'internal'
-					   AND sq.company_id = %s
-					   AND sq.product_id IN %s
-					 GROUP BY sq.product_id
-				""", (self.company_id.id, prod_ids))
-			else:
-				self.env.cr.execute("""
-					SELECT sq.product_id,
-					       COALESCE(SUM(sq.quantity - sq.reserved_quantity), 0.0) AS qty_available,
-					       COALESCE(SUM(sq.quantity), 0.0) AS qty_on_hand
-					  FROM stock_quant sq
-					  JOIN stock_location sl ON sl.id = sq.location_id
-					 WHERE sl.usage = 'internal'
-					   AND sq.company_id = %s
-					 GROUP BY sq.product_id
-				""", (self.company_id.id,))
-			for row in self.env.cr.dictfetchall():
-				stock_map[row['product_id']] = {
-					'available': row['qty_available'],
-					'on_hand': row['qty_on_hand']
-				}
+				if len(prod_ids) == 1:
+					self.env.cr.execute("""
+						SELECT sq.product_id,
+						       COALESCE(SUM(sq.quantity - sq.reserved_quantity), 0.0) AS qty_available,
+						       COALESCE(SUM(sq.quantity), 0.0) AS qty_on_hand
+						  FROM stock_quant sq
+						  JOIN stock_location sl ON sl.id = sq.location_id
+						 WHERE sl.usage = 'internal'
+						   AND sq.company_id = %s
+						   AND sq.product_id = %s
+						 GROUP BY sq.product_id
+					""", (company_id, prod_ids[0]))
+				elif len(prod_ids) < 500:
+					self.env.cr.execute("""
+						SELECT sq.product_id,
+						       COALESCE(SUM(sq.quantity - sq.reserved_quantity), 0.0) AS qty_available,
+						       COALESCE(SUM(sq.quantity), 0.0) AS qty_on_hand
+						  FROM stock_quant sq
+						  JOIN stock_location sl ON sl.id = sq.location_id
+						 WHERE sl.usage = 'internal'
+						   AND sq.company_id = %s
+						   AND sq.product_id IN %s
+						 GROUP BY sq.product_id
+					""", (company_id, prod_ids))
+				else:
+					self.env.cr.execute("""
+						SELECT sq.product_id,
+						       COALESCE(SUM(sq.quantity - sq.reserved_quantity), 0.0) AS qty_available,
+						       COALESCE(SUM(sq.quantity), 0.0) AS qty_on_hand
+						  FROM stock_quant sq
+						  JOIN stock_location sl ON sl.id = sq.location_id
+						 WHERE sl.usage = 'internal'
+						   AND sq.company_id = %s
+						 GROUP BY sq.product_id
+					""", (company_id,))
+				for row in self.env.cr.dictfetchall():
+					stock_map[row['product_id']] = {
+						'available': row['qty_available'],
+						'on_hand': row['qty_on_hand']
+					}
+		except Exception as e:
+			_logger.warning("Error calculating POS stock quantities in batch: %s", e)
+			stock_map = {}
 
 		loc_id_str = str(stock_location.id) if stock_location else "0"
 		for prod in products:

@@ -175,122 +175,75 @@ odoo.define('pos_orders_all.ProductsWidget', function(require) {
 			get productsToDisplay() {
 			    let self = this;
 				let prods = super.productsToDisplay;
+				if (!prods || !prods.length) {
+					return prods || [];
+				}
+
 				let order = self.env.pos.get_order();
-                let locations = self.env.pos.locations;
-                let config_loc = self.env.pos.config.stock_location_id
-                
-                if (self.env.pos.config.show_stock_location == 'specific'){
-                    let cfg_loc_id = config_loc ? config_loc[0] : null;
-                    if(self.env.pos.config.pos_stock_type == 'onhand'){
-                        $.each(prods, function( i, prd ){
-                            var quantity_available = prd.qty_available || 0;
-                            if (prd.quant_text) {
-                                try {
-                                    let loc_onhand = typeof prd.quant_text === 'string' ? JSON.parse(prd.quant_text) : prd.quant_text;
-                                    if (loc_onhand && cfg_loc_id && (cfg_loc_id in loc_onhand)) {
-                                        let v = loc_onhand[cfg_loc_id];
-                                        quantity_available = Array.isArray(v) ? v[0] : (typeof v === 'number' ? v : 0);
-                                    }
-                                } catch(e) {
-                                    quantity_available = prd.qty_available || 0;
-                                }
-                            }
+                let config = self.env.pos.config;
+                let config_loc = config.stock_location_id;
+                let isSpecific = config.show_stock_location === 'specific';
+                let cfg_loc_id = (config_loc && config_loc[0]) ? config_loc[0] : null;
+                let stockType = config.pos_stock_type;
 
-                            if(prd['bi_on_hand'] > 0){
-                                var bi_on_hand = order ? order.get_display_product_qty(prd) : 0;
-                                quantity_available = quantity_available - bi_on_hand;
-                            }
-                            else{
-                                var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
-                                quantity_available = quantity_available - reserved_qty;
-                            }
-                            prd['qty_available'] = quantity_available;
-                        });
-                    }else if(self.env.pos.config.pos_stock_type == 'virtual'){
-                        $.each(prods, function( i, prd ){
-                            var virtual_available = prd.virtual_available || prd.qty_available || 0;
-                            if (prd.quant_text) {
-                                try {
-                                    let loc_available = typeof prd.quant_text === 'string' ? JSON.parse(prd.quant_text) : prd.quant_text;
-                                    if (loc_available && cfg_loc_id && (cfg_loc_id in loc_available)) {
-                                        let v = loc_available[cfg_loc_id];
-                                        if (Array.isArray(v)) {
-                                            virtual_available = (v[0] || 0) + (v[2] || 0) - (v[1] || 0);
-                                        } else if (typeof v === 'number') {
-                                            virtual_available = v;
-                                        }
-                                    }
-                                } catch(e) {
-                                    virtual_available = prd.virtual_available || prd.qty_available || 0;
-                                }
-                            }
-                            if(prd['bi_on_virtual'] > 0){
-                                var bi_on_virtual = order ? order.get_display_product_qty(prd) : 0;
-                                virtual_available = virtual_available - bi_on_virtual;
-                            }
-                            else{
-                                var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
-                                virtual_available = virtual_available - reserved_qty;
-                            }
-                            prd['virtual_available'] = virtual_available;
-                        });
+                // Pre-calcular cantidades en el carrito en O(1)
+                const cartQuantities = {};
+                if (order) {
+                    const lines = order.get_orderlines() || [];
+                    for (let l = 0; l < lines.length; l++) {
+                        const line = lines[l];
+                        if (line && line.product && line.product.id) {
+                            cartQuantities[line.product.id] = (cartQuantities[line.product.id] || 0) + (line.get_quantity() || 0);
+                        }
                     }
-                    else if(self.env.pos.config.pos_stock_type == 'both'){
-                        $.each(prods, function( i, prd ){
-                            var quantity_available = prd.qty_available || 0;
-                            var virtual_available = prd.virtual_available || prd.qty_available || 0;
-                            if (prd.quant_text) {
-                                try {
-                                    let loc_available = typeof prd.quant_text === 'string' ? JSON.parse(prd.quant_text) : prd.quant_text;
-                                    if (loc_available && cfg_loc_id && (cfg_loc_id in loc_available)) {
-                                        let v = loc_available[cfg_loc_id];
-                                        if (Array.isArray(v)) {
-                                            quantity_available = v[0] || 0;
-                                            virtual_available = (v[0] || 0) + (v[2] || 0) - (v[1] || 0);
-                                        } else if (typeof v === 'number') {
-                                            quantity_available = v;
-                                            virtual_available = v;
-                                        }
-                                    }
-                                } catch(e) {
-                                    quantity_available = prd.qty_available || 0;
-                                    virtual_available = prd.virtual_available || prd.qty_available || 0;
-                                }
-                            }
+                }
 
-                            if(prd['bi_on_hand'] > 0){
-                                var bi_on_hand = order ? order.get_display_product_qty(prd) : 0;
-                                quantity_available = quantity_available - bi_on_hand;
+                for (let i = 0; i < prods.length; i++) {
+                    const prd = prods[i];
+                    const reserved_qty = cartQuantities[prd.id] || 0;
+
+                    if (isSpecific && cfg_loc_id) {
+                        let quantity_available = prd.qty_available || 0;
+                        let virtual_available = prd.virtual_available || prd.qty_available || 0;
+
+                        if (prd.quant_text) {
+                            if (prd._parsed_quant_text === undefined) {
+                                try {
+                                    prd._parsed_quant_text = typeof prd.quant_text === 'string' ? JSON.parse(prd.quant_text) : prd.quant_text;
+                                } catch (e) {
+                                    prd._parsed_quant_text = null;
+                                }
                             }
-                            else{
-                                var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
-                                quantity_available = quantity_available - reserved_qty;
+                            const loc_data = prd._parsed_quant_text;
+                            if (loc_data && (cfg_loc_id in loc_data)) {
+                                const v = loc_data[cfg_loc_id];
+                                if (Array.isArray(v)) {
+                                    quantity_available = v[0] || 0;
+                                    virtual_available = (v[0] || 0) + (v[2] || 0) - (v[1] || 0);
+                                } else if (typeof v === 'number') {
+                                    quantity_available = v;
+                                    virtual_available = v;
+                                }
                             }
-                            prd['qty_available'] = quantity_available;
-                            if(prd['bi_on_virtual'] > 0){
-                                var bi_on_virtual = order ? order.get_display_product_qty(prd) : 0;
-                                virtual_available = virtual_available - bi_on_virtual;
-                            }
-                            else{
-                                var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
-                                virtual_available = virtual_available - reserved_qty;
-                            }
-                            prd['virtual_available'] = virtual_available;
-                        });
-                    }
-                }else{
-                    $.each(prods, function( i, prd ){
+                        }
+
+                        if (stockType === 'onhand') {
+                            prd['qty_available'] = quantity_available - reserved_qty;
+                        } else if (stockType === 'virtual') {
+                            prd['virtual_available'] = virtual_available - reserved_qty;
+                        } else if (stockType === 'both') {
+                            prd['qty_available'] = quantity_available - reserved_qty;
+                            prd['virtual_available'] = virtual_available - reserved_qty;
+                        }
+                    } else {
                         let quantity_available = prd.qty_available || 0;
                         let qty_virtual_available = prd.virtual_available || quantity_available;
-                        var reserved_qty = order ? order.get_display_product_qty(prd) : 0;
-                        quantity_available = quantity_available - reserved_qty;
-                        qty_virtual_available = qty_virtual_available - reserved_qty;
-
-                        prd['bi_qty_available'] = quantity_available;
-                        prd['bi_virtual_available'] = qty_virtual_available;
-                    });
+                        prd['bi_qty_available'] = quantity_available - reserved_qty;
+                        prd['bi_virtual_available'] = qty_virtual_available - reserved_qty;
+                    }
                 }
-                return prods.sort(function (a, b) { return a.display_name.localeCompare(b.display_name) });
+
+                return prods;
             }
             
 		};
