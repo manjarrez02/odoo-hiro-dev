@@ -16,11 +16,22 @@ class PosSession(models.Model):
 
     def _process_pos_ui_product_product(self, products):
         """
-        Idea 1: SQL Attachment Matcher.
-        Asigna el indicador booleano `image_128` a cada producto mediante
-        una consulta SQL indexada directa sobre `ir_attachment`, sin leer
-        los datos binarios en memoria ni acceder al filestore.
+        Fix P4-v2: El core de Odoo hace `bool(product['image_128'])` en su
+        `_process_pos_ui_product_product`. Como este módulo elimina 'image_128'
+        del ORM en `_loader_params_product_product`, el campo no existe en el dict.
+        Solución: pre-poblar `image_128 = False` en todos los productos ANTES de
+        llamar super() (que ejecuta el core + batch SQL de stock de pos_orders_all).
+        Luego sobreescribir con el valor real consultado desde ir_attachment.
         """
+        # 1. Pre-poblar image_128=False para evitar KeyError en el core
+        if products:
+            for p in products:
+                p.setdefault('image_128', False)
+
+        # 2. Llamar super() — ejecuta: batch SQL stock (pos_orders_all) + core Odoo
+        super()._process_pos_ui_product_product(products)
+
+        # 3. Sobreescribir image_128 con el valor real desde ir_attachment
         if products:
             product_ids = set()
             tmpl_ids = set()
@@ -61,5 +72,3 @@ class PosSession(models.Model):
                 tmpl_id = product.get('product_tmpl_id')
                 t_id = tmpl_id[0] if isinstance(tmpl_id, (list, tuple)) and tmpl_id else tmpl_id
                 product['image_128'] = bool(product['id'] in prod_with_image or t_id in tmpl_with_image)
-
-        return super()._process_pos_ui_product_product(products)

@@ -227,14 +227,18 @@ class PosSession(models.Model):
 	
 
 	def _loader_params_pos_order(self):
-		return {
-			'search_params': {
-				'domain': [('session_id', '=', self.id)],
-				'fields': [
-					'discount_type',
-				],
-			}
-		}
+		# Fix P3: extender super() en vez de sobreescribir, para evitar conflicto MRO
+		# con pos_all_in_one que también define este método con campos distintos.
+		res = super()._loader_params_pos_order()
+		existing_fields = res.get('search_params', {}).get('fields', [])
+		for f in ['discount_type', 'is_partial', 'amount_due']:
+			if f not in existing_fields:
+				existing_fields.append(f)
+		res['search_params']['fields'] = existing_fields
+		# Asegurar que el dominio incluya la sesión actual si no viene del super
+		if not res.get('search_params', {}).get('domain'):
+			res['search_params']['domain'] = [('session_id', '=', self.id)]
+		return res
 
 	def _get_pos_ui_pos_order(self, params):
 		return self.env['pos.order'].search_read(**params['search_params'])

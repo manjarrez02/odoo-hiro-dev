@@ -2,13 +2,12 @@
 # Part of BrowseInfo. See LICENSE file for full copyright and licensing details.
 
 from odoo import fields, models, api, _
-from odoo.exceptions import Warning
-from odoo.exceptions import UserError, ValidationError
-import random
+from odoo.exceptions import Warning, UserError, ValidationError
 from odoo.tools import float_is_zero
-from datetime import date, datetime
 import json
-import uuid
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class stock_quant(models.Model):
@@ -16,60 +15,108 @@ class stock_quant(models.Model):
 
 	@api.model
 	def sync_product(self, prd_id):
-		notifications = []
-		ssn_obj = self.env['pos.session'].sudo()
-		prod_fields = ssn_obj._loader_params_product_product()['search_params']['fields']
+		if not prd_id:
+			return True
+
+		prod_fields = [
+			'id', 'name', 'display_name', 'categ_id', 'pos_categ_id',
+			'available_in_pos', 'type', 'barcode', 'default_code',
+			'product_tmpl_id', 'product_template_attribute_value_ids',
+			'uom_id', 'description_sale',
+		]
 		prod_obj = self.env['product.product'].sudo()
+		product = prod_obj.with_context(display_default_code=False).search_read(
+			[('id', '=', prd_id)], prod_fields)
 
-		product = prod_obj.with_context(display_default_code=False).search_read([('id', '=', prd_id)],prod_fields)
-		product_id = prod_obj.search([('id', '=', prd_id)]) 
+		if not product:
+			return True
 
-		res = product_id._compute_quantities_dict(self._context.get('lot_id'), self._context.get('owner_id'), self._context.get('package_id'), self._context.get('from_date'), self._context.get('to_date'))
-		#product[0]['qty_available'] = res[product_id.id]['qty_available']
+		# Calcular existencias por ubicación para todas las ubicaciones internas mediante SQL agrupado
+		quant_dict = {}
+		total_available = 0.0
+		total_on_hand = 0.0
+		try:
+			self.env.cr.execute("""
+				SELECT sq.location_id,
+				       COALESCE(SUM(sq.quantity - sq.reserved_quantity), 0.0) AS qty_available,
+				       COALESCE(SUM(sq.quantity), 0.0) AS qty_on_hand
+				  FROM stock_quant sq
+				  JOIN stock_location sl ON sl.id = sq.location_id
+				 WHERE sq.product_id = %s
+				   AND sl.usage = 'internal'
+				 GROUP BY sq.location_id
+			""", (prd_id,))
+			rows = self.env.cr.dictfetchall()
+			for row in rows:
+				loc_key = str(row['location_id'])
+				quant_dict[loc_key] = [row['qty_on_hand'], 0, 0]
+				total_available += row['qty_available']
+				total_on_hand += row['qty_on_hand']
+		except Exception as e:
+			_logger.warning("sync_product: error calculando stock para producto %s: %s", prd_id, e)
 
-		if product_id.id in res:  # ✅ Evita el KeyError
-			product[0]['qty_available'] = res[product_id.id]['qty_available']
+		# Asegurar que las ubicaciones de stock de las sesiones POS abiertas estén en quant_dict
+		open_sessions = self.env['pos.session'].sudo().search([('state', 'in', ['opened', 'opening_control'])])
+		for ssn in open_sessions:
+			cfg = ssn.config_id
+			loc = cfg.stock_location_id if cfg else False
+			if not loc and cfg and cfg.picking_type_id:
+				loc = cfg.picking_type_id.default_location_src_id
+			if loc and str(loc.id) not in quant_dict:
+				quant_dict[str(loc.id)] = [0.0, 0, 0]
+
+		product[0]['qty_available'] = total_available
+		product[0]['virtual_available'] = total_available
+		product[0]['bi_qty_available'] = total_available
+		product[0]['bi_virtual_available'] = total_available
+		product[0]['quant_text'] = json.dumps(quant_dict)
+
+		# Categoría específica del producto
+		if product[0].get('categ_id'):
+			categ_id = product[0]['categ_id'][0] if isinstance(product[0]['categ_id'], (list, tuple)) else product[0]['categ_id']
+			categ = self.env['product.category'].sudo().browse(categ_id)
+			product[0]['categ'] = {'id': categ.id, 'name': categ.name, 'parent_id': categ.parent_id.id if categ.parent_id else False}
 		else:
-			return True  # ❌ No sincroniza si no hay datos
+			product[0]['categ'] = {}
 
-		if product :
-			categories = ssn_obj._get_pos_ui_product_category(ssn_obj._loader_params_product_category())
-			product_category_by_id = {category['id']: category for category in categories}
-			product[0]['categ'] = product_category_by_id[product[0]['categ_id'][0]]
-			loc_id = ssn_obj.config_id.stock_location_id.id if ssn_obj and ssn_obj.config_id and ssn_obj.config_id.stock_location_id else False
-			loc_str = str(loc_id) if loc_id else "0"
-			product[0]['quant_text'] = json.dumps({loc_str: [product[0].get('qty_available', 0.0), 0, 0]})
-			notification_id = str(uuid.uuid4())
+		vals = {
+			'id': [product[0].get('id')],
+			'product': product,
+			'access': 'pos.sync.product',
+		}
 
-			vals = {
-				'id': [product[0].get('id')], 
-				'product': product,
-				'access':'pos.sync.product',
-				#'notification_id': notification_id
-			}
-			#product.product/sync_data_move
-			notifications.append([self.env.user.partner_id,'product.product/sync_data',vals])
-		if len(notifications) > 0:
+		# Notificar a todos los usuarios de sesiones POS abiertas y al usuario actual
+		partners_to_notify = set()
+		for ssn in open_sessions:
+			if ssn.user_id and ssn.user_id.partner_id:
+				partners_to_notify.add(ssn.user_id.partner_id)
+		if self.env.user and self.env.user.partner_id:
+			partners_to_notify.add(self.env.user.partner_id)
+
+		notifications = [[partner, 'product.product/sync_data', vals] for partner in partners_to_notify]
+		if notifications:
 			self.env['bus.bus']._sendmany(notifications)
 		return True
-
 
 	@api.model
 	def create(self, vals):
 		res = super(stock_quant, self).create(vals)
-
-		notifications = []
-		for rec in res:
-			rec.product_id._compute_avail_locations()
-			rec.sync_product(rec.product_id.id)
+		product_ids = {rec.product_id.id for rec in res if rec.product_id}
+		if product_ids:
+			products = self.env['product.product'].browse(list(product_ids))
+			products._compute_avail_locations()
+			for pid in product_ids:
+				self.sync_product(pid)
 		return res
 
 	def write(self, vals):
 		res = super(stock_quant, self).write(vals)
-		notifications = []
-		for rec in self:
-			rec.product_id._compute_avail_locations()
-			rec.sync_product(rec.product_id.id)
+		product_ids = {rec.product_id.id for rec in self if rec.product_id}
+		if product_ids:
+			products = self.env['product.product'].browse(list(product_ids))
+			products._compute_avail_locations()
+			for pid in product_ids:
+				self.sync_product(pid)
 		return res
 
 

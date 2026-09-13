@@ -219,7 +219,7 @@ odoo Create Sales Order from Point of Sale Create SO from POS Create sales from 
 				"pos_orders_all/static/src/js/Misc/load_model.js",
 				"pos_orders_all/static/src/js/Misc/jquery-barcode.js",
 				# "pos_orders_all/static/src/js/Misc/SyncStock.js",
-				# "pos_orders_all/static/src/js/Misc/Chrome.js",
+				"pos_orders_all/static/src/js/Misc/Chrome.js",
 				
 				# # Popups
 				"pos_orders_all/static/src/js/Popups/PosOrdersDetail.js",
