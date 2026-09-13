@@ -4,7 +4,7 @@
         <div class="ks_columns_list ui-sortable">
             <t t-if="widget.ks_field_list">
                 <t  t-foreach="widget.ks_field_list" t-as="ks_field">
-                 <t t-if="ks_field.ks_tag == 'field'">
+                 <t t-if="!ks_field.ks_tag or ks_field.ks_tag != 'button'">
                     <div class="ks_list_field_header ui-sortable-handle" t-att-data-ks_field_order="ks_field.ks_field_order"
                          t-att-data-field_name="ks_field.field_name" t-att-data-ks_columns_name="ks_field.ks_columns_name">
                         <div class="ks_list_field_container w-100">

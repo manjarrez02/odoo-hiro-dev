@@ -30,7 +30,9 @@ class AccountJournal(models.Model):
         '''
         for journal in self:
             if journal.sudo().entry_sequence_id:
-                sequence = journal.sudo().entry_sequence_id._get_current_sequence()
+                sequence = journal.sudo().entry_sequence_id._get_current_sequence(
+                    sequence_date=fields.Date.context_today(journal)
+                )
                 journal.next_number = sequence.number_next_actual
                 journal.sudo().entry_sequence_id.number_next_actual = sequence.number_next_actual
             else:
@@ -43,7 +45,9 @@ class AccountJournal(models.Model):
         '''
         for journal in self:
             if journal.sudo().credit_notes_entry_sequence_id:
-                sequence = journal.sudo().credit_notes_entry_sequence_id._get_current_sequence()
+                sequence = journal.sudo().credit_notes_entry_sequence_id._get_current_sequence(
+                    sequence_date=fields.Date.context_today(journal)
+                )
                 journal.credit_notes = sequence.number_next_actual
                 journal.sudo().credit_notes_entry_sequence_id.number_next_actual = sequence.number_next_actual
             else:

@@ -27,8 +27,12 @@ class UserSpecific(models.Model):
         ], limit=1)
 
         if user_exists:
-            ks_user_table_result['ks_fields_data'] = dict([(x['field_name'], x) for x in user_exists.fields.read(
-                ['ksShowField', 'field_name', 'ks_invisible', 'ks_field_order', 'ks_columns_name', 'ks_width', 'ks_tag'])])
+            fields_data = {}
+            for x in user_exists.fields.read(['ksShowField', 'field_name', 'ks_invisible', 'ks_field_order', 'ks_columns_name', 'ks_width', 'ks_tag']):
+                if not x.get('ks_tag') or x['ks_tag'] != 'button':
+                    x['ks_tag'] = 'field'
+                fields_data[x['field_name']] = x
+            ks_user_table_result['ks_fields_data'] = fields_data
             ks_user_table_result['ks_table_data'] = user_exists.read(['ks_table_width', 'ks_editable'])[0]
 
         return ks_user_table_result

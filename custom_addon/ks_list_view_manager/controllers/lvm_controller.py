@@ -27,7 +27,9 @@ class LvmController(DataSet, http.Controller):
             list_view_data['ks_lvm_user_data'] = self.ks_fetch_lvm_data(model, ks_list_view_id)
 
             if list_view_data['ks_lvm_user_data']['ks_lvm_user_table_result']['ks_fields_data']:
-                self.ks_process_arch(list_view_data, original_list_data.get('models')[model])
+                all_model_fields = request.env[model].fields_get()
+                original_list_data.setdefault('models', {})[model] = all_model_fields
+                self.ks_process_arch(list_view_data, all_model_fields)
         else:
             user_mode_data = request.env['user.mode'].check_user_mode(model, request.env.user.id, False)
             user_mode_data['ks_can_advanced_search'] = False
@@ -61,7 +63,20 @@ class LvmController(DataSet, http.Controller):
             request.env['user.specific'].browse(ks_table.get('id')).write(ks_table)
 
         for ks_field in ks_fields_data:
-            request.env['user.fields'].browse(ks_field.get('id')).write(ks_field)
+            if ks_field.get('id'):
+                request.env['user.fields'].browse(ks_field.get('id')).write(ks_field)
+            elif ks_fetch_options and ks_fetch_options.get('ks_model'):
+                user_spec = request.env['user.specific'].search([
+                    ('model_name', '=', ks_fetch_options.get('ks_model')),
+                    ('ks_action_id', '=', ks_fetch_options.get('ks_view_id')),
+                    ('user_id', '=', request.env.uid)
+                ], limit=1)
+                if user_spec:
+                    ks_field_vals = dict(ks_field)
+                    ks_field_vals['fields_list'] = user_spec.id
+                    ks_field_vals['ks_tag'] = 'field'
+                    rec_id = request.env['user.fields'].create(ks_field_vals)
+                    ks_field['id'] = rec_id.id
 
         if ks_fetch_options:
             return self.ks_generate_arch_view(ks_fetch_options.get('ks_context'),ks_fetch_options.get('ks_model'), ks_fetch_options.get('ks_view_id'),ks_fetch_options.get('ks_search_id'))
@@ -96,20 +111,22 @@ class LvmController(DataSet, http.Controller):
 
         for field in filter(lambda x: not ks_field_list.get(x, False), fields_list.keys()):
             ks_field_list[field] = val = {
-                "ks_columns_name": fields_list[field]['string'],
+                "ks_columns_name": fields_list[field].get('string', field),
                 "ksShowField": False,
                 "field_name": field,
                 "ks_width": 0,
-                "ks_field_order": len(ks_field_list)
+                "ks_field_order": len(ks_field_list),
+                "ks_tag": "field",
             }
             val.update({'fields_list': table_id})
             rec_id = request.env['user.fields'].create(val)
             ks_field_list[field]['id'] = rec_id.id
+            ks_field_list[field]['ks_tag'] = "field"
 
     def ks_process_arch(self, list_view_data, fields_list):
         # We make default fields as readonly in List View
         ks_default_field_list = ["id", "create_uid", "create_date", "write_uid", "write_date", "__last_update"]
-        fields = {};
+        fields = dict(list_view_data.get('fields') or {})
         # Rejected Field List (This field wont be shown in dropdown menu)
         ks_reject_field_list = ["activity_exception_decoration"]
 
@@ -149,16 +166,18 @@ class LvmController(DataSet, http.Controller):
                         node.remove(field_node)
                 elif field_node.get("name") and field_node.tag == 'field':
                     ks_field_list[field_node.get("name")] = val = {
-                        "ks_columns_name": field_node.attrib['name'],
+                        "ks_columns_name": field_node.attrib.get('string') or field_node.attrib['name'],
                         "ksShowField": False,
                         "field_name": field_node.get("name"),
                         "ks_width": 0,
-                        "ks_field_order": len(ks_field_list)
+                        "ks_field_order": len(ks_field_list),
+                        "ks_tag": "field",
                     }
                     for i in field_node:
                         if node.getchildren[i].tag != "button":
                             rec_id = request.env['user.fields'].create(val)
                             ks_field_list[field_node.get("name")]['id'] = rec_id.id
+                            ks_field_list[field_node.get("name")]['ks_tag'] = "field"
 
             # Only showing selected fields to visible
             for field_name in [x['field_name'] for x in ks_field_list.values() if x['ksShowField']]:
@@ -184,8 +203,9 @@ class LvmController(DataSet, http.Controller):
                     if(field_node.attrib.get('widget')!='image'):
                         field_node.attrib['width'] = ks_field_list[field_name]['ks_width']
                     node.append(field_node)
-                    fields[field_name]= fields_list[field_name]
-                    list_view_data['fields']=fields
+                    if field_name in fields_list:
+                        fields[field_name] = fields_list[field_name]
+                    list_view_data['fields'] = fields
 
         sorted_node_fields = sorted([x for x in node.getchildren() if x.get('name') and x.tag == 'field'], key=lambda x:ks_field_list[x.get('name')]['ks_field_order'])
 

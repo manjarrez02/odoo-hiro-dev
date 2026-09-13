@@ -71,10 +71,68 @@ patch(ListController.prototype, "ks_lvm_controller", {
         this.ks_user_table_result = this.ks_lvm_data && this.ks_lvm_data.ks_lvm_user_table_result ? this.ks_lvm_data.ks_lvm_user_table_result : false;
         this.userMode = this.ks_lvm_data ? this.ks_lvm_data.ks_lvm_user_mode_data.list_view_data : false;
         this.ks_fields_data = this.ks_user_table_result.ks_fields_data ? self.ks_user_table_result.ks_fields_data : self.ksComputeFieldData(this.props.archInfo, this.props.fields);
+        this.ks_fields_data = this.ksSyncFieldsData(this.ks_fields_data, this.props.fields);
         this.ks_field_list = Object.values(this.ks_fields_data).sort((a, b) => a.ks_field_order - b.ks_field_order);
         this.list_data ={"fields_data":this.ks_fields_data,"currency":this.currency_id,"table_data":this.ks_table_data}
         session.list_data  = this.list_data;
 
+        if (data && data.views && data.views.list && data.views.list.arch && this.ks_table_data) {
+            const archInfo = new ListArchParser().parse(data.views.list.arch, this.props.relatedModels, this.props.resModel);
+            if (this.archInfo) {
+                Object.assign(this.archInfo, archInfo);
+            } else {
+                this.archInfo = archInfo;
+            }
+            if (this.props.editable) {
+                this.editable = archInfo.editable;
+            }
+            if (this.model) {
+                if (this.model.rootParams) {
+                    if (this.model.rootParams.activeFields) {
+                        Object.assign(this.model.rootParams.activeFields, this.archInfo.activeFields);
+                    } else {
+                        this.model.rootParams.activeFields = { ...this.archInfo.activeFields };
+                    }
+                }
+                if (this.archInfo.fieldNodes) {
+                    this.model.fieldNodes = this.archInfo.fieldNodes;
+                }
+                if (this.model.root) {
+                    if (this.model.root.activeFields) {
+                        Object.assign(this.model.root.activeFields, this.archInfo.activeFields);
+                    }
+                    if (typeof this.model.root.load === "function") {
+                        await this.model.root.load();
+                    }
+                }
+            }
+        }
+
+        },
+        ksSyncFieldsData: function (fieldsData, fields) {
+            if (!fieldsData) {
+                fieldsData = {};
+            }
+            if (fields) {
+                let max_order = Object.values(fieldsData).reduce((max, f) => Math.max(max, f.ks_field_order || 0), 0) + 1;
+                for (let [fieldName, fieldDef] of Object.entries(fields)) {
+                    if (fieldName !== "activity_exception_decoration") {
+                        if (!fieldsData[fieldName]) {
+                            fieldsData[fieldName] = {
+                                ks_columns_name: fieldDef.string || fieldName,
+                                ksShowField: false,
+                                field_name: fieldName,
+                                ks_width: 0,
+                                ks_field_order: max_order++,
+                                ks_tag: 'field'
+                            };
+                        } else if (!fieldsData[fieldName].ks_tag || fieldsData[fieldName].ks_tag !== 'button') {
+                            fieldsData[fieldName].ks_tag = 'field';
+                        }
+                    }
+                }
+            }
+            return fieldsData;
         },
         ksComputeFieldData: function (arch, fields) {
             var ks_field_list = {};
@@ -150,7 +208,7 @@ patch(ListController.prototype, "ks_lvm_controller", {
         this.ks_resize = false;
         this.ks_lvm_data = {};
         this._ks_init_sortable();
-        if(this.ks_table_data.ks_editable == true){
+        if (this.ks_table_data && this.ks_table_data.ks_editable == true) {
             $("#mode").prop('checked',true);
         }
 
@@ -207,7 +265,8 @@ patch(ListController.prototype, "ks_lvm_controller", {
             if (this.ks_lvm_mode) {
                 var ks_input = e.target.value.toUpperCase();
                 _.map($(".ks_columns_list").children(), function ($field) {
-                    $field.style.display = $field.dataset.ks_columns_name.toUpperCase().indexOf(ks_input) > -1 ? "" : "none";
+                    var colName = $field.dataset.ks_columns_name || "";
+                    $field.style.display = colName.toUpperCase().indexOf(ks_input) > -1 ? "" : "none";
                 })
             }
         }
@@ -410,6 +469,7 @@ patch(ListController.prototype, "ks_lvm_controller", {
             this.ks_user_table_result = this.ks_lvm_data && this.ks_lvm_data.ks_lvm_user_table_result ? this.ks_lvm_data.ks_lvm_user_table_result : false;
             this.userMode = this.ks_lvm_data ? this.ks_lvm_data.ks_lvm_user_mode_data.list_view_data : false;
             this.ks_fields_data = this.ks_user_table_result.ks_fields_data ? self.ks_user_table_result.ks_fields_data : self.ksComputeFieldData(this.props.archInfo, this.props.fields);
+            this.ks_fields_data = this.ksSyncFieldsData(this.ks_fields_data, this.props.fields);
             this.ks_field_list = Object.values(this.ks_fields_data).sort((a, b) => a.ks_field_order - b.ks_field_order);
             this.list_data ={"fields_data":this.ks_fields_data,"currency":this.currency_id,"table_data":this.ks_table_data}
             this.ks_lvm_user_mode_data = false;

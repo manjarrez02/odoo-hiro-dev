@@ -33,8 +33,12 @@ class SequenceMixin(models.AbstractModel):
             sequence = record[record._sequence_field] or ''
             regex = re.sub(r"\?P<\w+>", "?:", record._sequence_fixed_regex.replace(r"?P<seq>", ""))
             matching = re.match(regex, sequence)
-            record.sequence_prefix = sequence[:matching.start(1)]
-            record.sequence_number = int(matching.group(1) or 0)
+            if matching:
+                record.sequence_prefix = sequence[:matching.start(1)]
+                record.sequence_number = int(matching.group(1) or 0)
+            else:
+                record.sequence_prefix = False
+                record.sequence_number = 0
 
             # Determinar si se debe usar credit_notes_entry_sequence_id o entry_sequence_id
             if record.move_type in ('out_invoice', 'in_invoice', 'entry'):
@@ -44,16 +48,27 @@ class SequenceMixin(models.AbstractModel):
             else:
                 continue  # Si no es un tipo soportado, pasa al siguiente registro
 
+            if not sequence_obj:
+                continue
+
             # Verifica si ya se ha incrementado
-            if record.id in sequence_obj.incremented_move_id.ids:
+            if record.id and record.id in sequence_obj.incremented_move_id.ids:
+                continue
+            if record._origin.id and record._origin.id in sequence_obj.incremented_move_id.ids:
                 continue
 
             if record._origin.id and record.name and record.name != '/':
                 sequence_obj.write({'incremented_move_id': [(4, record._origin.id)]})
 
-                for date_range in sequence_obj.date_range_ids:
-                    # Incrementa el siguiente número
-                    date_range.number_next_actual += sequence_obj.number_increment
+                rec_date = fields.Date.to_date(record[record._sequence_date_field]) or fields.Date.context_today(record)
+                if sequence_obj.use_date_range:
+                    curr_seq = sequence_obj._get_current_sequence(sequence_date=rec_date)
+                    if curr_seq and curr_seq != sequence_obj:
+                        curr_seq.number_next_actual += sequence_obj.number_increment
+                    else:
+                        sequence_obj.number_next_actual += sequence_obj.number_increment
+                else:
+                    sequence_obj.number_next_actual += sequence_obj.number_increment
 
 
     @api.constrains(lambda self: (self._sequence_field, self._sequence_date_field))
@@ -89,14 +104,31 @@ class SequenceMixin(models.AbstractModel):
     def _get_sequence_format_param(self, previous):
         for record in self:
             if record.journal_id.sudo().entry_sequence_id:
-                prefix1 = record.journal_id.sudo().entry_sequence_id._get_prefix_suffix(date=date.today(),
-                                                                                 date_range=date.today())
+                move_date = fields.Date.to_date(record[record._sequence_date_field]) or fields.Date.context_today(record)
+                prefix1 = record.journal_id.sudo().entry_sequence_id._get_prefix_suffix(
+                    date=move_date,
+                    date_range=move_date,
+                )
                 prefix = prefix1[0]
                 suffix_data = prefix1[1]
-                prefix_refund1 = record.journal_id.sudo().credit_notes_entry_sequence_id._get_prefix_suffix(date=date.today(),
-                                                                                                     date_range=date.today())
-                prefix_refund = prefix_refund1[0]
-                suffix_refund_data = prefix_refund1[1]
+                prefix_refund = ''
+                suffix_refund_data = ''
+                if record.journal_id.sudo().credit_notes_entry_sequence_id:
+                    prefix_refund1 = record.journal_id.sudo().credit_notes_entry_sequence_id._get_prefix_suffix(
+                        date=move_date,
+                        date_range=move_date,
+                    )
+                    prefix_refund = prefix_refund1[0]
+                    suffix_refund_data = prefix_refund1[1]
+
+                seq_model = (
+                    record.journal_id.sudo().credit_notes_entry_sequence_id
+                    if record.move_type in ('out_refund', 'in_refund')
+                    else record.journal_id.sudo().entry_sequence_id
+                )
+                curr_seq = seq_model._get_current_sequence(sequence_date=move_date) if seq_model else False
+                curr_next_num = curr_seq.number_next_actual if curr_seq else (record.journal_id.next_number or 1)
+
                 if record.move_type in ('out_invoice', '0'):
                     previous = 'inv/0000'
                 if record.move_type in ('in_invoice', '0'):
@@ -127,34 +159,34 @@ class SequenceMixin(models.AbstractModel):
                 placeholders = re.findall(r'(prefix\d|seq|suffix\d?|year|year_end|month)', regex)
 
                 if record.journal_id.sudo().entry_sequence_id and record.move_type in ('0', 'in_invoice'):
-                    format_values.update({'seq': record.journal_id.next_number - 1,
+                    format_values.update({'seq': curr_next_num - 1,
                                           'seq_length': record.journal_id.sudo().entry_sequence_id.padding,
                                           'suffix': suffix_data,
                                           'prefix1': prefix,
                                           })
 
                 if record.journal_id.sudo().credit_notes_entry_sequence_id and record.move_type in ('0', 'in_refund'):
-                    format_values.update({'seq': record.journal_id.credit_notes - 1,
+                    format_values.update({'seq': curr_next_num - 1,
                                           'seq_length': record.journal_id.sudo().credit_notes_entry_sequence_id.padding,
                                           'suffix': suffix_refund_data,
                                           'prefix1': prefix_refund,
                                           })
 
                 if record.journal_id.sudo().credit_notes_entry_sequence_id and record.move_type in ('0', 'out_refund'):
-                    format_values.update({'seq': record.journal_id.credit_notes - 1,
+                    format_values.update({'seq': curr_next_num - 1,
                                           'seq_length': record.journal_id.sudo().credit_notes_entry_sequence_id.padding,
                                           'suffix': suffix_refund_data,
                                           'prefix1': prefix_refund,
                                           })
 
                 if record.journal_id.sudo().entry_sequence_id and record.move_type in ('0', 'out_invoice'):
-                    format_values.update({'seq': record.journal_id.next_number - 1,
+                    format_values.update({'seq': curr_next_num - 1,
                                           'seq_length': record.journal_id.sudo().entry_sequence_id.padding,
                                           'suffix': suffix_data,
                                           'prefix1': prefix,
                                           })
                 if record.journal_id.sudo().entry_sequence_id and record.move_type in ('0', 'entry'):
-                    format_values.update({'seq' : record.journal_id.next_number - 1,
+                    format_values.update({'seq' : curr_next_num - 1,
                                           'seq_length': record.journal_id.sudo().entry_sequence_id.padding,
                                           'suffix': suffix_data,
                                           'prefix1': prefix})
@@ -205,13 +237,20 @@ class SequenceMixin(models.AbstractModel):
         res = super(SequenceMixin, self)._set_next_sequence()
         # OVERRIDE
         if self.journal_id.sudo().entry_sequence_id:
-            prefix1 = self.journal_id.sudo().entry_sequence_id._get_prefix_suffix(date=date.today(), date_range=date.today())
+            move_date = fields.Date.to_date(self[self._sequence_date_field]) or fields.Date.context_today(self)
+            prefix1 = self.journal_id.sudo().entry_sequence_id._get_prefix_suffix(
+                date=move_date, date_range=move_date
+            )
             prefix = prefix1[0]
             suffix_data = prefix1[1]
-            prefix_refund_data = self.journal_id.sudo().credit_notes_entry_sequence_id._get_prefix_suffix(date=date.today(),
-                                                                                                   date_range=date.today())
-            prefix_refund = prefix_refund_data[0]
-            suffix_refund_data = prefix_refund_data[1]
+            prefix_refund = ''
+            suffix_refund_data = ''
+            if self.journal_id.sudo().credit_notes_entry_sequence_id:
+                prefix_refund_data = self.journal_id.sudo().credit_notes_entry_sequence_id._get_prefix_suffix(
+                    date=move_date, date_range=move_date
+                )
+                prefix_refund = prefix_refund_data[0]
+                suffix_refund_data = prefix_refund_data[1]
 
             self.ensure_one()
             last_sequence = self._get_last_sequence()
@@ -223,45 +262,52 @@ class SequenceMixin(models.AbstractModel):
             sequence_number_reset = self._deduce_sequence_number_reset(last_sequence)
             if new:
                 date_start, date_end = self._get_sequence_date_range(sequence_number_reset)
-                format_values['seq'] = self.journal_id.next_number + 0
+                seq_model = (
+                    self.journal_id.sudo().credit_notes_entry_sequence_id
+                    if self.move_type in ('out_refund', 'in_refund')
+                    else self.journal_id.sudo().entry_sequence_id
+                )
+                curr_seq = seq_model._get_current_sequence(sequence_date=move_date) if seq_model else False
+                curr_next_num = curr_seq.number_next_actual if curr_seq else (self.journal_id.next_number or 1)
+
+                format_values['seq'] = curr_next_num
                 if self.journal_id.entry_sequence_id and self.move_type in ('0', 'in_invoice'):
-                    format_values.update({'seq': self.journal_id.next_number,
+                    format_values.update({'seq': curr_next_num,
                                           'seq_length': self.journal_id.sudo().entry_sequence_id.padding,
                                           'suffix': suffix_data,
                                           'prefix1': prefix,
                                           })
 
                 if self.journal_id.credit_notes_entry_sequence_id and self.move_type in ('0', 'in_refund'):
-                    format_values.update({'seq': self.journal_id.credit_notes,
+                    format_values.update({'seq': curr_next_num,
                                           'seq_length': self.journal_id.sudo().credit_notes_entry_sequence_id.padding,
                                           'suffix': suffix_refund_data,
                                           'prefix1': prefix_refund,
                                           })
 
                 if self.journal_id.credit_notes_entry_sequence_id and self.move_type in ('0', 'out_refund'):
-                    format_values.update({'seq': self.journal_id.credit_notes,
+                    format_values.update({'seq': curr_next_num,
                                           'seq_length': self.journal_id.sudo().credit_notes_entry_sequence_id.padding,
                                           'suffix': suffix_refund_data,
                                           'prefix1': prefix_refund})
 
                 if self.journal_id.entry_sequence_id and self.move_type in ('0', 'out_invoice'):
-                    format_values.update({'seq': self.journal_id.next_number,
+                    format_values.update({'seq': curr_next_num,
                                           'seq_length': self.journal_id.sudo().entry_sequence_id.padding,
                                           'suffix': suffix_data,
                                           'prefix1': prefix})
 
                 if self.journal_id.entry_sequence_id and self.move_type in ('0', 'entry'):
-                    format_values.update({'seq' : self.journal_id.next_number ,
+                    format_values.update({'seq' : curr_next_num,
                                           'seq_length': self.journal_id.sudo().entry_sequence_id.padding,
                                           'suffix': suffix_data,
                                           'prefix1': prefix})
 
-                format_values['month'] = self[self._sequence_date_field].month
+                format_values['month'] = move_date.month
                 format_values['year_end'] = self._truncate_year_to_length(date_end.year, format_values['year_end_length'])
 
             if new:
                 while True:
-                    format_values['seq'] = format_values['seq'] + 0
                     sequence = format_string.format(**format_values)
                     try:
                         with self.env.cr.savepoint(flush=False), mute_logger('odoo.sql_db'):
@@ -273,4 +319,7 @@ class SequenceMixin(models.AbstractModel):
                         # 23505 UniqueViolation
                         if e.pgcode not in ('23P01', '23505'):
                             raise e
-            return res
+                        format_values['seq'] = format_values['seq'] + 1
+                self._compute_split_sequence()
+                self.flush_recordset(['sequence_prefix', 'sequence_number'])
+        return res
