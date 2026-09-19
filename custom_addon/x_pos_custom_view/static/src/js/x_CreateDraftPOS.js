@@ -57,7 +57,9 @@ odoo.define('x_pos_custom_view.ExtendCreateDraftPOS', function(require) {
 				return;
 			}
 			else{
-				if(order.get_total_with_tax() !== order.get_total_paid()){
+				// Acción 5: comparar con tolerancia para evitar errores de punto flotante
+				const _rounding = order.pos ? order.pos.currency.rounding : 0.01;
+				if(Math.abs(order.get_total_with_tax() - order.get_total_paid()) > _rounding){
 					order.amount_due = order.get_due();
 					order.is_draft_order = true;
 					order.is_partial = true;

@@ -116,6 +116,8 @@ odoo.define('pos_all_in_one.PayPOSOrdersScreen', function (require) {
 				}
 
 				self.remove_current_orderlines();
+				// Acción 1: resetear _printed para evitar que add_product() cree nuevas órdenes por cada línea
+				old_order._printed = false;
 				if(orderlines.length > 0){
 					old_order.name = order.pos_reference;
 					old_order.is_partial = order.is_partial;
@@ -177,6 +179,11 @@ odoo.define('pos_all_in_one.PayPOSOrdersScreen', function (require) {
 						if (typeof line.set_unit_price === 'function') line.set_unit_price(unitPrice);
 						else line.price = unitPrice;
 
+						// Acción 4 (Opción B): forzar el descuento correcto de la orden guardada,
+						// anulando cualquier re-aplicación automática del customer_discount.
+						if (typeof line.set_discount === 'function') line.set_discount(isDiscountLine ? 0 : discount);
+						else line.discount = isDiscountLine ? 0 : discount;
+
 						line.price_manually_set = true;
 						if (typeof line.set_price_manually === 'function') line.set_price_manually(true);
 
@@ -210,9 +217,12 @@ odoo.define('pos_all_in_one.PayPOSOrdersScreen', function (require) {
 					}
 				}
 
+				// Acción 4 (Opción A): suprimir descuento automático por partner durante la importación
+				old_order._importing_from_saved = true;
 				for (const ol of orderlines) {
 					addImportedLine(ol);
 				}
+				old_order._importing_from_saved = false;
 				pruneAutoDiscounts();
 				setTimeout(pruneAutoDiscounts, 0);
 				setTimeout(pruneAutoDiscounts, 150);
@@ -258,9 +268,22 @@ odoo.define('pos_all_in_one.PayPOSOrdersScreen', function (require) {
 						});
 					}
 				}
+				// Acción 3: limpiar órdenes fantasma vacías generadas por _printed residual
+				const phantomOrders = [...self.env.pos.orders].filter(
+					o => o !== old_order && o.get_orderlines().length === 0
+					  && o.get_paymentlines().length === 0 && !o.temporary
+				);
+				for (const phantom of phantomOrders) {
+					self.env.pos.removeOrder(phantom);
+				}
+
 				if(old_order.orderlines.length > 0){
+					// Acción 2: asegurar que la orden activa sea old_order antes de navegar
+					if (self.env.pos.get_order() !== old_order) {
+						self.env.pos.set_order(old_order);
+					}
 					self.trigger('close-temp-screen');
-					self.showScreen('PaymentScreen');			
+					self.showScreen('PaymentScreen');
 				}
 			}
 

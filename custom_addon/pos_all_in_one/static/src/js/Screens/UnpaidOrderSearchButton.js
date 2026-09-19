@@ -148,6 +148,8 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 			for (const line of current_lines) {
 				selectedOrder.remove_orderline(line);
 			}
+			// Acción 1: resetear _printed para evitar que add_product() cree nuevas órdenes por cada línea
+			selectedOrder._printed = false;
 
 			let amount_due = order.amount_total - order.amount_paid;
 			let orderlines = [];
@@ -222,6 +224,11 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 					if (typeof line.set_unit_price === 'function') line.set_unit_price(unitPrice);
 					else line.price = unitPrice;
 
+					// Acción 4 (Opción B): forzar el descuento correcto de la orden guardada,
+					// anulando cualquier re-aplicación automática del customer_discount.
+					if (typeof line.set_discount === 'function') line.set_discount(isDiscountLine ? 0 : discount);
+					else line.discount = isDiscountLine ? 0 : discount;
+
 					line.price_manually_set = true;
 					if (typeof line.set_price_manually === 'function') line.set_price_manually(true);
 
@@ -268,9 +275,12 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 			/* ============================================
 			* (B) REEMPLAZO DEL BUCLE DE AGREGAR LÍNEAS
 			* ============================================ */
+			// Acción 4 (Opción A): suprimir descuento automático por partner durante la importación
+			selectedOrder._importing_from_saved = true;
 			for (const ol of orderlines) {
 				addImportedLine(ol);
 			}
+			selectedOrder._importing_from_saved = false;
 			// Poda inmediata y diferida por si el motor de promos recalcula
 			pruneAutoDiscounts();
 			setTimeout(pruneAutoDiscounts, 0);
@@ -321,6 +331,18 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 				}
 			}
 			if (selectedOrder.orderlines.length > 0) {
+				// Acción 3: limpiar órdenes fantasma vacías generadas por _printed residual
+				const phantomOrders = [...self.env.pos.orders].filter(
+					o => o !== selectedOrder && o.get_orderlines().length === 0
+					  && o.get_paymentlines().length === 0 && !o.temporary
+				);
+				for (const phantom of phantomOrders) {
+					self.env.pos.removeOrder(phantom);
+				}
+				// Acción 2: asegurar que la orden activa sea selectedOrder antes de navegar
+				if (self.env.pos.get_order() !== selectedOrder) {
+					self.env.pos.set_order(selectedOrder);
+				}
 				self.showScreen('PaymentScreen');
 			}
 		}
