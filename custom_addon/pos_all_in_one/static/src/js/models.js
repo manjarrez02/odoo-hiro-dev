@@ -10,18 +10,18 @@ odoo.define('pos_all_in_one.models', function(require) {
 		get_unpaid_orders: function(){
 			var saved = this.load('unpaid_orders',[]);
 			var orders = [];
+			var remaining = [];
 			for (var i = 0; i < saved.length; i++) {
 				let odr = saved[i].data;
-				if(!odr.is_paying_partial && !odr.is_partial && !odr.is_draft_order){
-					orders.push(saved[i].data);
+				if (odr && (odr.is_paying_partial || odr.is_partial || odr.is_draft_order)) {
+					continue;
 				}
-				if(odr.is_paying_partial || odr.is_partial || odr.is_draft_order){
-					saved = _.filter(saved, function(o){
-						return o.id !== odr.uid;
-					});
+				if (saved[i] && saved[i].data) {
+					orders.push(saved[i].data);
+					remaining.push(saved[i]);
 				}
 			}
-			this.save('unpaid_orders',saved);
+			this.save('unpaid_orders', remaining);
 			return orders;
 		},
 	});

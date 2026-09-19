@@ -17,12 +17,12 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 		remove_current_orderlines(){
 			let self = this;
 			let order = self.env.pos.get_order();
-			let orderlines = order.get_orderlines();
-			order.set_partner(null);           
-			while (orderlines.length > 0) {
-				orderlines.forEach(function (line) {
+			if (order) {
+				order.set_partner(null);           
+				const lines = [...order.get_orderlines()];
+				for (const line of lines) {
 					order.remove_orderline(line);
-				});
+				}
 			}
 		}
 
@@ -43,10 +43,6 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 			
 		async onClick() {
 			let self = this;
-			const PosOrder = new (Registries.Component.get(POSOrdersScreen))(this, {
-				'selected_partner_id': false 
-			});
-
 			let selectedOrder = self.env.pos.get_order();
 			let partner_id = false;
 			let client = false;
@@ -121,7 +117,12 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 				self.env.pos.db.get_orderline_by_id = orderlines_by_id;
 
 				// Validar consistencia total
-				let expected_total = lines.reduce((acc, ol) => acc + (ol.qty * ol.price_unit * (1 - (ol.discount || 0) / 100)), 0);
+				let expected_total = lines.reduce((acc, ol) => {
+					if (ol.price_subtotal_incl !== undefined && ol.price_subtotal_incl !== null) {
+						return acc + ol.price_subtotal_incl;
+					}
+					return acc + (ol.qty * ol.price_unit * (1 - (ol.discount || 0) / 100));
+				}, 0);
 				let difference = Math.abs(expected_total - order.amount_total);
 
 				if (lines.length !== order.lines.length || difference > 0.1) {
@@ -143,9 +144,10 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 			}
 
 			// Limpiar todas las líneas de la orden actual
-			selectedOrder.get_orderlines().forEach(function(line) {
+			const current_lines = [...selectedOrder.get_orderlines()];
+			for (const line of current_lines) {
 				selectedOrder.remove_orderline(line);
-			});
+			}
 
 			let amount_due = order.amount_total - order.amount_paid;
 			let orderlines = [];
@@ -168,6 +170,17 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 			if (order.partner_id) {
 				let client = self.env.pos.db.get_partner_by_id(order.partner_id[0]);
 				selectedOrder.set_partner(client);
+			}
+
+			if (order.fiscal_position_id && self.env.pos.fiscal_positions) {
+				let fpId = Array.isArray(order.fiscal_position_id) ? order.fiscal_position_id[0] : order.fiscal_position_id;
+				let fp = self.env.pos.fiscal_positions.find(f => f.id === fpId);
+				if (fp) selectedOrder.fiscal_position = fp;
+			}
+			if (order.pricelist_id && self.env.pos.pricelists) {
+				let plId = Array.isArray(order.pricelist_id) ? order.pricelist_id[0] : order.pricelist_id;
+				let pl = self.env.pos.pricelists.find(p => p.id === plId);
+				if (pl) selectedOrder.set_pricelist(pl);
 			}
 
 			/* ================================
@@ -197,6 +210,10 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 					discount: isDiscountLine ? 0 : discount,
 					merge: false,
 					is_saved: true,
+					extras: {
+						price_manually_set: true,
+						_loaded_from_saved_order: true,
+					},
 				});
 
 				const line = selectedOrder.get_last_orderline();
@@ -272,6 +289,10 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 						discount: 0,
 						merge: false,
 						is_saved: true,
+						extras: {
+							price_manually_set: true,
+							_loaded_from_saved_order: true,
+						},
 					});
 
 					// Fijar precio manual del abono para que no se toque
@@ -299,24 +320,6 @@ odoo.define('pos_all_in_one.UnpaidOrderSearchButton', function(require) {
 					});
 				}
 			}
-
-			if (amount_due > 0 && order.amount_paid != 0) {
-				let product_for_due = self.env.pos.config.partial_product_id;
-				if (product_for_due) {
-					let prd = self.env.pos.db.get_product_by_id(product_for_due[0]);
-					selectedOrder.add_product(prd, {
-						quantity: 1.0,
-						price: -order.amount_paid,
-						discount: 0
-					});
-				} else {
-					return self.showPopup('ErrorPopup', {
-						title: self.env._t('Configure Product'),
-						body: self.env._t('Please configure partial product.'),
-					});
-				}
-			}
-
 			if (selectedOrder.orderlines.length > 0) {
 				self.showScreen('PaymentScreen');
 			}

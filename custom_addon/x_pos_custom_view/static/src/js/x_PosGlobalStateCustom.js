@@ -12,14 +12,10 @@ odoo.define('x_pos_custom_view.x_PosGlobalStateCustom', function (require) {
 			}
 
             removeOrder(order) {
-                this.orders.remove(order);
-                this.db.remove_unpaid_order(order);
-                for (const line of order.get_orderlines()) {
-                    if (line.refunded_orderline_id) {
-                        delete this.toRefundLines[line.refunded_orderline_id];
-                    }
+                super.removeOrder(...arguments);
+                if (this.toRefundLines) {
+                    this.toRefundLines = {};
                 }
-                this.env.pos.toRefundLines = {};
             }
         };
 

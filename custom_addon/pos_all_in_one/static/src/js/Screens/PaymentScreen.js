@@ -26,29 +26,44 @@ odoo.define('pos_all_in_one.PaymentScreen', function(require) {
 			remove_current_orderlines(){
 				let self = this;
 				let order = self.env.pos.get_order();
-				let orderlines = order.get_orderlines();
-				order.set_partner(null);           
-				if (orderlines.length > 0) {
-					orderlines.forEach(function (line) {
+				if (order) {
+					order.set_partner(null);           
+					const lines = [...order.get_orderlines()];
+					for (const line of lines) {
 						order.remove_orderline(line);
-					});
+					}
+					const paymentlines = [...order.get_paymentlines()];
+					for (const pl of paymentlines) {
+						order.remove_paymentline(pl);
+					}
+					order.is_paying_partial = false;
 				}
-				order.is_paying_partial=false
 			}
 
 			async click_back(){
 				let self = this;
-				if(this.currentOrder.is_paying_partial){
+				if(this.currentOrder && this.currentOrder.is_paying_partial){
 					const { confirmed } = await this.showPopup('ConfirmPopup', {
 						title: self.env._t('Cancel Payment ?'),
 						body: self.env._t('Are you sure,You want to Cancel this payment?'),
 					});
 					if (confirmed) {
-						var order = self.env.pos.get_order()
-						self.remove_current_orderlines();
-						// self.env.pos.removeOrder(order);
-						self.showScreen('ProductScreen');
+						const order = self.env.pos.get_order();
+						if (order) {
+							self.remove_current_orderlines();
+							order.is_partial = false;
+							order.amount_due = 0;
+							order.barcode = '';
+							order.barcode_img = '';
+							order.is_paying_partial = false;
+							if (order.uid) {
+								order.name = (self.env._t("Order %s")).replace('%s', order.uid);
+							}
+							order.save_to_db();
+						}
 					}
+					// Siempre volver a ProductScreen, sin importar si confirmó o canceló el popup
+					self.showScreen('ProductScreen');
 				}
 				else{
 					self.showScreen('ProductScreen');
@@ -383,8 +398,14 @@ odoo.define('pos_all_in_one.PaymentScreen', function(require) {
 					order.amount_due = order.get_due();
 					order.set_is_partial(true);
 					order.to_invoice = true;
-					order.finalized = false;
-					self.env.pos.push_single_order(order);
+					this.env.services.ui.block();
+					try {
+						await self.env.pos.push_single_order(order);
+						order.finalized = true;
+						self.env.pos.db.remove_unpaid_order(order);
+					} finally {
+						this.env.services.ui.unblock();
+					}
 					self.showScreen('ReceiptScreen');						
 				}
 			}
