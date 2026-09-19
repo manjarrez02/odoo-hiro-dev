@@ -131,6 +131,17 @@
             </xpath>      
 
             <xpath expr = "//div[@class='before-footer']" position ="before">
+                <t t-if="props.order.isCreditSale or (receipt and receipt.is_credit_sale)">
+                    <div style="font-size: 13px; font-weight: bold; text-align: center; margin: 8px 0 2px 0;">
+                        *** VENTA A CRÉDITO ***
+                    </div>
+                    <t t-set="savings_amount" t-value="(receipt and receipt.potential_savings) or props.order.max_credit_discount"/>
+                    <t t-if="savings_amount and savings_amount &gt; 0">
+                        <div style="font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 6px;">
+                            Ahorra hasta <t t-esc="env.pos.format_currency(savings_amount)"/> pagando a tiempo
+                        </div>
+                    </t>
+                </t>
                 <div style = "font-size: 14px; text-align: left; width: 100%;">
                     <br/>                    
                     Vendedor: 

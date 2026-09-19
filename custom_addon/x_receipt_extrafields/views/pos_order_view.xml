@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista Formulario de pos.order: Venta a Crédito y Descuento Máximo Posible -->
+        <record id="view_pos_pos_form_credit_sale" model="ir.ui.view">
+            <field name="name">pos.order.form.credit.sale</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='order_fields']" position="inside">
+                    <field name="is_credit_sale" widget="boolean_toggle" readonly="1"/>
+                    <field name="max_credit_discount" widget="monetary" readonly="1" attrs="{'invisible': [('is_credit_sale', '=', False)]}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista Lista (Tree) de pos.order: Columnas visibles y sumatoria -->
+        <record id="view_pos_order_tree_credit_sale" model="ir.ui.view">
+            <field name="name">pos.order.tree.credit.sale</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+            <field name="arch" type="xml">
+                <field name="amount_total" position="after">
+                    <field name="is_credit_sale" optional="show" widget="boolean_toggle" readonly="1"/>
+                    <field name="max_credit_discount" optional="show" widget="monetary" sum="Total Descto. Máx." readonly="1"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Vista Búsqueda (Search) de pos.order: Filtro y agrupación -->
+        <record id="view_pos_order_search_credit_sale" model="ir.ui.view">
+            <field name="name">pos.order.search.credit.sale</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <separator/>
+                    <filter string="Venta a Crédito" name="credit_sale" domain="[('is_credit_sale', '=', True)]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Venta a Crédito" name="group_by_credit_sale" context="{'group_by': 'is_credit_sale'}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

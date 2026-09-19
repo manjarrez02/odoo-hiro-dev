@@ -13,6 +13,7 @@
         'point_of_sale.assets': [            
 #            "/x_pos_custom_view/static/src/js/x_PosGlobalStateCustom.js",
             "/x_pos_custom_view/static/src/js/x_model.js",
+            "/x_pos_custom_view/static/src/js/x_CreditSaleButton.js",
             "/x_pos_custom_view/static/src/js/x_db.js",                        
             "/x_pos_custom_view/static/src/js/x_CustomProductScreen.js",
             "/x_pos_custom_view/static/src/js/x_add_product.js",

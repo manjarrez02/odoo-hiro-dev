@@ -8,6 +8,7 @@
     "depends": ['base','sale_management', 'bi_zip_code_mapping', 'point_of_sale'],
     "data": [
         "views/pos_session_view.xml",
+        "views/pos_order_view.xml",
     ],
     'assets': {
         'point_of_sale.assets': [

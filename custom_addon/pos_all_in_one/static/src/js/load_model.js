@@ -163,8 +163,9 @@ odoo.define('pos_all_in_one.pos', function (require) {
 			}
 
 			// Acción 4 (Opción A): no re-aplicar descuento de cliente cuando se importan
-			// líneas desde una orden guardada (evita doble descuento y discrepancia de monto).
-			if(this.get_partner() && !this._importing_from_saved){
+			// líneas desde una orden guardada (evita doble descuento y discrepancia de monto),
+			// ni cuando la venta es a crédito (isCreditSale).
+			if(this.get_partner() && !this._importing_from_saved && !this.isCreditSale){
 				if(this.selected_orderline.product.allow_discount && this.selected_orderline.refunded_orderline_id == undefined){
 					this.selected_orderline.set_discount(this.get_partner().customer_discount)
 				}

@@ -25,6 +25,16 @@ class MyPosSession(models.Model):
         result['search_params']['fields'].extend(['journal_id'])
         return result
 
+    def _loader_params_pos_order(self):
+        result = super()._loader_params_pos_order()
+        fields = result.get('search_params', {}).get('fields', [])
+        if 'is_credit_sale' not in fields:
+            fields.append('is_credit_sale')
+        if 'max_credit_discount' not in fields:
+            fields.append('max_credit_discount')
+        result['search_params']['fields'] = fields
+        return result
+
     def _get_pos_invoice_payments(self):
         """Devuelve los account.payment en posted vinculados a esta sesión."""
         domain = [

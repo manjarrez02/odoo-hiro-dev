@@ -23,6 +23,8 @@
                         account_move = "props.account_move"
                         current_time = "props.current_time"
                         name = "props.name"
+                        is_credit_sale = "props.is_credit_sale"
+                        potential_savings = "props.potential_savings"
                     />
                 </div>
             </xpath>
@@ -182,6 +184,16 @@
             </xpath>
 
             <xpath expr = "//div[@class='before-footer']" position ="before">
+                <t t-if="props.is_credit_sale or (props.order and props.order.is_credit_sale)">
+                    <div style="font-size: 13px; font-weight: bold; text-align: center; margin: 8px 0 2px 0;">
+                        *** VENTA A CRÉDITO ***
+                    </div>
+                    <t t-if="props.potential_savings and props.potential_savings &gt; 0">
+                        <div style="font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 8px;">
+                            Ahorra hasta <t t-esc="env.pos.format_currency(props.potential_savings)"/> pagando a tiempo
+                        </div>
+                    </t>
+                </t>
                 <div style = "font-size: 14px; text-align: left; width: 100%;">
                     <br/>                    
                     Vendedor: 

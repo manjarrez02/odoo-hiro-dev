@@ -2,6 +2,7 @@
 
     <templates id="x_pos_custom_views" xml:space="preserve">
 
+
         <t t-name="ActionpadWidget" t-inherit="point_of_sale.ActionpadWidget" t-inherit-mode="extension" owl="1">
             <xpath expr="//t[@t-if='env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_payments']" position="replace">
                 <t t-if="env and env.pos and env.pos.get_cashier() and env.pos.get_cashier().is_allow_payments and props.actionToTrigger != 'do-refund'">	
@@ -59,7 +60,29 @@
                                 Customer
                             </t>
                         </button>
-                    </t>                
+                        <!--
+                            Toggle Venta a Crédito
+                            Visible únicamente cuando el partner tiene crédito autorizado.
+                            Al activarse pone isCreditSale=true en la orden y limpia
+                            todos los descuentos. Al desactivarse los restaura.
+                        -->
+                        <t t-if="props.partner and props.partner.allow_over_limit">
+                            <button
+                                class="button set-partner"
+                                t-att-class="{'highlight': env.pos.get_order() and env.pos.get_order().isCreditSale}"
+                                t-on-click="() => env.pos.get_order() and env.pos.get_order().toggleCreditSale()"
+                                id="credit_sale_toggle_btn"
+                                title="Activar: sin descuento en mostrador / Desactivar: aplica descuento cliente">
+                                <i class="fa fa-credit-card" role="img" aria-label="Venta Crédito"/>
+                                <t t-if="env.pos.get_order() and env.pos.get_order().isCreditSale">
+                                    &#10003; Venta Crédito
+                                </t>
+                                <t t-else="">
+                                    Venta Crédito
+                                </t>
+                            </button>
+                        </t>
+                    </t>
             </xpath>
         </t>
 

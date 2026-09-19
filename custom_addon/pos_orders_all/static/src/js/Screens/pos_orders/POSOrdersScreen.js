@@ -317,7 +317,7 @@ odoo.define('pos_orders_all.POSOrdersScreen', function (require) {
 							'picking_type_id','procurement_group_id','note','nb_print','pos_reference',
 							'sale_journal','fiscal_position_id','payment_ids','session_move_id','to_invoice',
 							'to_ship','is_invoiced','is_tipped','tip_amount','is_refunded','refunded_order_ids',
-							'has_refundable_lines','refunded_orders_count'];
+							'has_refundable_lines','refunded_orders_count','is_credit_sale','max_credit_discount'];
 			let load_orders = [];
 			let load_orders_line = [];
 			let order_ids = [];

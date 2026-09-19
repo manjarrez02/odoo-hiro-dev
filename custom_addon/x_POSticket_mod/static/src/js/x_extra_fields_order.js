@@ -16,13 +16,33 @@ odoo.define("x_POSticket_mod.x_extra_fields_order", function (require) {
                     model: "pos.order",
                     method: "search_read",
                     domain: [["pos_reference", "=", order["name"]]],
-                    fields: ["cust_saleper_id","account_move"],
+                    fields: ["cust_saleper_id", "account_move", "is_credit_sale", "max_credit_discount"],
                 }).then(function (orders) {
                     if (orders.length > 0) {
                         // Asignar el valor correctamente
-                        order.cust_saleper_id = orders[0].cust_saleper_id[1];
+                        if (orders[0].cust_saleper_id) {
+                            order.cust_saleper_id = orders[0].cust_saleper_id[1];
+                        }
                         order.name_id = orders[0].name;
-                        order.invoice_number = orders[0].account_move[1].split(" ")[0];
+                        if (orders[0].account_move && orders[0].account_move[1]) {
+                            order.invoice_number = orders[0].account_move[1].split(" ")[0];
+                        }
+                        if (orders[0].is_credit_sale) {
+                            order.isCreditSale = true;
+                        }
+                        if (orders[0].max_credit_discount) {
+                            order.max_credit_discount = orders[0].max_credit_discount;
+                        }
+
+                        // Refrescar el entorno del recibo para que tome el estado de crédito y ahorro potencial
+                        self._receiptEnv = order.getOrderReceiptEnv();
+                        if (orders[0].is_credit_sale && self._receiptEnv && self._receiptEnv.receipt) {
+                            self._receiptEnv.receipt.is_credit_sale = true;
+                            if (orders[0].max_credit_discount && (!self._receiptEnv.receipt.potential_savings || self._receiptEnv.receipt.potential_savings === 0)) {
+                                self._receiptEnv.receipt.potential_savings = orders[0].max_credit_discount;
+                            }
+                        }
+
                         self.render();
                     }
                 }).catch(function (error) {

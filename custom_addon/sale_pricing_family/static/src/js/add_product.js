@@ -96,7 +96,8 @@ odoo.define('sale_pricing_family.add_product', function (require) {
                     if (
                         this.selected_orderline.product.allow_discount &&
                         this.selected_orderline.refunded_orderline_id == undefined &&
-                        !options.is_imported
+                        !options.is_imported &&
+                        !this.isCreditSale
                     ) {
                         this.selected_orderline.set_discount(this.get_partner().customer_discount);
                     }

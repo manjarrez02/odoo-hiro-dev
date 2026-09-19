@@ -133,6 +133,10 @@ odoo.define('pos_all_in_one.PayPOSOrdersScreen', function (require) {
 					old_order.set_partner(client);
 				}
 
+				if (order.is_credit_sale) {
+					old_order.isCreditSale = true;
+				}
+
 				if (order.fiscal_position_id && self.env.pos.fiscal_positions) {
 					let fpId = Array.isArray(order.fiscal_position_id) ? order.fiscal_position_id[0] : order.fiscal_position_id;
 					let fp = self.env.pos.fiscal_positions.find(f => f.id === fpId);

@@ -73,7 +73,8 @@ odoo.define('x_pos_custom_view.x_add_product', function (require) {
 			}
 			else{
 				if(this.get_partner()){
-					if(this.selected_orderline.product.allow_discount && this.selected_orderline.refunded_orderline_id == undefined && !options.is_imported){					
+					// isCreditSale: cuando la venta es a crédito, no aplicar customer_discount
+					if(this.selected_orderline.product.allow_discount && this.selected_orderline.refunded_orderline_id == undefined && !options.is_imported && !this.isCreditSale){					
 						this.selected_orderline.set_discount(this.get_partner().customer_discount)					
 					}				
 				}
