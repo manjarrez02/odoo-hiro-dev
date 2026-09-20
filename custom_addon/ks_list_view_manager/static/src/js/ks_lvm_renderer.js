@@ -82,6 +82,13 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
 
         return this._super(...arguments);
     },
+    getFormattedValue(column, record) {
+        const fieldName = column && column.name;
+        if (!record || !record.data || !fieldName || record.data[fieldName] === undefined) {
+            return "";
+        }
+        return this._super(...arguments);
+    },
      async willStart() {
         var self= this;
         this.ks_searchdomain = [];

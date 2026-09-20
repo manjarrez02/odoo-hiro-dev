@@ -27,7 +27,10 @@ patch(ListController.prototype, "ks_lvm_controller", {
         onMounted(this._mounted);
         this.ks_editable = false;
         this.rpc = useService("rpc");
-        this.ks_remove_popup_flag = false;
+        this._isUnmounted = false;
+        onWillUnmount(() => {
+            this._isUnmounted = true;
+        });
         onWillStart(async () => {
             await this.willStart()
         });
@@ -50,7 +53,6 @@ patch(ListController.prototype, "ks_lvm_controller", {
             for (let ks_values of this.ks_searchdomain){
                 this.props.domain.push(ks_values);
             }
-             this.model.load();
         }
      }
         const data = await ajax.jsonRpc("/ks_lvm_control/ks_generate_arch_view", 'call', {
@@ -77,7 +79,9 @@ patch(ListController.prototype, "ks_lvm_controller", {
         session.list_data  = this.list_data;
 
         if (data && data.views && data.views.list && data.views.list.arch && this.ks_table_data) {
-            const archInfo = new ListArchParser().parse(data.views.list.arch, this.props.relatedModels, this.props.resModel);
+            const models = Object.assign({}, this.props.relatedModels, data.models);
+            models[this.props.resModel] = Object.assign({}, this.props.fields, models[this.props.resModel]);
+            const archInfo = new ListArchParser().parse(data.views.list.arch, models, this.props.resModel);
             if (this.archInfo) {
                 Object.assign(this.archInfo, archInfo);
             } else {
@@ -93,17 +97,15 @@ patch(ListController.prototype, "ks_lvm_controller", {
                     } else {
                         this.model.rootParams.activeFields = { ...this.archInfo.activeFields };
                     }
+                    if (this.archInfo.fieldNodes) {
+                        this.model.rootParams.fieldNodes = this.archInfo.fieldNodes;
+                    }
                 }
                 if (this.archInfo.fieldNodes) {
                     this.model.fieldNodes = this.archInfo.fieldNodes;
                 }
-                if (this.model.root) {
-                    if (this.model.root.activeFields) {
-                        Object.assign(this.model.root.activeFields, this.archInfo.activeFields);
-                    }
-                    if (typeof this.model.root.load === "function") {
-                        await this.model.root.load();
-                    }
+                if (this.model.root && this.model.root.activeFields) {
+                    Object.assign(this.model.root.activeFields, this.archInfo.activeFields);
                 }
             }
         }
@@ -201,6 +203,24 @@ patch(ListController.prototype, "ks_lvm_controller", {
 
     _mounted() {
         var table = this.tableRef;
+        if (this.model && this.model.root && this.archInfo && this.archInfo.activeFields) {
+            if (this.model.root.activeFields) {
+                Object.assign(this.model.root.activeFields, this.archInfo.activeFields);
+            }
+            const records = this.model.root.records;
+            if (records && records.length > 0) {
+                const hasMissingFields = Object.keys(this.archInfo.activeFields).some(
+                    (fieldName) => records[0].data && records[0].data[fieldName] === undefined
+                );
+                if (hasMissingFields) {
+                    this.model.root.load().then(() => {
+                        if (!this._isUnmounted) {
+                            this.render(true);
+                        }
+                    });
+                }
+            }
+        }
       if ($(this.rootRef.el).hasClass("o_action")){
         this.ks_renderButtons();
 
@@ -344,9 +364,16 @@ patch(ListController.prototype, "ks_lvm_controller", {
 
             }).then(function (ks_list_view_data) {
                 if (ks_reset_renderer) {
-                    var archInfo = new ListArchParser().parse(ks_list_view_data.views.list.arch, self.props.relatedModels, self.props.resModel);
+                    const models = Object.assign({}, self.props.relatedModels, ks_list_view_data.models);
+                    models[self.props.resModel] = Object.assign({}, self.props.fields, models[self.props.resModel]);
+                    var archInfo = new ListArchParser().parse(ks_list_view_data.views.list.arch, models, self.props.resModel);
                     Object.assign(self.archInfo, archInfo);
-                    Object.assign(self.model.root.activeFields, self.archInfo.activeFields);
+                    if (self.model.rootParams && self.model.rootParams.activeFields) {
+                        Object.assign(self.model.rootParams.activeFields, self.archInfo.activeFields);
+                    }
+                    if (self.model.root && self.model.root.activeFields) {
+                        Object.assign(self.model.root.activeFields, self.archInfo.activeFields);
+                    }
                     self.ks_resize = false;
                     framework.unblockUI();
                     self.ks_update(ks_list_view_data);
@@ -383,9 +410,16 @@ patch(ListController.prototype, "ks_lvm_controller", {
                     self.list_data.table_data = self.ks_table_data;
                     self.ks_resize = false;
                     self.ks_field_list = Object.values(self.ks_fields_data).sort((a, b) => a.ks_field_order - b.ks_field_order);
-                    var archInfo = new ListArchParser().parse(ks_list_view_data.views.list.arch, self.props.relatedModels, self.props.resModel);
-                    Object.assign(self.archInfo, archInfo),
-                    Object.assign(self.model.root.activeFields, self.archInfo.activeFields);
+                    const models = Object.assign({}, self.props.relatedModels, ks_list_view_data.models);
+                    models[self.props.resModel] = Object.assign({}, self.props.fields, models[self.props.resModel]);
+                    var archInfo = new ListArchParser().parse(ks_list_view_data.views.list.arch, models, self.props.resModel);
+                    Object.assign(self.archInfo, archInfo);
+                    if (self.model.rootParams && self.model.rootParams.activeFields) {
+                        Object.assign(self.model.rootParams.activeFields, self.archInfo.activeFields);
+                    }
+                    if (self.model.root && self.model.root.activeFields) {
+                        Object.assign(self.model.root.activeFields, self.archInfo.activeFields);
+                    }
                     self.ks_update(ks_list_view_data);
                     self.env.bus.trigger("CLEAR-CACHES");
 
@@ -458,9 +492,16 @@ patch(ListController.prototype, "ks_lvm_controller", {
                     this.ks_lvm_data = Object.assign({}, this.data.views.list.ks_lvm_user_data);
                     this.currency_id = this.data.views.list.ks_lvm_user_data.ks_lvm_user_mode_data.currency_id;
                 }
-            var archInfo = new ListArchParser().parse(data.views.list.arch, self.props.relatedModels, self.props.resModel);
-            Object.assign(self.archInfo, archInfo),
-            Object.assign(self.model.root.activeFields, self.archInfo.activeFields);
+            const models = Object.assign({}, self.props.relatedModels, data.models);
+            models[self.props.resModel] = Object.assign({}, self.props.fields, models[self.props.resModel]);
+            var archInfo = new ListArchParser().parse(data.views.list.arch, models, self.props.resModel);
+            Object.assign(self.archInfo, archInfo);
+            if (self.model.rootParams && self.model.rootParams.activeFields) {
+                Object.assign(self.model.rootParams.activeFields, self.archInfo.activeFields);
+            }
+            if (self.model.root && self.model.root.activeFields) {
+                Object.assign(self.model.root.activeFields, self.archInfo.activeFields);
+            }
             self.ks_update(data);
             self.env.bus.trigger("CLEAR-CACHES");
             this.ks_lvm_data = this.ks_lvm_data ? this.ks_lvm_data : false;
