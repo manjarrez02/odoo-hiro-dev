@@ -5,7 +5,7 @@
     "summary": "Modificación de vista de POS para Comercializadora Hiro",
     "author": "Luis Manjarrez",
     'website': "https://comercializadorahiro.com.mx",
-    "depends": ['base','sale_management','point_of_sale', 'bi_remove_pos_lines', 'x_receipt_extrafields', 'pos_loyalty', 'pos_all_in_one','pos_sale_product_configurator'],
+    "depends": ['base','sale_management','point_of_sale', 'bi_remove_pos_lines', 'x_receipt_extrafields', 'loyalty', 'pos_loyalty', 'pos_all_in_one','pos_sale_product_configurator'],
     "data": [
         "static/src/xml/x_custom_report.xml", 
     ],
