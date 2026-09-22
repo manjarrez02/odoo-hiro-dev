@@ -13,6 +13,11 @@ import { useService } from "@web/core/utils/hooks";
 import ajax from 'web.ajax';
 const framework = require('web.framework');
 import { ListArchParser } from "@web/views/list/list_arch_parser";
+import { Record } from "@web/views/relational_model";
+import { isX2Many } from "@web/views/utils";
+import { serializeDate, serializeDateTime } from "@web/core/l10n/dates";
+import { registry } from "@web/core/registry";
+import { sprintf } from "@web/core/utils/strings";
 const { onWillStart, useState, useRef, onMounted, onWillPatch, onPatched, useExternalListener, onWillUpdateProps, onWillUnmount ,onWillRender } = owl;
 
 
@@ -88,6 +93,19 @@ patch(ListRenderer.prototype, "ks_lvm_renderer", {
             return "";
         }
         return this._super(...arguments);
+    },
+    getCellClass(column, record) {
+        try {
+            return this._super(...arguments);
+        } catch (e) {
+            if (e instanceof TypeError && e.message && e.message.includes("currentIds")) {
+                const classNames = (this.cellClassByColumn && this.cellClassByColumn[column.id])
+                    ? [...this.cellClassByColumn[column.id]]
+                    : ["o_data_cell"];
+                return classNames.join(" ");
+            }
+            throw e;
+        }
     },
      async willStart() {
         var self= this;
@@ -1369,3 +1387,74 @@ ListRenderer.props = [...ListRenderer.props,
     "list_data?",
     "ks_renderer_update?"
 ];
+
+patch(Record.prototype, "ks_lvm_record_current_ids_guard", {
+    get dataContext() {
+        try {
+            return this._super();
+        } catch (e) {
+            if (e instanceof TypeError && e.message && e.message.includes("currentIds")) {
+                const evalContext = { ...this.model.user.context };
+                for (const fieldName in this.activeFields) {
+                    const value = this.data && this.data[fieldName];
+                    if ([null].includes(value)) {
+                        evalContext[fieldName] = false;
+                    } else if (this.fields[fieldName] && isX2Many(this.fields[fieldName])) {
+                        const list = this._cache && this._cache[fieldName];
+                        evalContext[fieldName] = list && list.currentIds ? list.currentIds : [];
+                    } else if (value && this.fields[fieldName] && this.fields[fieldName].type === "date") {
+                        evalContext[fieldName] = serializeDate(value);
+                    } else if (value && this.fields[fieldName] && this.fields[fieldName].type === "datetime") {
+                        evalContext[fieldName] = serializeDateTime(value);
+                    } else if (value && this.fields[fieldName] && this.fields[fieldName].type === "many2one") {
+                        evalContext[fieldName] = value[0];
+                    } else if (value && this.fields[fieldName] && this.fields[fieldName].type === "reference") {
+                        evalContext[fieldName] = `${value.resModel},${value.resId}`;
+                    } else {
+                        evalContext[fieldName] = value;
+                    }
+                }
+                evalContext.id = this.resId || false;
+                if (this.getParentRecordContext) {
+                    evalContext.parent = this.getParentRecordContext();
+                }
+                return evalContext;
+            }
+            throw e;
+        }
+    },
+    isRequired(fieldName) {
+        try {
+            return this._super(...arguments);
+        } catch (e) {
+            if (e instanceof TypeError && e.message && e.message.includes("currentIds")) {
+                return false;
+            }
+            throw e;
+        }
+    },
+});
+
+function ksSafeFormatX2many(value) {
+    if (!value || !value.currentIds) {
+        if (Array.isArray(value)) {
+            const count = value.length;
+            if (count === 0) return _t("No records");
+            if (count === 1) return _t("1 record");
+            return sprintf(_t("%s records"), count);
+        }
+        return _t("No records");
+    }
+    const count = value.currentIds.length;
+    if (count === 0) {
+        return _t("No records");
+    } else if (count === 1) {
+        return _t("1 record");
+    } else {
+        return sprintf(_t("%s records"), count);
+    }
+}
+
+registry.category("formatters").add("one2many", ksSafeFormatX2many, { force: true });
+registry.category("formatters").add("many2many", ksSafeFormatX2many, { force: true });
+
