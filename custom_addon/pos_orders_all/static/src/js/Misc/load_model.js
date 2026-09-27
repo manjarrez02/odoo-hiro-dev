@@ -187,14 +187,12 @@ odoo.define('pos_orders_all.pos', function(require) {
 		}
 
 		remove_orderline(line){
-			var prod = line.product;
+			var prod = line && line.product;
 			if(prod && prod.is_coupon_product){
 				this.set_is_coupon_used(false);
 			}
-			this.assert_editable();
-			this.orderlines.remove(line);
-			this.coupon_id = false;	
-			this.select_orderline(this.get_last_orderline());
+			this.coupon_id = false;
+			return super.remove_orderline(...arguments);
 		}
 
 	}

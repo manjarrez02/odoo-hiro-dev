@@ -18,7 +18,12 @@ class InheritSaleOrderExtra(models.Model):
 				'discount': orderline.discount,
                 'barcode': orderline.product_id.barcode,
 				}
-            discount += (orderline.price_unit * orderline.product_uom_qty * orderline.discount) / 100
+            if orderline.discount:
+                discount += (orderline.price_unit * orderline.product_uom_qty * orderline.discount) / 100
+            if getattr(orderline, 'is_reward_line', False) or getattr(orderline, 'reward_id', False) or (orderline.product_uom_qty > 0 and (orderline.price_subtotal < 0 or orderline.price_unit < 0)):
+                discount += abs(orderline.price_subtotal)
+            elif getattr(orderline, 'is_reward_line', False) and orderline.price_subtotal == 0:
+                discount += (orderline.product_id.lst_price or 0.0) * orderline.product_uom_qty
             orderlines.append(new_vals)
 
         tz = pytz.timezone(self.user_id.tz or 'UTC')

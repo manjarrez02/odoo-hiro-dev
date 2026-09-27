@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_loyalty_check_wizard_form" model="ir.ui.view">
+        <field name="name">sale.order.loyalty.check.wizard.form</field>
+        <field name="model">sale.order.loyalty.check.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Promociones Disponibles">
+                <sheet>
+                    <field name="sale_order_id" invisible="1"/>
+                    <div class="oe_title">
+                        <h2>Promociones pendientes por aplicar</h2>
+                    </div>
+                    <div class="mt16 mb16">
+                        Existen promociones aplicables para los productos de este pedido (ej. paquetes Compra X por $Y).<br/>
+                        ¿Deseas aplicar los beneficios promocionales antes de confirmar el pedido?
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_apply_and_confirm"
+                            string="Aplicar promociones y confirmar"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_confirm_without_apply"
+                            string="Confirmar sin promociones"
+                            type="object"
+                            class="btn-secondary"/>
+                    <button string="Revisar cotización" special="cancel" class="btn-link"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

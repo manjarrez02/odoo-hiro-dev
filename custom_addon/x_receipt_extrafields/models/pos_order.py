@@ -53,7 +53,12 @@ class pos_order(models.Model):
 				'barcode': orderline.product_id.barcode,	
 				}
 				
-			discount += (orderline.price_unit * orderline.qty * orderline.discount) / 100
+			if orderline.discount:
+				discount += (orderline.price_unit * orderline.qty * orderline.discount) / 100
+			if getattr(orderline, 'is_reward_line', False) or getattr(orderline, 'reward_id', False) or (orderline.qty > 0 and (orderline.price_subtotal_incl < 0 or orderline.price_unit < 0)):
+				discount += abs(orderline.price_subtotal_incl)
+			elif getattr(orderline, 'is_reward_line', False) and orderline.price_subtotal_incl == 0:
+				discount += (orderline.product_id.lst_price or 0.0) * orderline.qty
 			orderlines.append(new_vals)
 
 		for payment in self.payment_ids:

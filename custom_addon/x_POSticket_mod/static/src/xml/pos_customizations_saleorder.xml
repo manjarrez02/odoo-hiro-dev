@@ -221,7 +221,8 @@
                     <t t-if = "props.order.display_name">
                         <br/>
                         <b>Folio de orden:</b> <t t-esc = "props.order.display_name"/>
-                        <br/>        
+                        <br/>
+                    </t>
                 </div>
             </xpath>            
 

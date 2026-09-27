@@ -138,70 +138,75 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr t-foreach="doc.order_line" t-as="line">
-                                    <!-- SecciÃ³n -->
-                                    <t t-if="line.display_type == 'line_section'">
-                                        <td colspan="6" style="background-color: #f8f9fa; font-weight: bold; font-size: 13px;">
-                                            <span t-field="line.name"/>
-                                        </td>
+                                <t t-foreach="doc.order_line" t-as="line">
+                                    <t t-if="line.product_id.name == 'Descuento' or line.price_subtotal &lt; 0 or line.price_unit &lt; 0">
+                                        <t t-set="general_discount" t-value="general_discount + abs(line.price_subtotal)"/>
                                     </t>
-                                    <!-- Nota -->
-                                    <t t-elif="line.display_type == 'line_note'">
-                                        <td colspan="6" style="background-color: #f8f9fa; font-size: 13px;">
-                                            <span t-field="line.name"/>
-                                        </td>
-                                    </t>
-                                    <!-- Producto -->
-                                    <t t-else="">
-                                        <!-- IMAGEN (columna ~20% del ancho; imagen alta) -->
-                                        <td style="text-align: center; vertical-align: middle;">
-                                            <t t-if="line.product_id and line.product_id.product_tmpl_id.image_128">
-                                                <img t-att-src="'/web/image/product.template/%s/image_128' % line.product_id.product_tmpl_id.id"
-                                                     style="height: 100px; width: 100px; object-fit: contain;"
-                                                     alt="Imagen del producto"/>
-                                            </t>
-                                        </td>
-                                        <!-- CLAVE -->
-                                        <td style="font-size: 13px;">
-                                            <span t-field="line.product_id.barcode"/>
-                                        </td>
-                                        <!-- CANTIDAD -->
-                                        <td style="text-align: center; font-size: 13px;">
-                                            <span t-field="line.product_uom_qty"/>
-                                        </td>
-                                        <!-- DESCRIPCION (con empaque si existe, con espacio extra) -->
-                                        <td style="font-size: 13px; white-space: normal; overflow-wrap: anywhere;">
-                                            <span t-field="line.name"/>
-                                            <t t-if="line.product_packaging_qty">
-                                                <br/>
-                                                <br/>
-                                                <em style="font-size: 12px;">
-                                                    <span t-esc="'{:g}'.format(line.product_packaging_qty)"/>
-                                                    <t t-esc="' '"/>
-                                                    <span t-field="line.product_packaging_id"/>
-                                                </em>
-                                            </t>
-                                        </td>
-                                        <td style="text-align: right; font-size: 13px;">
-                                            <t t-if="line.discount != 0">
-                                                <t t-set="lines_discount" t-value="lines_discount + (line.price_unit * line.discount / 100 * line.product_uom_qty)"/>
-                                                <!-- Precio Unitario Post-Descuento -->
-                                                <span t-esc="'{0:,.2f}'.format(line.price_unit * (1 - line.discount / 100))"/>
-                                                <br/>
-                                                <!-- Leyenda inferior -->
-                                                <small style="color: #666;"><t t-esc="'{:g}'.format(line.discount)"/>% de desc. incluido</small>
-                                            </t>
-                                            <t t-else="">
-                                                <!-- Precio Unitario Regular sin descuento -->
-                                                <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
-                                            </t>
-                                        </td>
-                                        <!-- IMPORTE -->
-                                        <td style="text-align: right; font-size: 13px;">
-                                            <span t-esc="'{0:,.2f}'.format(line.price_subtotal)"/>
-                                        </td>
-                                    </t>
-                                </tr>
+                                    <tr>
+                                        <!-- Sección -->
+                                        <t t-if="line.display_type == 'line_section'">
+                                            <td colspan="6" style="background-color: #f8f9fa; font-weight: bold; font-size: 13px;">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                        </t>
+                                        <!-- Nota -->
+                                        <t t-elif="line.display_type == 'line_note'">
+                                            <td colspan="6" style="background-color: #f8f9fa; font-size: 13px;">
+                                                <span t-field="line.name"/>
+                                            </td>
+                                        </t>
+                                        <!-- Producto -->
+                                        <t t-else="">
+                                            <!-- IMAGEN (columna ~20% del ancho; imagen alta) -->
+                                            <td style="text-align: center; vertical-align: middle;">
+                                                <t t-if="line.product_id and line.product_id.product_tmpl_id.image_128">
+                                                    <img t-att-src="'/web/image/product.template/%s/image_128' % line.product_id.product_tmpl_id.id"
+                                                         style="height: 100px; width: 100px; object-fit: contain;"
+                                                         alt="Imagen del producto"/>
+                                                </t>
+                                            </td>
+                                            <!-- CLAVE -->
+                                            <td style="font-size: 13px;">
+                                                <span t-field="line.product_id.barcode"/>
+                                            </td>
+                                            <!-- CANTIDAD -->
+                                            <td style="text-align: center; font-size: 13px;">
+                                                <span t-field="line.product_uom_qty"/>
+                                            </td>
+                                            <!-- DESCRIPCION (con empaque si existe, con espacio extra) -->
+                                            <td style="font-size: 13px; white-space: normal; overflow-wrap: anywhere;">
+                                                <span t-field="line.name"/>
+                                                <t t-if="line.product_packaging_qty">
+                                                    <br/>
+                                                    <br/>
+                                                    <em style="font-size: 12px;">
+                                                        <span t-esc="'{:g}'.format(line.product_packaging_qty)"/>
+                                                        <t t-esc="' '"/>
+                                                        <span t-field="line.product_packaging_id"/>
+                                                    </em>
+                                                </t>
+                                            </td>
+                                            <td style="text-align: right; font-size: 13px;">
+                                                <t t-if="line.discount != 0">
+                                                    <t t-set="lines_discount" t-value="lines_discount + (line.price_unit * line.discount / 100 * line.product_uom_qty)"/>
+                                                    <!-- Precio Unitario Post-Descuento -->
+                                                    <span t-esc="'{0:,.2f}'.format(line.price_unit * (1 - line.discount / 100))"/>
+                                                    <br/>
+                                                    <!-- Leyenda inferior -->
+                                                    <small style="color: #666;"><t t-esc="'{:g}'.format(line.discount)"/>% de desc. incluido</small>
+                                                </t>
+                                                <t t-else="">
+                                                    <!-- Precio Unitario Regular sin descuento -->
+                                                    <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
+                                                </t>
+                                            </td>
+                                            <!-- IMPORTE -->
+                                            <td style="text-align: right; font-size: 13px;">
+                                                <span t-esc="'{0:,.2f}'.format(line.price_subtotal)"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </t>
                             </tbody>
                         </table>
 
@@ -210,20 +215,6 @@
                         <div class="row mt-3 justify-content-end">
                             <div class="col-3">
                                 <table class="table table-sm table-borderless" style="width: 100%;">
-                                    <t t-if="general_discount">
-                                        <tr>
-                                            <td class="text-right" style="font-size: 15px;"><strong>Subtotal:</strong></td>
-                                            <td class="text-right" style="font-size: 15px;">
-                                                $ <span t-esc="'{0:,.2f}'.format(doc.amount_total + general_discount)"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-right" style="font-size: 15px;"><strong>Descuento:</strong></td>
-                                            <td class="text-right" style="font-size: 15px;">
-                                                $ <span t-esc="'{0:,.2f}'.format(-general_discount)"/>
-                                            </td>
-                                        </tr>
-                                    </t>
                                     <tr class="border-top">
                                         <td class="text-right" style="font-size: 16px;"><strong>Total:</strong></td>
                                         <td class="text-right" style="font-size: 16px;">

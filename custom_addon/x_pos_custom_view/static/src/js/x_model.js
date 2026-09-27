@@ -153,6 +153,9 @@ odoo.define('my_pos_extension.custom_pos', function (require) {
                 });
                 receipt.potential_savings = potentialSavings;
             }
+            if (this.get_total_discount) {
+                receipt.total_discount = this.get_total_discount();
+            }
             return receipt;
         }
     };

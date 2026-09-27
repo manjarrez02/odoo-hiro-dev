@@ -73,6 +73,7 @@ class InheritSaleOrder(models.Model):
 
 	def print_sale_order_receipt(self):
 		orderlines = []
+		discount = 0
 
 		for orderline in self.order_line:
 			new_vals = {
@@ -81,13 +82,21 @@ class InheritSaleOrder(models.Model):
 				'price_subtotal' : orderline.price_subtotal,
 				'qty': orderline.product_uom_qty,
 				'price_unit': orderline.price_unit,
+				'discount': orderline.discount,
 				}
+			if orderline.discount:
+				discount += (orderline.price_unit * orderline.product_uom_qty * orderline.discount) / 100
+			if getattr(orderline, 'is_reward_line', False) or getattr(orderline, 'reward_id', False) or (orderline.product_uom_qty > 0 and (orderline.price_subtotal < 0 or orderline.price_unit < 0)):
+				discount += abs(orderline.price_subtotal)
+			elif getattr(orderline, 'is_reward_line', False) and orderline.price_subtotal == 0:
+				discount += (orderline.product_id.lst_price or 0.0) * orderline.product_uom_qty
 				
 			orderlines.append(new_vals)
 
 		tz = pytz.timezone(self.user_id.tz or 'UTC')
 		
 		vals = {
+			'discount': discount,
 			'orderlines': orderlines,
 			'subtotal': self.amount_total - self.amount_tax,
 			'user_name' : self.user_id.name,

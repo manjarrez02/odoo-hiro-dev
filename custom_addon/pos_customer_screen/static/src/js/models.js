@@ -91,8 +91,14 @@ odoo.define('pos_customer_screen.models', function (require) {
             } else {
                 this.add_new_order();
             }
-            if(this.config.pos_customer_display){
+            if(this.config.customer_display || this.config.pos_customer_display){
                 this.get_order().mirror_image_data();
+            }
+        }
+        set_order(order, options) {
+            super.set_order(...arguments);
+            if ((this.config.customer_display || this.config.pos_customer_display) && order && typeof order.mirror_image_data === 'function') {
+                order.mirror_image_data();
             }
         }
     }
@@ -105,14 +111,62 @@ odoo.define('pos_customer_screen.models', function (require) {
             this.sign = this.sign || null;
             this.raw_sign = this.raw_sign || null;
             this.rating = this.rating || '0';
+            this._mirrorTimeout = null;
         }
         async add_product(product, options){
             await super.add_product(...arguments);
-            if(this.pos.config.customer_display){
+            if(this.pos && this.pos.config && this.pos.config.customer_display){
                 this.mirror_image_data();
             }
         }
+        remove_orderline(line) {
+            super.remove_orderline(...arguments);
+            if(this.pos && this.pos.config && this.pos.config.customer_display){
+                this.mirror_image_data();
+            }
+        }
+        _applyReward(reward, coupon_id, args) {
+            const res = super._applyReward ? super._applyReward(...arguments) : undefined;
+            if (this.pos && this.pos.config && this.pos.config.customer_display) {
+                this.mirror_image_data();
+            }
+            return res;
+        }
+        _updateRewardLines() {
+            const res = super._updateRewardLines ? super._updateRewardLines(...arguments) : undefined;
+            if (this.pos && this.pos.config && this.pos.config.customer_display) {
+                this.mirror_image_data();
+            }
+            return res;
+        }
+        destroy_and_upload_as_lost() {
+            if (this._mirrorTimeout) {
+                clearTimeout(this._mirrorTimeout);
+                this._mirrorTimeout = null;
+            }
+            return super.destroy_and_upload_as_lost ? super.destroy_and_upload_as_lost(...arguments) : undefined;
+        }
         mirror_image_data(neworder){
+            if (!this.pos || !this.pos.config || !this.pos.config.customer_display) {
+                return;
+            }
+            if (neworder) {
+                if (this._mirrorTimeout) {
+                    clearTimeout(this._mirrorTimeout);
+                    this._mirrorTimeout = null;
+                }
+                this._send_mirror_image_data(true);
+                return;
+            }
+            if (this._mirrorTimeout) {
+                clearTimeout(this._mirrorTimeout);
+            }
+            this._mirrorTimeout = setTimeout(() => {
+                this._mirrorTimeout = null;
+                this._send_mirror_image_data(false);
+            }, 60);
+        }
+        _send_mirror_image_data(neworder){
             var client_name = false;
             var order_total = this.get_total_with_tax();
             var change_amount = this.get_change();
@@ -131,6 +185,7 @@ odoo.define('pos_customer_screen.models', function (require) {
                 let line_data = item.export_as_JSON();
                 line_data.uom_name = item.get_unit() ? item.get_unit().name : (item.product && item.product.uom_id ? item.product.uom_id[1] : '');
                 line_data.lst_price = item.product ? item.product.lst_price : item.price;
+                line_data.is_reward_line = Boolean(item.is_reward_line);
                 orderLines.push(line_data);
             }
             if(this.get_partner()){
@@ -155,7 +210,6 @@ odoo.define('pos_customer_screen.models', function (require) {
             if(neworder){
                 vals['new_order'] = true;
             }
-            console.log("Toca hacer broadcast en customer screen");
             rpc.query({
                 model: 'customer.display',
                 method: 'broadcast_data',

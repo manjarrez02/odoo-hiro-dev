@@ -11,10 +11,10 @@ class SaleOrderFamilyUpdateWizard(models.TransientModel):
         self.ensure_one()
         order = self.sale_order_id
         order.action_recompute_family_prices()
-        return super(type(order), order).action_confirm()
+        return order.with_context(skip_loyalty_update=True).action_confirm()
 
     def action_confirm_without_apply(self):
         self.ensure_one()
         order = self.sale_order_id
         order.action_clear_pending_family_updates()
-        return super(type(order), order).action_confirm()
+        return order.with_context(skip_loyalty_update=True).action_confirm()

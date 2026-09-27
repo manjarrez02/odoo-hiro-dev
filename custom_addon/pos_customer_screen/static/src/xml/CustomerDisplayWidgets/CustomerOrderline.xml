@@ -9,7 +9,7 @@
             <span class="price">
                 <t t-esc="env.pos.format_currency(props.line.price_subtotal_incl)"/>
             </span>
-            <ul class="info-list">
+            <ul class="info-list" t-if="!props.line.is_reward_line and props.line.price_subtotal_incl &gt;= 0">
                 <li class="info">
                     <em>
                         <t t-esc="props.line.qty"/>

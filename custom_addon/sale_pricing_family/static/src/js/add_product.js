@@ -29,7 +29,7 @@ odoo.define('sale_pricing_family.add_product', function (require) {
                 return;
             }
 
-            if (this._printed) {
+            if (this.finalized || this._printed) {
                 this.pos.removeOrder(this);
                 return this.pos.add_new_order().add_product(product, options);
             }

@@ -117,76 +117,73 @@
                                     </span>
                                 </t>
                                 <t t-else="">
+                                    <!-- Acumular descuento general si la línea es de descuento o promoción -->
+                                    <t t-if="line.product_id.name == 'Descuento' or line.price_subtotal &lt; 0 or line.price_unit &lt; 0">
+                                        <t t-set="general_discount"
+                                           t-value="general_discount + abs(line.price_subtotal)"/>
+                                    </t>
+
                                     <!-- Obtener empaque calculado en Python -->
                                     <t t-set="info" t-value="packaging_info.get(line.id, {})"/>
                                     <t t-set="best_pkg" t-value="info.get('best_pkg', False)"/>
                                     <t t-set="best_count" t-value="info.get('best_count', 0)"/>
 
-                                    <t t-if="line.price_unit != 0">
-                                        <!-- Primera fila: CLAVE / DESCRIPCIÓN -->
-                                        <table class="product-first-row"
-                                               style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
+                                    <!-- Primera fila: CLAVE / DESCRIPCIÓN -->
+                                    <table class="product-first-row"
+                                           style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden;">
+                                        <tr>
+                                            <th style="width: 30%; padding: 1px; font-size: 12px; border: none;"
+                                                t-field="line.product_id.barcode">
+                                            </th>
+                                            <th style="width: auto; padding: 1px; font-size: 12px; border: none; white-space: normal; overflow-wrap: anywhere"
+                                                t-field="line.name">
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Segunda fila: CANTIDAD / P.U. / IMPORTE -->
+                                    <table class="product-second-row"
+                                           style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px;">
+                                        <tr>
+                                            <th style="width: 25%; padding: 1px; font-size: 12px; border: none;"
+                                                t-field="line.quantity">
+                                            </th>
+                                            <th style="width: 25%; padding: 1px; font-size: 12px; text-align: left; border: none;">
+                                                <t t-if="line.discount != 0">
+                                                    <t t-set="lines_discount"
+                                                       t-value="lines_discount + (line.price_unit * line.discount / 100 * line.quantity)"/>
+                                                    Desct: <span t-field="line.discount"/>%
+                                                </t>
+                                            </th>
+                                            <th style="width: 25%; padding: 1px; font-size: 12px; text-align: right; border: none;">
+                                                <t t-if="line.discount != 0">
+                                                    <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
+                                                    &gt;
+                                                    <t t-esc="'{0:,.2f}'.format(line.price_unit * (100 - line.discount) / 100)"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
+                                                </t>
+                                            </th>
+                                            <th style="width: 25%; padding: 1px; font-size: 12px; text-align: right; border: none;">
+                                                <span t-esc="'{0:,.2f}'.format(line.price_subtotal)"/>
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                    <!-- Tercera fila: empaque (solo si hay best_pkg) -->
+                                    <t t-if="best_pkg">
+                                        <table class="product-third-row"
+                                               style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; font-style:italic;">
                                             <tr>
-                                                <th style="width: 30%; padding: 1px; font-size: 12px; border: none;"
-                                                    t-field="line.product_id.barcode">
+                                                <th style="width:20%; padding:1px; font-size:12px; text-align:right; border: none;">
+                                                    <span t-esc="best_count"/>
                                                 </th>
-                                                <th style="width: auto; padding: 1px; font-size: 12px; border: none; white-space: normal; overflow-wrap: anywhere"
-                                                    t-field="line.name">
+                                                <th style="width:80%; padding:1px; font-size:12px; text-align:left; border: none;" colspan="3">
+                                                    <span t-esc="best_pkg.name or best_pkg.display_name"/>
                                                 </th>
                                             </tr>
                                         </table>
-
-                                        <!-- Segunda fila: CANTIDAD / P.U. / IMPORTE -->
-                                        <table class="product-second-row"
-                                               style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px;">
-                                            <tr>
-                                                <th style="width: 25%; padding: 1px; font-size: 12px; border: none;"
-                                                    t-field="line.quantity">
-                                                </th>
-                                                <th style="width: 25%; padding: 1px; font-size: 12px; text-align: left; border: none;">
-                                                    <t t-if="line.discount != 0">
-                                                        <t t-set="lines_discount"
-                                                           t-value="lines_discount + (line.price_unit * line.discount / 100 * line.quantity)"/>
-                                                        Desct: <span t-field="line.discount"/>%
-                                                    </t>
-                                                </th>
-                                                <th style="width: 25%; padding: 1px; font-size: 12px; text-align: right; border: none;">
-                                                    <t t-if="line.discount != 0">
-                                                        <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
-                                                        &gt;
-                                                        <t t-esc="'{0:,.2f}'.format(line.price_unit * (100 - line.discount) / 100)"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        <span t-esc="'{0:,.2f}'.format(line.price_unit)"/>
-                                                    </t>
-                                                </th>
-                                                <th style="width: 25%; padding: 1px; font-size: 12px; text-align: right; border: none;">
-                                                    <span t-esc="'{0:,.2f}'.format(line.price_subtotal)"/>
-                                                </th>
-                                            </tr>
-                                        </table>
-
-                                        <!-- Tercera fila: empaque (solo si hay best_pkg) -->
-                                        <t t-if="best_pkg">
-                                            <table class="product-third-row"
-                                                   style="width: 100%; text-align: left; border-collapse: collapse; border-style: hidden; margin-top:0px; font-style:italic;">
-                                                <tr>
-                                                    <th style="width:20%; padding:1px; font-size:12px; text-align:right; border: none;">
-                                                        <span t-esc="best_count"/>
-                                                    </th>
-                                                    <th style="width:80%; padding:1px; font-size:12px; text-align:left; border: none;" colspan="3">
-                                                        <span t-esc="best_pkg.name or best_pkg.display_name"/>
-                                                    </th>
-                                                </tr>
-                                            </table>
-                                        </t>
-                                    </t>
-
-                                    <t t-else="">
-                                        <t t-if="line.product_id.name == 'Descuento'">
-                                            <t t-set="general_discount"
-                                               t-value="general_discount + (line.price_subtotal * (-1))"/>
-                                        </t>
                                     </t>
                                 </t>
 
@@ -203,20 +200,6 @@
                                 </svg>
                             </div>
 
-                            <t t-if="general_discount">
-                                <div style="display: inline-block; width: 59%; text-align: right; font-size: 14px;">
-                                    SUBTOTAL
-                                </div>
-                                <div style="display: inline-block; width: 39%; text-align: right; font-size: 14px;">
-                                    $ <span t-esc="'{0:,.2f}'.format(doc.amount_total + general_discount)"/>
-                                </div>
-                                <div style="display: inline-block; width: 59%; text-align: right; font-size: 14px;">
-                                    DESCUENTO
-                                </div>
-                                <div style="display: inline-block; width: 39%; text-align: right; font-size: 14px;">
-                                    $ <span t-esc="'{0:,.2f}'.format(-general_discount)"/>
-                                </div>
-                            </t>
 
                             <div style="display: inline-block; width: 59%; text-align: right; font-size: 14px;">
                                 TOTAL

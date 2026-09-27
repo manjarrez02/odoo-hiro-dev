@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Formulario del Asistente de Auditoría de Conflictos -->
+    <record id="loyalty_program_conflict_wizard_view_form" model="ir.ui.view">
+        <field name="name">loyalty.program.conflict.wizard.view.form</field>
+        <field name="model">loyalty.program.conflict.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Auditor Preventivo de Conflictos de Promociones">
+                <div class="alert alert-info text-center" role="alert" attrs="{'invisible': [('critical_conflicts', '&gt;', 0)]}">
+                    <field name="status_message" readonly="1" class="fw-bold fs-5"/>
+                </div>
+                <div class="alert alert-danger text-center" role="alert" attrs="{'invisible': [('critical_conflicts', '=', 0)]}">
+                    <field name="status_message" readonly="1" class="fw-bold fs-5"/>
+                </div>
+
+                <div class="row text-center mb-3">
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0 shadow-sm p-2">
+                            <span class="text-muted small">Programas Auditados</span>
+                            <span class="fs-4 fw-bold text-dark"><field name="total_programs_audited" readonly="1"/></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0 shadow-sm p-2">
+                            <span class="text-muted small">Conflictos Totales</span>
+                            <span class="fs-4 fw-bold text-dark"><field name="total_conflicts" readonly="1"/></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0 shadow-sm p-2">
+                            <span class="text-danger small fw-bold">Colisiones Críticas</span>
+                            <span class="fs-4 fw-bold text-danger"><field name="critical_conflicts" readonly="1"/></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0 shadow-sm p-2">
+                            <span class="text-warning small fw-bold">Advertencias</span>
+                            <span class="fs-4 fw-bold text-warning"><field name="warning_conflicts" readonly="1"/></span>
+                        </div>
+                    </div>
+                </div>
+
+                <group>
+                    <group>
+                        <field name="program_id" placeholder="Todos los programas activos..." options="{'no_create': True}"/>
+                    </group>
+                    <group>
+                        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                    </group>
+                </group>
+
+                <notebook>
+                    <page string="Conflictos Identificados" name="conflicts">
+                        <field name="conflict_line_ids" readonly="1">
+                            <tree decoration-danger="severity == 'danger'" decoration-warning="severity == 'warning'" decoration-info="severity == 'info'">
+                                <field name="severity" widget="badge" decoration-danger="severity == 'danger'" decoration-warning="severity == 'warning'" decoration-info="severity == 'info'"/>
+                                <field name="conflict_type"/>
+                                <field name="program_id"/>
+                                <field name="conflict_program_id"/>
+                                <field name="products_summary"/>
+                                <field name="description"/>
+                                <button name="action_open_program_a" type="object" icon="fa-pencil" title="Editar Programa A"/>
+                                <button name="action_open_program_b" type="object" icon="fa-pencil" title="Editar Programa B" attrs="{'invisible': [('conflict_program_id', '=', False)]}"/>
+                                <button name="action_make_exclusive_a" type="object" icon="fa-shield" title="Marcar Programa A como Exclusivo" attrs="{'invisible': ['|', ('severity', '=', 'info'), ('conflict_type', '=', 'below_cost')]}"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+
+                <footer>
+                    <button name="action_scan_conflicts" string="Re-Escanear Catálogo" type="object" class="btn-primary" icon="fa-refresh"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción de Ventana para el Asistente -->
+    <record id="action_loyalty_program_conflict_wizard" model="ir.actions.act_window">
+        <field name="name">Auditor de Conflictos de Promociones</field>
+        <field name="res_model">loyalty.program.conflict.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menú en Ventas / Catálogo -->
+    <menuitem
+        id="menu_loyalty_program_conflict_auditor"
+        name="Auditor de Conflictos de Promoción"
+        action="action_loyalty_program_conflict_wizard"
+        parent="sale.product_menu_catalog"
+        groups="sales_team.group_sale_manager"
+        sequence="45"
+    />
+
+    <!-- Menú en Punto de Venta / Productos -->
+    <menuitem
+        id="menu_pos_loyalty_program_conflict_auditor"
+        name="Auditor de Conflictos de Promoción"
+        action="action_loyalty_program_conflict_wizard"
+        parent="point_of_sale.menu_point_config_product"
+        groups="point_of_sale.group_pos_manager"
+        sequence="45"
+    />
+</odoo>

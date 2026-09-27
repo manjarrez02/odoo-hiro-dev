@@ -24,8 +24,8 @@ odoo.define('x_pos_custom_view.x_add_product', function (require) {
 				});
 				return;
 			}
-			if(this._printed){
-				// when adding product with a barcode while being in receipt screen
+			if (this.finalized || this._printed) {
+				// when adding product while being in receipt screen or order is finalized/paid
 				this.pos.removeOrder(this);
 				return this.pos.add_new_order().add_product(product, options);
 			}

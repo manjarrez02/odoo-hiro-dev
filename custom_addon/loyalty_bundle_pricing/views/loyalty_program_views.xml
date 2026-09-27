@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="loyalty_program_view_form_inherit_bundle" model="ir.ui.view">
+        <field name="name">loyalty.program.view.form.inherit.bundle</field>
+        <field name="model">loyalty.program</field>
+        <field name="inherit_id" ref="loyalty.loyalty_program_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_conflict_wizard" string="Auditar Conflictos y Márgenes" type="object" class="btn-secondary" icon="fa-shield"/>
+            </xpath>
+            <xpath expr="//field[@name='date_to']" position="after">
+                <field name="pricelist_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Todas las tarifas..."/>
+                <field name="is_exclusive" widget="boolean_toggle"/>
+                <field name="sequence" string="Prioridad de Evaluación"/>
+                <separator string="Protección Financiera de Margen y Costos (Preventiva)" colspan="2"/>
+                <field name="prevent_below_cost" widget="boolean_toggle"/>
+                <field name="min_margin_pc" attrs="{'invisible': [('prevent_below_cost', '=', False)]}"/>
+                <field name="allow_loss_leader" widget="boolean_toggle"/>
+                <field name="loss_leader_reason" attrs="{'invisible': [('allow_loss_leader', '=', False)], 'required': [('allow_loss_leader', '=', True)]}" placeholder="Indique la justificación comercial para autorizar la venta a pérdida (ej. Producto Gancho, Liquidación)..."/>
+                <field name="loss_leader_approval_user_id" options="{'no_create': True}" attrs="{'invisible': [('allow_loss_leader', '=', False)], 'required': [('allow_loss_leader', '=', True)]}"/>
+            </xpath>
+            <xpath expr="//p[@attrs=&quot;{'invisible': [('program_type', '!=', 'promotion')]}&quot;]" position="after">
+                <p class="text-muted" attrs="{'invisible': [('program_type', '!=', 'bundle_pricing')]}" colspan="2">
+                    Configura ventas por paquetes cerrados (ej. 3 piezas por $50, 6 por $100) o promociones con unidades bonificadas (ej. 3x2, 2x1). Las unidades sueltas que no completen un paquete se cobran a su tarifa de lista habitual.
+                </p>
+            </xpath>
+        </field>
+    </record>
+</odoo>

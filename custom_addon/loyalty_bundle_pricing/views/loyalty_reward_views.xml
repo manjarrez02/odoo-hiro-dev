@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="loyalty_reward_view_form_inherit_bundle" model="ir.ui.view">
+        <field name="name">loyalty.reward.view.form.inherit.bundle</field>
+        <field name="model">loyalty.reward</field>
+        <field name="inherit_id" ref="loyalty.loyalty_reward_view_form"/>
+        <field name="arch" type="xml">
+            <!-- 1. En la columna izquierda, cuando es 'per_block', colocamos la configuración de la promoción -->
+            <xpath expr="//field[@name='discount_applicability']" position="after">
+                <field name="bundle_pricing_mode" widget="radio" attrs="{'invisible': [('discount_mode', '!=', 'per_block')], 'required': [('discount_mode', '=', 'per_block')]}"/>
+                <field name="bundle_qty" string="Unidades por Bloque" attrs="{'invisible': [('discount_mode', '!=', 'per_block')], 'required': [('discount_mode', '=', 'per_block')]}"/>
+                <field name="bundle_price" attrs="{'invisible': ['|', ('discount_mode', '!=', 'per_block'), ('bundle_pricing_mode', '!=', 'target_price')], 'required': [('discount_mode', '=', 'per_block'), ('bundle_pricing_mode', '=', 'target_price')]}"/>
+                <field name="free_qty" string="Unidades Bonificadas / Gratis" attrs="{'invisible': ['|', ('discount_mode', '!=', 'per_block'), ('bundle_pricing_mode', 'not in', ('free_units', 'cross_product_free'))], 'required': [('discount_mode', '=', 'per_block'), ('bundle_pricing_mode', 'in', ('free_units', 'cross_product_free'))]}"/>
+                
+                <!-- PRODUCTO Y / Bonificado: Requerido en Compra X Recibe Y, y opcional en Unidades Bonificadas (toma por defecto Reglas Condicionales) -->
+                <field name="discount_product_ids" string="Producto(s) Bonificado(s) / Regalo (Y)" widget="many2many_tags" 
+                       attrs="{'invisible': ['|', ('discount_mode', '!=', 'per_block'), ('bundle_pricing_mode', 'not in', ('free_units', 'cross_product_free'))], 'required': [('discount_mode', '=', 'per_block'), ('bundle_pricing_mode', '=', 'cross_product_free')]}" 
+                       placeholder="En Compra X Recibe Y: Seleccione Y. En 2x1/3x2: Opcional (por defecto toma los productos de las Reglas Condicionales)..."/>
+                
+                <field name="prevent_below_cost" widget="boolean_toggle"/>
+                <field name="min_margin_pc" attrs="{'invisible': [('prevent_below_cost', '=', False)]}"/>
+            </xpath>
+
+            <!-- 2. Ocultar el grupo nativo de descuento de la derecha cuando es 'per_block' para evitar colisiones y campos duplicados -->
+            <xpath expr="//field[@name='discount_max_amount']/parent::group" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', ('reward_type', '!=', 'discount'), ('discount_mode', '=', 'per_block')]}</attribute>
+            </xpath>
+
+            <!-- 3. Ajuste de visibilidad de puntos en modo debug -->
+            <xpath expr="//field[@name='required_points']/parent::div/parent::group/parent::group" position="attributes">
+                <attribute name="attrs">{'invisible': [('user_has_debug', '=', False), ('program_type', 'not in', ('loyalty', 'buy_x_get_y', 'bundle_pricing'))]}</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
