@@ -3,6 +3,7 @@ from collections import defaultdict
 import random
 from odoo import _, api, fields, models
 from odoo.fields import Command
+from odoo.osv import expression
 from odoo.tools.float_utils import float_is_zero
 
 def _generate_random_reward_code():
@@ -200,11 +201,23 @@ class SaleOrder(models.Model):
         if not order_lines:
             return False
 
-        programs = self.env['loyalty.program'].search([
-            ('trigger', '=', 'auto'),
-            ('active', '=', True),
-            ('applies_on', 'in', ('current', 'both')),
-        ], order='sequence asc, id asc')
+        program_domain = self._get_program_domain()
+        domain = expression.AND([
+            program_domain,
+            [
+                ('trigger', '=', 'auto'),
+                ('rule_ids.mode', '=', 'auto'),
+                ('applies_on', 'in', ('current', 'both')),
+            ]
+        ])
+        programs = self.env['loyalty.program'].search(domain, order='sequence asc, id asc')
+        programs = programs.filtered(
+            lambda p: not p.limit_usage or p.total_order_count < p.max_usage
+        )
+        today = fields.Date.context_today(self)
+        programs = programs.filtered(
+            lambda p: not getattr(p, 'date_from', False) or p.date_from <= today
+        )
         if self.pricelist_id:
             programs = programs.filtered(
                 lambda p: not p.pricelist_ids or self.pricelist_id in p.pricelist_ids

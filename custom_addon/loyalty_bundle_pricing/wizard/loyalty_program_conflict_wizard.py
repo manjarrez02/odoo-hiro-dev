@@ -143,6 +143,11 @@ class LoyaltyProgramConflictWizard(models.TransientModel):
             if (p1.date_to and p1.date_to < today) or (p2.date_to and p2.date_to < today):
                 continue
 
+            # Filtro de programas con límite de usos ya alcanzado
+            if (p1.limit_usage and p1.total_order_count >= p1.max_usage) or \
+               (p2.limit_usage and p2.total_order_count >= p2.max_usage):
+                continue
+
             p1_from = getattr(p1, 'date_from', False)
             p2_from = getattr(p2, 'date_from', False)
             if (p1.date_to and p2_from and p1.date_to < p2_from) or \

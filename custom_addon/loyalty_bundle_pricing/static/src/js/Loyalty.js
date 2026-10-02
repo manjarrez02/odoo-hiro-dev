@@ -488,6 +488,10 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
             const res = super.pointsForPrograms(...arguments);
             for (const program of (programs || [])) {
                 if (!program) continue;
+                if (typeof this._programIsApplicable === 'function' && !this._programIsApplicable(program)) {
+                    res[program.id] = [];
+                    continue;
+                }
                 const crossReward = (program.rewards || []).find(r => this._isCrossProductFree(r));
                 if (crossReward) {
                     const ctx = this._getCrossProductFreeContext(crossReward);
@@ -538,9 +542,12 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
             this._purgeOrphanRewardLines();
             for (const line of rewardLines) {
                 const reward = this.pos.reward_by_id[line.reward_id];
-                if (!reward) {
+                if (!reward || (reward.program_id && typeof this._programIsApplicable === 'function' && !this._programIsApplicable(reward.program_id))) {
                     this.orderlines.remove(line);
                     removedAny = true;
+                    if (this.couponPointChanges && this.couponPointChanges[line.coupon_id]) {
+                        delete this.couponPointChanges[line.coupon_id];
+                    }
                     continue;
                 }
                 if (this._isCrossProductFree(reward)) {
@@ -823,6 +830,10 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
 
             return res.filter(({ reward }) => {
                 if (!reward) return true;
+                const program = reward.program_id;
+                if (program && typeof this._programIsApplicable === 'function' && !this._programIsApplicable(program)) {
+                    return false;
+                }
 
                 // Si la recompensa por bloque o cruzada ya está aplicada en la orden, no debe volver a reclamarse.
                 // La línea existente ya recalcula automáticamente el monto total con las nuevas unidades.
