@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Loyalty Bundle Pricing (Compra X por $Y)',
-    'version': '16.0.1.0.0',
+    'version': '16.0.1.1.0',
     'category': 'Sales/Point of Sale',
     'summary': 'Promociones por paquetes cerrados y múltiplos (ej. 3 por $50) en Ventas y TPV con soporte de listas de precios',
     'description': """

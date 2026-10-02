@@ -15,7 +15,7 @@ class PosSession(models.Model):
     def _loader_params_loyalty_reward(self):
         res = super()._loader_params_loyalty_reward()
         fields = res.get('search_params', {}).get('fields', [])
-        for f in ['bundle_qty', 'bundle_price', 'bundle_pricing_mode', 'free_qty', 'trigger_product_ids', 'discount_product_ids', 'prevent_below_cost', 'min_margin_pc']:
+        for f in ['bundle_qty', 'bundle_price', 'bundle_pricing_mode', 'bundle_grouping_mode', 'free_qty', 'trigger_product_ids', 'discount_product_ids', 'prevent_below_cost', 'min_margin_pc']:
             if f not in fields:
                 fields.append(f)
         return res

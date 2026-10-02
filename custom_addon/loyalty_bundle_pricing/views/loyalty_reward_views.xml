@@ -9,6 +9,7 @@
             <xpath expr="//field[@name='discount_applicability']" position="after">
                 <field name="bundle_pricing_mode" widget="radio" attrs="{'invisible': [('discount_mode', '!=', 'per_block')], 'required': [('discount_mode', '=', 'per_block')]}"/>
                 <field name="bundle_qty" string="Unidades por Bloque" attrs="{'invisible': [('discount_mode', '!=', 'per_block')], 'required': [('discount_mode', '=', 'per_block')]}"/>
+                <field name="bundle_grouping_mode" widget="radio" attrs="{'invisible': ['|', ('discount_mode', '!=', 'per_block'), ('bundle_pricing_mode', '=', 'cross_product_free')], 'required': [('discount_mode', '=', 'per_block'), ('bundle_pricing_mode', '!=', 'cross_product_free')]}"/>
                 <field name="bundle_price" attrs="{'invisible': ['|', ('discount_mode', '!=', 'per_block'), ('bundle_pricing_mode', '!=', 'target_price')], 'required': [('discount_mode', '=', 'per_block'), ('bundle_pricing_mode', '=', 'target_price')]}"/>
                 <field name="free_qty" string="Unidades Bonificadas / Gratis" attrs="{'invisible': ['|', ('discount_mode', '!=', 'per_block'), ('bundle_pricing_mode', 'not in', ('free_units', 'cross_product_free'))], 'required': [('discount_mode', '=', 'per_block'), ('bundle_pricing_mode', 'in', ('free_units', 'cross_product_free'))]}"/>
                 
@@ -21,12 +22,35 @@
                 <field name="min_margin_pc" attrs="{'invisible': [('prevent_below_cost', '=', False)]}"/>
             </xpath>
 
-            <!-- 2. Ocultar el grupo nativo de descuento de la derecha cuando es 'per_block' para evitar colisiones y campos duplicados -->
+            <!-- 2. Ocultar el input numérico de descuento si es 'per_block' y la modalidad no requiere captura de descuento fijo -->
+            <xpath expr="//field[@name='discount']" position="attributes">
+                <attribute name="attrs">{'invisible': [('discount_mode', '=', 'per_block'), ('bundle_pricing_mode', '!=', 'fixed_discount')]}</attribute>
+            </xpath>
+
+            <!-- 3. Ocultar el texto 'on' junto al modo de descuento cuando es 'per_block' -->
+            <xpath expr="//div[hasclass('d-flex')]/span" position="attributes">
+                <attribute name="attrs">{'invisible': [('discount_mode', '=', 'per_block')]}</attribute>
+            </xpath>
+
+            <!-- 4. Ocultar aplicabilidad ('En la orden', 'En productos específicos') cuando es 'per_block' (siempre es específica) -->
+            <xpath expr="//label[@for='discount_applicability']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', ('reward_type', '!=', 'discount'), ('discount_mode', '=', 'per_block')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='discount_applicability']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', ('reward_type', '!=', 'discount'), ('discount_mode', '=', 'per_block')]}</attribute>
+            </xpath>
+
+            <!-- 5. Ocultar el grupo nativo de descuento de la derecha cuando es 'per_block' para evitar colisiones y campos duplicados -->
             <xpath expr="//field[@name='discount_max_amount']/parent::group" position="attributes">
                 <attribute name="attrs">{'invisible': ['|', ('reward_type', '!=', 'discount'), ('discount_mode', '=', 'per_block')]}</attribute>
             </xpath>
 
-            <!-- 3. Ajuste de visibilidad de puntos en modo debug -->
+            <!-- 6. Ocultar permanentemente el producto auxiliar técnico 'discount_line_product_id' -->
+            <xpath expr="//field[@name='discount_line_product_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- 7. Ajuste de visibilidad de puntos en modo debug -->
             <xpath expr="//field[@name='required_points']/parent::div/parent::group/parent::group" position="attributes">
                 <attribute name="attrs">{'invisible': [('user_has_debug', '=', False), ('program_type', 'not in', ('loyalty', 'buy_x_get_y', 'bundle_pricing'))]}</attribute>
             </xpath>

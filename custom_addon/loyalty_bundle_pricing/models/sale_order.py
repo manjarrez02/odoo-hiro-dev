@@ -64,6 +64,131 @@ class SaleOrder(models.Model):
                 products |= reward.discount_product_ids
         return products
 
+    def _get_bundle_pricing_matching_lines(self, reward, lines=None):
+        self.ensure_one()
+        order_lines = lines if lines is not None else self.order_line
+        valid_lines = order_lines.filtered(
+            lambda l: not l.is_reward_line and l.product_uom_qty > 0 and l.product_id
+        )
+        if not valid_lines:
+            return self.env['sale.order.line']
+
+        reward_domain = reward._get_discount_product_domain()
+        if reward_domain:
+            return valid_lines.filtered(lambda l: l.product_id.filtered_domain(reward_domain))
+
+        qualifying_prods = reward.discount_product_ids or reward.all_discount_product_ids or reward.program_id.rule_ids.mapped('product_ids')
+        if qualifying_prods:
+            return valid_lines.filtered(lambda l: l.product_id in qualifying_prods)
+
+        rule_cats = reward.discount_product_category_id or reward.program_id.rule_ids.mapped('product_category_id')
+        if rule_cats:
+            return valid_lines.filtered(lambda l: any(l.product_id.categ_id.id == c.id or (l.product_id.categ_id.parent_path and f"/{c.id}/" in l.product_id.categ_id.parent_path) for c in rule_cats))
+
+        if reward.discount_applicability == 'specific':
+            return self.env['sale.order.line']
+
+        return valid_lines
+
+    def _calculate_bundle_reward_context(self, reward, lines=None):
+        self.ensure_one()
+        matching_lines = self._get_bundle_pricing_matching_lines(reward, lines=lines)
+        if not matching_lines:
+            return {'complete_blocks': 0, 'max_discount': 0.0, 'matching_lines': self.env['sale.order.line']}
+
+        bundle_qty = reward.bundle_qty or 3
+        if bundle_qty <= 0:
+            return {'complete_blocks': 0, 'max_discount': 0.0, 'matching_lines': matching_lines}
+
+        grouping_mode = reward.bundle_grouping_mode or 'individual'
+
+        if grouping_mode == 'individual':
+            lines_per_product = defaultdict(lambda: self.env['sale.order.line'])
+            for line in matching_lines:
+                lines_per_product[line.product_id] |= line
+
+            total_complete_blocks = 0
+            max_discount = 0.0
+
+            for product, p_lines in lines_per_product.items():
+                p_qty = sum(p_lines.mapped('product_uom_qty'))
+                p_blocks = int(p_qty // bundle_qty)
+                if p_blocks <= 0:
+                    continue
+                total_complete_blocks += p_blocks
+
+                if reward.bundle_pricing_mode == 'target_price' and reward.bundle_price > 0:
+                    promo_units = p_blocks * bundle_qty
+                    current_cost = 0.0
+                    accum_qty = 0.0
+                    for line in p_lines.sorted(key=lambda l: l.price_reduce, reverse=True):
+                        take = min(line.product_uom_qty, promo_units - accum_qty)
+                        current_cost += line.price_reduce * take
+                        accum_qty += take
+                        if accum_qty >= promo_units:
+                            break
+                    target_cost = p_blocks * reward.bundle_price
+                    max_discount += max(0.0, current_cost - target_cost)
+
+                elif reward.bundle_pricing_mode == 'free_units':
+                    free_qty_per_block = reward.free_qty or 1
+                    total_free = p_blocks * free_qty_per_block
+                    accum_free = 0.0
+                    for line in p_lines.sorted(key=lambda l: l.price_reduce):
+                        take = min(line.product_uom_qty, total_free - accum_free)
+                        max_discount += line.price_reduce * take
+                        accum_free += take
+                        if accum_free >= total_free:
+                            break
+
+                elif reward.bundle_pricing_mode == 'fixed_discount':
+                    max_discount += p_blocks * (reward.discount or 0.0)
+
+            return {
+                'complete_blocks': total_complete_blocks,
+                'max_discount': max_discount,
+                'matching_lines': matching_lines,
+            }
+        else: # 'mix_and_match'
+            total_qty = sum(matching_lines.mapped('product_uom_qty'))
+            complete_blocks = int(total_qty // bundle_qty)
+            if complete_blocks <= 0:
+                return {'complete_blocks': 0, 'max_discount': 0.0, 'matching_lines': matching_lines}
+
+            max_discount = 0.0
+            if reward.bundle_pricing_mode == 'target_price' and reward.bundle_price > 0:
+                promo_units = complete_blocks * bundle_qty
+                current_cost = 0.0
+                accum_qty = 0.0
+                for line in matching_lines.sorted(key=lambda l: l.price_reduce, reverse=True):
+                    take = min(line.product_uom_qty, promo_units - accum_qty)
+                    current_cost += line.price_reduce * take
+                    accum_qty += take
+                    if accum_qty >= promo_units:
+                        break
+                target_cost = complete_blocks * reward.bundle_price
+                max_discount = max(0.0, current_cost - target_cost)
+
+            elif reward.bundle_pricing_mode == 'free_units':
+                free_qty_per_block = reward.free_qty or 1
+                total_free_units = complete_blocks * free_qty_per_block
+                accum_free = 0.0
+                for line in matching_lines.sorted(key=lambda l: l.price_reduce):
+                    take = min(line.product_uom_qty, total_free_units - accum_free)
+                    max_discount += line.price_reduce * take
+                    accum_free += take
+                    if accum_free >= total_free_units:
+                        break
+
+            elif reward.bundle_pricing_mode == 'fixed_discount':
+                max_discount = complete_blocks * (reward.discount or 0.0)
+
+            return {
+                'complete_blocks': complete_blocks,
+                'max_discount': max_discount,
+                'matching_lines': matching_lines,
+            }
+
     def _check_unapplied_promotions(self):
         self.ensure_one()
         if self.state not in ('draft', 'sent') or self.promo_dismissed:
@@ -126,27 +251,9 @@ class SaleOrder(models.Model):
                             )
                             if not has_reward_product:
                                 continue
-                        elif reward.bundle_pricing_mode == 'target_price' and reward.bundle_price > 0:
-                            bundle_qty = reward.bundle_qty or 3
-                            reward_domain = reward._get_discount_product_domain() if reward.discount_applicability == 'specific' else None
-                            matching_lines = order_lines.filtered(
-                                lambda l: l.product_id.filtered_domain(reward_domain) if reward_domain else True
-                            )
-                            total_qty = sum(matching_lines.mapped('product_uom_qty'))
-                            complete_blocks = int(total_qty // bundle_qty)
-                            if complete_blocks <= 0:
-                                continue
-                            promo_units = complete_blocks * bundle_qty
-                            current_cost = 0.0
-                            accum_qty = 0.0
-                            for line in matching_lines.sorted(key=lambda l: l.price_reduce, reverse=True):
-                                take = min(line.product_uom_qty, promo_units - accum_qty)
-                                current_cost += line.price_reduce * take
-                                accum_qty += take
-                                if accum_qty >= promo_units:
-                                    break
-                            target_cost = complete_blocks * reward.bundle_price
-                            if current_cost <= target_cost:
+                        elif reward.bundle_pricing_mode in ('target_price', 'free_units', 'fixed_discount'):
+                            ctx = self._calculate_bundle_reward_context(reward, lines=order_lines)
+                            if ctx['complete_blocks'] <= 0 or ctx['max_discount'] <= 0:
                                 continue
                     return True
         return False
@@ -183,29 +290,9 @@ class SaleOrder(models.Model):
                         )
                         if not has_reward_product:
                             continue
-                    elif reward.bundle_pricing_mode == 'target_price' and reward.bundle_price > 0:
-                        bundle_qty = reward.bundle_qty or 3
-                        reward_domain = reward._get_discount_product_domain() if reward.discount_applicability == 'specific' else None
-                        matching_lines = self.order_line.filtered(
-                            lambda l: not l.is_reward_line and l.product_uom_qty > 0 and (
-                                l.product_id.filtered_domain(reward_domain) if reward_domain else True
-                            )
-                        )
-                        total_qty = sum(matching_lines.mapped('product_uom_qty'))
-                        complete_blocks = int(total_qty // bundle_qty)
-                        if complete_blocks <= 0:
-                            continue
-                        promo_units = complete_blocks * bundle_qty
-                        current_cost = 0.0
-                        accum_qty = 0.0
-                        for line in matching_lines.sorted(key=lambda l: l.price_reduce, reverse=True):
-                            take = min(line.product_uom_qty, promo_units - accum_qty)
-                            current_cost += line.price_reduce * take
-                            accum_qty += take
-                            if accum_qty >= promo_units:
-                                break
-                        target_cost = complete_blocks * reward.bundle_price
-                        if current_cost <= target_cost:
+                    elif reward.bundle_pricing_mode in ('target_price', 'free_units', 'fixed_discount'):
+                        ctx = self._calculate_bundle_reward_context(reward, lines=self.order_line)
+                        if ctx['complete_blocks'] <= 0 or ctx['max_discount'] <= 0:
                             continue
 
                 # Control de Exclusividad
@@ -357,7 +444,20 @@ class SaleOrder(models.Model):
                 if rule.reward_point_mode != 'unit':
                     rule.reward_point_mode = 'unit'
                     rule.reward_point_amount = 1
-        return super()._program_check_compute_points(programs)
+        result = super()._program_check_compute_points(programs)
+        for program in programs.filtered(lambda p: p.program_type == 'bundle_pricing'):
+            prog_res = result.get(program)
+            if not prog_res or 'points' not in prog_res or not prog_res['points']:
+                continue
+            for reward in program.reward_ids.filtered(lambda r: r.discount_mode == 'per_block' and not r._is_cross_product_free()):
+                if (reward.bundle_grouping_mode or 'individual') == 'individual':
+                    ctx = self._calculate_bundle_reward_context(reward, lines=self.order_line)
+                    if ctx['complete_blocks'] <= 0 or ctx['max_discount'] <= 0:
+                        prog_res['points'] = [0]
+                    else:
+                        needed = ctx['complete_blocks'] * (reward.bundle_qty or 1)
+                        prog_res['points'] = [needed]
+        return result
 
     def _get_reward_values_discount(self, reward, coupon, **kwargs):
         if reward.discount_mode != 'per_block':
@@ -418,52 +518,14 @@ class SaleOrder(models.Model):
         else:
             if reward._is_cross_product_free() or reward.bundle_pricing_mode not in ('target_price', 'free_units', 'fixed_discount'):
                 return []
-            if reward.discount_applicability == 'specific':
-                reward_domain = reward._get_discount_product_domain()
-                matching_lines = self.order_line.filtered(
-                    lambda l: not l.is_reward_line and l.product_uom_qty > 0 and (
-                        l.product_id.filtered_domain(reward_domain) if reward_domain else True
-                    )
-                )
-            else:
-                matching_lines = self.order_line.filtered(
-                    lambda l: not l.is_reward_line and l.product_uom_qty > 0
-                )
-            total_qty = sum(matching_lines.mapped('product_uom_qty'))
+
+            ctx = self._calculate_bundle_reward_context(reward, lines=self.order_line)
+            complete_blocks = ctx['complete_blocks']
+            max_discount = ctx['max_discount']
+            matching_lines = ctx['matching_lines']
             bundle_qty = reward.bundle_qty or 3
-            complete_blocks = int(total_qty // bundle_qty)
-            if complete_blocks <= 0:
+            if complete_blocks <= 0 or float_is_zero(max_discount, precision_digits=2) or max_discount <= 0:
                 return []
-
-            # 3. Calcular importe del descuento según la modalidad configurada
-            if reward.bundle_pricing_mode == 'target_price' and reward.bundle_price > 0:
-                promo_units = complete_blocks * bundle_qty
-                current_cost = 0.0
-                accum_qty = 0.0
-                for line in matching_lines.sorted(key=lambda l: l.price_reduce, reverse=True):
-                    take = min(line.product_uom_qty, promo_units - accum_qty)
-                    current_cost += line.price_reduce * take
-                    accum_qty += take
-                    if accum_qty >= promo_units:
-                        break
-                target_cost = complete_blocks * reward.bundle_price
-                max_discount = max(0.0, current_cost - target_cost)
-            elif reward.bundle_pricing_mode == 'free_units':
-                free_qty_per_block = reward.free_qty or 1
-                total_free_units = complete_blocks * free_qty_per_block
-                max_discount = 0.0
-                accum_free = 0.0
-                for line in matching_lines.sorted(key=lambda l: l.price_reduce):
-                    take = min(line.product_uom_qty, total_free_units - accum_free)
-                    max_discount += line.price_reduce * take
-                    accum_free += take
-                    if accum_free >= total_free_units:
-                        break
-            else:
-                max_discount = complete_blocks * reward.discount
-
-        if float_is_zero(max_discount, precision_digits=2) or max_discount <= 0:
-            return []
 
         # 4. Ajustar divisa y tope del pedido
         max_discount = reward.currency_id._convert(

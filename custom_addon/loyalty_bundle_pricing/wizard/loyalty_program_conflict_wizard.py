@@ -138,9 +138,15 @@ class LoyaltyProgramConflictWizard(models.TransientModel):
             if p1.pricelist_ids and p2.pricelist_ids and not (p1.pricelist_ids & p2.pricelist_ids):
                 continue
 
-            # 2. Filtro de vigencias de fechas disjuntas
-            if (p1.date_to and p2.date_from and p1.date_to < p2.date_from) or \
-               (p2.date_to and p1.date_from and p2.date_to < p1.date_from):
+            # 2. Filtro de vigencias de fechas disjuntas y vencidas
+            today = fields.Date.context_today(self)
+            if (p1.date_to and p1.date_to < today) or (p2.date_to and p2.date_to < today):
+                continue
+
+            p1_from = getattr(p1, 'date_from', False)
+            p2_from = getattr(p2, 'date_from', False)
+            if (p1.date_to and p2_from and p1.date_to < p2_from) or \
+               (p2.date_to and p1_from and p2.date_to < p1_from):
                 continue
 
             # 3. Filtro de compañías disjuntas

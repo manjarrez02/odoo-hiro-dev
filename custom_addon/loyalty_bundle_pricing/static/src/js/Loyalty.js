@@ -16,7 +16,7 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
                 if (rewardIds.length > 0 && this.env && this.env.services && this.env.services.rpc) {
                     const safeFields = [
                         'id', 'discount_mode', 'bundle_qty', 'bundle_price',
-                        'bundle_pricing_mode', 'free_qty',
+                        'bundle_pricing_mode', 'bundle_grouping_mode', 'free_qty',
                         'discount', 'discount_applicability',
                         'discount_product_ids'
                     ];
@@ -32,6 +32,7 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
                                 // Merge custom fields and sync discount_product_ids
                                 r.discount_mode = item.discount_mode;
                                 r.bundle_qty = item.bundle_qty;
+                                r.bundle_grouping_mode = item.bundle_grouping_mode || 'individual';
                                 r.bundle_price = item.bundle_price;
                                 r.bundle_pricing_mode = item.bundle_pricing_mode;
                                 r.free_qty = item.free_qty;
@@ -344,6 +345,145 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
             };
         }
 
+        /**
+         * Contexto centralizado para promociones regulares per_block (target_price, free_units, fixed_discount).
+         * Respeta bundle_grouping_mode ('individual' por defecto vs 'mix_and_match').
+         */
+        _getBundlePricingContext(reward) {
+            if (!reward || reward.discount_mode !== 'per_block' || this._isCrossProductFree(reward)) {
+                return { completeBlocks: 0, maxDiscount: 0, currentCost: 0, targetCost: 0, matchingLines: [] };
+            }
+            let bundleQty = reward.bundle_qty;
+            if (!bundleQty) {
+                const m = (reward.description || '').match(/(\d+)\s*uds|(\d+)x(\d+)/i);
+                bundleQty = m ? (parseInt(m[1] || m[2]) || 3) : 3;
+            }
+            const qualifyingProductIds = (reward.all_discount_product_ids && reward.all_discount_product_ids.size > 0)
+                ? reward.all_discount_product_ids
+                : new Set(reward.program_id.rules.flatMap(r => [...(r.valid_product_ids || [])]));
+            if (!reward.all_discount_product_ids || reward.all_discount_product_ids.size === 0) {
+                reward.all_discount_product_ids = qualifyingProductIds;
+            }
+            const matchingLines = this.get_orderlines().filter(line =>
+                !line.is_reward_line && line.get_quantity() > 0 &&
+                (qualifyingProductIds.size === 0 || qualifyingProductIds.has(line.get_product().id))
+            );
+
+            const isIndividual = (reward.bundle_grouping_mode || 'individual') === 'individual';
+            let completeBlocks = 0;
+            let maxDiscount = 0;
+            let totalCurrentCost = 0;
+            let totalTargetCost = 0;
+
+            if (isIndividual) {
+                const linesByProduct = new Map();
+                for (const line of matchingLines) {
+                    const pid = line.get_product().id;
+                    if (!linesByProduct.has(pid)) linesByProduct.set(pid, []);
+                    linesByProduct.get(pid).push(line);
+                }
+
+                for (const [pid, lines] of linesByProduct.entries()) {
+                    const pQty = lines.reduce((sum, l) => sum + l.get_quantity(), 0);
+                    const pBlocks = Math.floor(pQty / bundleQty);
+                    if (pBlocks <= 0) continue;
+                    completeBlocks += pBlocks;
+
+                    if (reward.bundle_pricing_mode === 'target_price' && reward.bundle_price > 0) {
+                        const promoUnitsNeeded = pBlocks * bundleQty;
+                        let currentCost = 0;
+                        let accumQty = 0;
+                        const sortedLines = [...lines].sort((a, b) => {
+                            const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
+                            const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
+                            return priceB - priceA;
+                        });
+                        for (const line of sortedLines) {
+                            const take = Math.min(line.get_quantity(), promoUnitsNeeded - accumQty);
+                            const netUnitPrice = line.get_quantity() > 0 ? (line.get_base_price() / line.get_quantity()) : (line.get_unit_price() * (1 - (line.get_discount() || 0) / 100));
+                            currentCost += netUnitPrice * take;
+                            accumQty += take;
+                            if (accumQty >= promoUnitsNeeded) break;
+                        }
+                        const targetCost = pBlocks * reward.bundle_price;
+                        totalCurrentCost += currentCost;
+                        totalTargetCost += targetCost;
+                        maxDiscount += Math.max(0, currentCost - targetCost);
+                    } else if (reward.bundle_pricing_mode === 'free_units') {
+                        const freeQtyPerBlock = reward.free_qty || 1;
+                        const totalFreeUnits = pBlocks * freeQtyPerBlock;
+                        let accumFree = 0;
+                        const sortedLines = [...lines].sort((a, b) => {
+                            const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
+                            const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
+                            return priceA - priceB;
+                        });
+                        for (const line of sortedLines) {
+                            const take = Math.min(line.get_quantity(), totalFreeUnits - accumFree);
+                            const netUnitPrice = line.get_quantity() > 0 ? (line.get_base_price() / line.get_quantity()) : (line.get_unit_price() * (1 - (line.get_discount() || 0) / 100));
+                            maxDiscount += netUnitPrice * take;
+                            accumFree += take;
+                            if (accumFree >= totalFreeUnits) break;
+                        }
+                    } else if (reward.bundle_pricing_mode === 'fixed_discount') {
+                        maxDiscount += pBlocks * (reward.discount || 0);
+                    }
+                }
+            } else { // 'mix_and_match'
+                const totalQty = matchingLines.reduce((sum, line) => sum + line.get_quantity(), 0);
+                completeBlocks = Math.floor(totalQty / bundleQty);
+                if (completeBlocks > 0) {
+                    if (reward.bundle_pricing_mode === 'target_price' && reward.bundle_price > 0) {
+                        const promoUnitsNeeded = completeBlocks * bundleQty;
+                        let currentCost = 0;
+                        let accumQty = 0;
+                        const sortedLines = [...matchingLines].sort((a, b) => {
+                            const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
+                            const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
+                            return priceB - priceA;
+                        });
+                        for (const line of sortedLines) {
+                            const take = Math.min(line.get_quantity(), promoUnitsNeeded - accumQty);
+                            const netUnitPrice = line.get_quantity() > 0 ? (line.get_base_price() / line.get_quantity()) : (line.get_unit_price() * (1 - (line.get_discount() || 0) / 100));
+                            currentCost += netUnitPrice * take;
+                            accumQty += take;
+                            if (accumQty >= promoUnitsNeeded) break;
+                        }
+                        const targetCost = completeBlocks * reward.bundle_price;
+                        totalCurrentCost = currentCost;
+                        totalTargetCost = targetCost;
+                        maxDiscount = Math.max(0, currentCost - targetCost);
+                    } else if (reward.bundle_pricing_mode === 'free_units') {
+                        const freeQtyPerBlock = reward.free_qty || 1;
+                        const totalFreeUnits = completeBlocks * freeQtyPerBlock;
+                        let accumFree = 0;
+                        const sortedLines = [...matchingLines].sort((a, b) => {
+                            const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
+                            const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
+                            return priceA - priceB;
+                        });
+                        for (const line of sortedLines) {
+                            const take = Math.min(line.get_quantity(), totalFreeUnits - accumFree);
+                            const netUnitPrice = line.get_quantity() > 0 ? (line.get_base_price() / line.get_quantity()) : (line.get_unit_price() * (1 - (line.get_discount() || 0) / 100));
+                            maxDiscount += netUnitPrice * take;
+                            accumFree += take;
+                            if (accumFree >= totalFreeUnits) break;
+                        }
+                    } else if (reward.bundle_pricing_mode === 'fixed_discount') {
+                        maxDiscount = completeBlocks * (reward.discount || 0);
+                    }
+                }
+            }
+
+            return {
+                completeBlocks,
+                maxDiscount,
+                currentCost: totalCurrentCost,
+                targetCost: totalTargetCost,
+                matchingLines,
+            };
+        }
+
         pointsForPrograms(programs) {
             const res = super.pointsForPrograms(...arguments);
             for (const program of (programs || [])) {
@@ -360,60 +500,11 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
                         res[program.id] = [];
                     }
                 }
-                const targetReward = (program.rewards || []).find(r => r.discount_mode === 'per_block' && r.bundle_pricing_mode === 'target_price');
-                if (targetReward && targetReward.bundle_price > 0) {
-                    const bundleQty = targetReward.bundle_qty || 3;
-                    const qualifyingProductIds = (targetReward.all_discount_product_ids && targetReward.all_discount_product_ids.size > 0)
-                        ? targetReward.all_discount_product_ids
-                        : new Set(program.rules.flatMap(r => [...(r.valid_product_ids || [])]));
-                    const matchingLines = this.get_orderlines().filter(line =>
-                        !line.is_reward_line && line.get_quantity() > 0 &&
-                        (qualifyingProductIds.size === 0 || qualifyingProductIds.has(line.get_product().id))
-                    );
-                    const totalQty = matchingLines.reduce((sum, line) => sum + line.get_quantity(), 0);
-                    const completeBlocks = Math.floor(totalQty / bundleQty);
-                    if (completeBlocks > 0) {
-                        const promoUnitsNeeded = completeBlocks * bundleQty;
-                        let currentCost = 0;
-                        let accumQty = 0;
-                        const sortedLines = [...matchingLines].sort((a, b) => {
-                            const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
-                            const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
-                            return priceB - priceA;
-                        });
-                        for (const line of sortedLines) {
-                            const take = Math.min(line.get_quantity(), promoUnitsNeeded - accumQty);
-                            const netUnitPrice = line.get_quantity() > 0 ? (line.get_base_price() / line.get_quantity()) : (line.get_unit_price() * (1 - (line.get_discount() || 0) / 100));
-                            currentCost += netUnitPrice * take;
-                            accumQty += take;
-                            if (accumQty >= promoUnitsNeeded) break;
-                        }
-                        const targetCost = completeBlocks * targetReward.bundle_price;
-                        if (currentCost <= targetCost) {
-                            // El cliente ya tiene un precio con descuento igual o menor al tope dinámico; no aplica promoción
-                            res[program.id] = [];
-                        } else {
-                            const neededPoints = targetReward.required_points || 1;
-                            res[program.id] = [{ points: neededPoints }];
-                        }
-                    } else {
-                        res[program.id] = [];
-                    }
-                }
-                const otherBlockReward = (program.rewards || []).find(r => r.discount_mode === 'per_block' && ['free_units', 'fixed_discount'].includes(r.bundle_pricing_mode));
-                if (otherBlockReward) {
-                    const bundleQty = otherBlockReward.bundle_qty || 3;
-                    const qualifyingProductIds = (otherBlockReward.all_discount_product_ids && otherBlockReward.all_discount_product_ids.size > 0)
-                        ? otherBlockReward.all_discount_product_ids
-                        : new Set(program.rules.flatMap(r => [...(r.valid_product_ids || [])]));
-                    const matchingLines = this.get_orderlines().filter(line =>
-                        !line.is_reward_line && line.get_quantity() > 0 &&
-                        (qualifyingProductIds.size === 0 || qualifyingProductIds.has(line.get_product().id))
-                    );
-                    const totalQty = matchingLines.reduce((sum, line) => sum + line.get_quantity(), 0);
-                    const completeBlocks = Math.floor(totalQty / bundleQty);
-                    if (completeBlocks > 0) {
-                        const neededPoints = otherBlockReward.required_points || 1;
+                const blockReward = (program.rewards || []).find(r => r.discount_mode === 'per_block' && ['target_price', 'free_units', 'fixed_discount'].includes(r.bundle_pricing_mode));
+                if (blockReward) {
+                    const ctx = this._getBundlePricingContext(blockReward);
+                    if (ctx.completeBlocks > 0 && (blockReward.bundle_pricing_mode !== 'target_price' || ctx.maxDiscount > 0)) {
+                        const neededPoints = blockReward.required_points || 1;
                         res[program.id] = [{ points: neededPoints }];
                     } else {
                         res[program.id] = [];
@@ -462,42 +553,10 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
                         }
                     }
                 } else if (reward.discount_mode === 'per_block') {
-                    let bundleQty = reward.bundle_qty;
-                    if (!bundleQty) {
-                        const m = (reward.description || '').match(/(\d+)\s*uds|(\d+)x(\d+)/i);
-                        bundleQty = m ? (parseInt(m[1] || m[2]) || 3) : 3;
-                    }
-                    const qualifyingProductIds = (reward.all_discount_product_ids && reward.all_discount_product_ids.size > 0)
-                        ? reward.all_discount_product_ids
-                        : new Set(reward.program_id.rules.flatMap(r => [...(r.valid_product_ids || [])]));
-                    const matchingLines = this.get_orderlines().filter(l =>
-                        !l.is_reward_line && l.get_quantity() > 0 &&
-                        (qualifyingProductIds.size === 0 || qualifyingProductIds.has(l.get_product().id))
-                    );
-                    const totalQty = matchingLines.reduce((sum, l) => sum + l.get_quantity(), 0);
-                    const completeBlocks = Math.floor(totalQty / bundleQty);
-                    let shouldRemove = completeBlocks <= 0;
-
-                    if (!shouldRemove && reward.bundle_pricing_mode === 'target_price' && reward.bundle_price > 0) {
-                        const promoUnitsNeeded = completeBlocks * bundleQty;
-                        let currentCost = 0;
-                        let accumQty = 0;
-                        const sortedLines = [...matchingLines].sort((a, b) => {
-                            const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
-                            const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
-                            return priceB - priceA;
-                        });
-                        for (const l of sortedLines) {
-                            const take = Math.min(l.get_quantity(), promoUnitsNeeded - accumQty);
-                            const netUnitPrice = l.get_quantity() > 0 ? (l.get_base_price() / l.get_quantity()) : (l.get_unit_price() * (1 - (l.get_discount() || 0) / 100));
-                            currentCost += netUnitPrice * take;
-                            accumQty += take;
-                            if (accumQty >= promoUnitsNeeded) break;
-                        }
-                        const targetCost = completeBlocks * reward.bundle_price;
-                        if (currentCost <= targetCost) {
-                            shouldRemove = true;
-                        }
+                    const ctx = this._getBundlePricingContext(reward);
+                    let shouldRemove = ctx.completeBlocks <= 0;
+                    if (!shouldRemove && reward.bundle_pricing_mode === 'target_price' && ctx.maxDiscount <= 0) {
+                        shouldRemove = true;
                     }
 
                     if (shouldRemove) {
@@ -690,71 +749,15 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
                 return [];
             }
 
+            const ctx = this._getBundlePricingContext(reward);
+            const completeBlocks = ctx.completeBlocks;
+            let maxDiscount = ctx.maxDiscount;
+            const matchingLines = ctx.matchingLines;
+
             let bundleQty = reward.bundle_qty;
             if (!bundleQty) {
                 const m = (reward.description || '').match(/(\d+)\s*uds|(\d+)x(\d+)/i);
                 bundleQty = m ? (parseInt(m[1] || m[2]) || 3) : 3;
-            }
-            const qualifyingProductIds = (reward.all_discount_product_ids && reward.all_discount_product_ids.size > 0)
-                ? reward.all_discount_product_ids
-                : new Set(reward.program_id.rules.flatMap(r => [...(r.valid_product_ids || [])]));
-            if (!reward.all_discount_product_ids || reward.all_discount_product_ids.size === 0) {
-                reward.all_discount_product_ids = qualifyingProductIds;
-            }
-            const matchingLines = this.get_orderlines().filter(line =>
-                !line.is_reward_line && line.get_quantity() > 0 &&
-                (qualifyingProductIds.size === 0 || qualifyingProductIds.has(line.get_product().id))
-            );
-
-            const totalQty = matchingLines.reduce((sum, line) => sum + line.get_quantity(), 0);
-            const completeBlocks = Math.floor(totalQty / bundleQty);
-            if (completeBlocks <= 0) {
-                return [];
-            }
-
-            let maxDiscount = 0;
-            if (reward.bundle_pricing_mode === 'target_price' && reward.bundle_price > 0) {
-                const promoUnitsNeeded = completeBlocks * bundleQty;
-                let currentCost = 0;
-                let accumQty = 0;
-                const sortedLines = [...matchingLines].sort((a, b) => {
-                    const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
-                    const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
-                    return priceB - priceA;
-                });
-                for (const line of sortedLines) {
-                    const take = Math.min(line.get_quantity(), promoUnitsNeeded - accumQty);
-                    const netUnitPrice = line.get_quantity() > 0 ? (line.get_base_price() / line.get_quantity()) : (line.get_unit_price() * (1 - (line.get_discount() || 0) / 100));
-                    currentCost += netUnitPrice * take;
-                    accumQty += take;
-                    if (accumQty >= promoUnitsNeeded) {
-                        break;
-                    }
-                }
-                const targetCost = completeBlocks * reward.bundle_price;
-                maxDiscount = Math.max(0, currentCost - targetCost);
-            } else if (reward.bundle_pricing_mode === 'free_units') {
-                const freeQtyPerBlock = reward.free_qty || 1;
-                const totalFreeUnits = completeBlocks * freeQtyPerBlock;
-                let accumFree = 0;
-                const sortedLines = [...matchingLines].sort((a, b) => {
-                    const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
-                    const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
-                    return priceA - priceB;
-                });
-                for (const line of sortedLines) {
-                    const take = Math.min(line.get_quantity(), totalFreeUnits - accumFree);
-                    const netUnitPrice = line.get_quantity() > 0 ? (line.get_base_price() / line.get_quantity()) : (line.get_unit_price() * (1 - (line.get_discount() || 0) / 100));
-                    maxDiscount += netUnitPrice * take;
-                    accumFree += take;
-                    if (accumFree >= totalFreeUnits) {
-                        break;
-                    }
-                }
-            } else if (reward.bundle_pricing_mode === 'fixed_discount') {
-                maxDiscount = completeBlocks * (reward.discount || 0);
-            } else {
-                return [];
             }
 
             if (maxDiscount <= 0) {
@@ -833,43 +836,12 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
                         return false;
                     }
                 } else if (reward.discount_mode === 'per_block') {
-                    let bundleQty = reward.bundle_qty;
-                    if (!bundleQty) {
-                        const m = (reward.description || '').match(/(\d+)\s*uds|(\d+)x(\d+)/i);
-                        bundleQty = m ? (parseInt(m[1] || m[2]) || 3) : 3;
-                    }
-                    const qualifyingProductIds = (reward.all_discount_product_ids && reward.all_discount_product_ids.size > 0)
-                        ? reward.all_discount_product_ids
-                        : new Set(reward.program_id.rules.flatMap(r => [...(r.valid_product_ids || [])]));
-                    const matchingLines = this.get_orderlines().filter(l =>
-                        !l.is_reward_line && l.get_quantity() > 0 &&
-                        (qualifyingProductIds.size === 0 || qualifyingProductIds.has(l.get_product().id))
-                    );
-                    const totalQty = matchingLines.reduce((sum, l) => sum + l.get_quantity(), 0);
-                    const completeBlocks = Math.floor(totalQty / bundleQty);
-                    if (completeBlocks <= 0) {
+                    const ctx = this._getBundlePricingContext(reward);
+                    if (ctx.completeBlocks <= 0) {
                         return false;
                     }
-                    if (reward.bundle_pricing_mode === 'target_price' && reward.bundle_price > 0) {
-                        const promoUnitsNeeded = completeBlocks * bundleQty;
-                        let currentCost = 0;
-                        let accumQty = 0;
-                        const sortedLines = [...matchingLines].sort((a, b) => {
-                            const priceA = a.get_quantity() > 0 ? (a.get_base_price() / a.get_quantity()) : (a.get_unit_price() * (1 - (a.get_discount() || 0) / 100));
-                            const priceB = b.get_quantity() > 0 ? (b.get_base_price() / b.get_quantity()) : (b.get_unit_price() * (1 - (b.get_discount() || 0) / 100));
-                            return priceB - priceA;
-                        });
-                        for (const line of sortedLines) {
-                            const take = Math.min(line.get_quantity(), promoUnitsNeeded - accumQty);
-                            const netUnitPrice = line.get_quantity() > 0 ? (line.get_base_price() / line.get_quantity()) : (line.get_unit_price() * (1 - (line.get_discount() || 0) / 100));
-                            currentCost += netUnitPrice * take;
-                            accumQty += take;
-                            if (accumQty >= promoUnitsNeeded) break;
-                        }
-                        const targetCost = completeBlocks * reward.bundle_price;
-                        if (currentCost <= targetCost) {
-                            return false;
-                        }
+                    if (reward.bundle_pricing_mode === 'target_price' && ctx.maxDiscount <= 0) {
+                        return false;
                     }
                 }
 
@@ -920,7 +892,7 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
                             method: 'search_read',
                             args: [[['id', 'in', unhydratedIds]], [
                                 'id', 'discount_mode', 'bundle_qty', 'bundle_price',
-                                'bundle_pricing_mode', 'free_qty',
+                                'bundle_pricing_mode', 'bundle_grouping_mode', 'free_qty',
                                 'discount', 'discount_applicability',
                                 'discount_product_ids'
                             ]],
@@ -931,6 +903,7 @@ odoo.define('loyalty_bundle_pricing.Loyalty', function (require) {
                                 if (r) {
                                     r.discount_mode = item.discount_mode;
                                     r.bundle_qty = item.bundle_qty;
+                                    r.bundle_grouping_mode = item.bundle_grouping_mode || 'individual';
                                     r.bundle_price = item.bundle_price;
                                     r.bundle_pricing_mode = item.bundle_pricing_mode;
                                     r.free_qty = item.free_qty;

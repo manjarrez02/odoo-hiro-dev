@@ -36,6 +36,12 @@ class LoyaltyReward(models.Model):
     ], default='target_price', string='Modalidad de Bloque', required=False,
        help="Precio Tope Dinámico bonifica el diferencial para que el trío cueste exactamente $Y sin perjudicar tarifas mayoristas inferiores. Descuento Fijo resta un importe constante por cada bloque. Unidades Bonificadas bonifica las piezas gratis dentro de cada bloque (ej. 1 pieza en un 3x2). Compra X y Recibe Y Gratis descuenta al 100% el producto Y solo si este es añadido a la orden.")
 
+    bundle_grouping_mode = fields.Selection([
+        ('individual', 'Por Producto Idéntico (Cada producto debe completar su propio bloque)'),
+        ('mix_and_match', 'Combinado / Mix & Match (Permite mezclar productos para completar el bloque)'),
+    ], default='individual', string='Agrupación de Unidades',
+       help="Determina si cada producto debe completar por sí solo el bloque de unidades (ej. 2 de A o 2 de B), o si se permite mezclar unidades de diferentes productos para completar el bloque (ej. 1 de A + 1 de B).")
+
     free_qty = fields.Integer(
         string='Unidades Gratis por Bloque',
         default=1,
@@ -77,6 +83,16 @@ class LoyaltyReward(models.Model):
                       AND is_nullable = 'NO'
                 ) THEN
                     ALTER TABLE loyalty_reward ALTER COLUMN bundle_pricing_mode DROP NOT NULL;
+                END IF;
+                IF EXISTS (
+                    SELECT 1 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'loyalty_reward' 
+                      AND column_name = 'bundle_grouping_mode'
+                ) THEN
+                    UPDATE loyalty_reward 
+                    SET bundle_grouping_mode = 'individual' 
+                    WHERE bundle_grouping_mode IS NULL;
                 END IF;
             END $$;
         """)
@@ -141,9 +157,25 @@ class LoyaltyReward(models.Model):
                 elif reward.program_id.rule_ids.mapped('product_ids'):
                     rule_prods = reward.program_id.rule_ids.mapped('product_ids')
                     domain = expression.AND([domain, [('id', 'not in', rule_prods.ids)]])
+            elif reward.discount_mode == 'per_block' and not reward._is_cross_product_free():
+                # Modalidades target_price, free_units, fixed_discount:
+                # Si tiene discount_product_ids se respeta; si está vacío, hereda los productos/categorías de las reglas
+                if reward.discount_product_ids:
+                    domain = [('id', 'in', reward.discount_product_ids.ids)]
+                elif reward.program_id.rule_ids.mapped('product_ids'):
+                    domain = [('id', 'in', reward.program_id.rule_ids.mapped('product_ids').ids)]
+                elif reward.discount_product_category_id:
+                    child_cats = reward._find_all_category_children(reward.discount_product_category_id, [])
+                    cats = [reward.discount_product_category_id.id] + child_cats
+                    domain = [('categ_id', 'in', cats)]
+                elif reward.program_id.rule_ids.mapped('product_category_id'):
+                    cats = []
+                    for cat in reward.program_id.rule_ids.mapped('product_category_id'):
+                        cats.extend([cat.id] + reward._find_all_category_children(cat, []))
+                    domain = [('categ_id', 'in', list(set(cats)))]
         return domain
 
-    @api.depends('discount_product_ids', 'bundle_pricing_mode', 'discount_mode', 'trigger_product_ids', 'program_id.rule_ids.product_ids')
+    @api.depends('discount_product_ids', 'bundle_pricing_mode', 'discount_mode', 'trigger_product_ids', 'program_id.rule_ids.product_ids', 'program_id.rule_ids.product_category_id')
     def _compute_all_discount_product_ids(self):
         super()._compute_all_discount_product_ids()
         for reward in self:
@@ -167,12 +199,17 @@ class LoyaltyReward(models.Model):
                         reward.all_discount_product_ids = self.env['product.product']
                 else:
                     # Modalidades estándar de bloque (free_units ej. 2x1/3x2, target_price, fixed_discount)
-                    # Si tiene discount_product_ids se respeta; si está vacío, hereda los productos de las reglas
+                    # Si tiene discount_product_ids se respeta; si está vacío, hereda los productos/categorías de las reglas
                     rule_prods = reward.program_id.rule_ids.mapped('product_ids')
+                    rule_cats = reward.program_id.rule_ids.mapped('product_category_id')
                     if reward.discount_product_ids:
                         reward.all_discount_product_ids = reward.discount_product_ids
                     elif rule_prods:
                         reward.all_discount_product_ids = rule_prods
+                    elif rule_cats:
+                        reward.all_discount_product_ids = self.env['product.product'].search([
+                            ('categ_id', 'child_of', rule_cats.ids)
+                        ])
 
     @api.onchange('bundle_pricing_mode', 'program_id')
     def _onchange_bundle_pricing_mode(self):
@@ -198,8 +235,12 @@ class LoyaltyReward(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('discount_mode') == 'per_block' and vals.get('bundle_qty'):
-                vals.setdefault('required_points', vals['bundle_qty'])
+            if vals.get('discount_mode') == 'per_block':
+                vals.setdefault('discount_applicability', 'specific')
+                if vals.get('bundle_qty'):
+                    vals.setdefault('required_points', vals['bundle_qty'])
+                if vals.get('bundle_pricing_mode') != 'cross_product_free':
+                    vals.setdefault('bundle_grouping_mode', 'individual')
             if 'bundle_pricing_mode' in vals and not vals['bundle_pricing_mode']:
                 vals['bundle_pricing_mode'] = 'target_price'
             if vals.get('bundle_pricing_mode') == 'cross_product_free':
@@ -217,9 +258,12 @@ class LoyaltyReward(models.Model):
 
     def write(self, vals):
         if vals.get('discount_mode') == 'per_block' or any(r.discount_mode == 'per_block' for r in self):
+            vals.setdefault('discount_applicability', 'specific')
             bundle_qty = vals.get('bundle_qty')
             if bundle_qty:
                 vals.setdefault('required_points', bundle_qty)
+            if 'bundle_grouping_mode' in vals and not vals['bundle_grouping_mode']:
+                vals['bundle_grouping_mode'] = 'individual'
         if 'bundle_pricing_mode' in vals and not vals['bundle_pricing_mode']:
             vals['bundle_pricing_mode'] = 'target_price'
         if vals.get('bundle_pricing_mode') == 'cross_product_free' or any(r.bundle_pricing_mode == 'cross_product_free' for r in self):
@@ -231,7 +275,7 @@ class LoyaltyReward(models.Model):
                     vals['trigger_product_ids'] = [(6, 0, rule.product_ids.ids)]
         return super().write(vals)
 
-    @api.constrains('discount_mode', 'bundle_qty', 'bundle_pricing_mode', 'free_qty')
+    @api.constrains('discount_mode', 'bundle_qty', 'bundle_pricing_mode', 'bundle_grouping_mode', 'free_qty', 'discount', 'bundle_price')
     def _check_bundle_fields(self):
         for reward in self:
             if reward.discount_mode == 'per_block':
@@ -239,7 +283,15 @@ class LoyaltyReward(models.Model):
                     raise ValidationError(_("La cantidad de unidades por bloque debe ser un entero estrictamente mayor a cero."))
                 if not reward.bundle_pricing_mode:
                     raise ValidationError(_("Debe seleccionar una Modalidad de Bloque para las promociones por bloque."))
-                if reward.bundle_pricing_mode == 'free_units':
+                if reward.bundle_pricing_mode in ('target_price', 'free_units', 'fixed_discount') and not reward.bundle_grouping_mode:
+                    raise ValidationError(_("Debe seleccionar una Agrupación de Unidades ('Por Producto Idéntico' o 'Combinado / Mix & Match')."))
+                if reward.bundle_pricing_mode == 'target_price':
+                    if reward.bundle_price <= 0:
+                        raise ValidationError(_("El precio objetivo del bloque debe ser un monto mayor a cero."))
+                elif reward.bundle_pricing_mode == 'fixed_discount':
+                    if reward.discount <= 0:
+                        raise ValidationError(_("El monto de descuento por bloque debe ser un valor mayor a cero."))
+                elif reward.bundle_pricing_mode == 'free_units':
                     if reward.free_qty <= 0:
                         raise ValidationError(_("La cantidad de unidades gratis debe ser un entero mayor a cero."))
                     if reward.free_qty >= reward.bundle_qty:
