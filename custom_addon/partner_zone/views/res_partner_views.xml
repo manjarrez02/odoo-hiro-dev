@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Res Partner Form View Extension: Add zone_id under category_id -->
+    <record id="view_partner_form_inherit_zone" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.zone</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="zone_id" placeholder="Seleccionar zona..." options="{'no_create_edit': False}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Res Partner Tree View Extension -->
+    <record id="view_partner_tree_inherit_zone" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit.zone</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="zone_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Res Partner Search View Extension -->
+    <record id="view_res_partner_filter_inherit_zone" model="ir.ui.view">
+        <field name="name">res.partner.select.inherit.zone</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="zone_id"/>
+            </xpath>
+            <xpath expr="//group[@name='group_by']" position="inside">
+                <filter string="Zona" name="group_by_zone" context="{'group_by': 'zone_id'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
