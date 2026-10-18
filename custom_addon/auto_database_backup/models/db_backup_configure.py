@@ -23,6 +23,7 @@ import boto3
 import dropbox
 import errno
 import ftplib
+import glob
 import json
 import logging
 import nextcloud_client
@@ -32,6 +33,7 @@ import requests
 import shutil
 import subprocess
 import tempfile
+import time
 import odoo
 from datetime import timedelta
 from nextcloud import NextCloud
@@ -600,10 +602,78 @@ class DbBackupConfigure(models.Model):
         if self.backup_destination == 'local':
             self.hide_active = True
 
+    def _cleanup_orphaned_backup_files(self, max_age_hours=1):
+        """Mecanismo de seguridad: localiza y elimina archivos temporales huérfanos
+        (como tmp*.zip, tmp*.dump, tmp*.sql) dejados en el directorio temporal por
+        procesos abortados o timeouts previos."""
+        temp_dir = tempfile.gettempdir()
+        patterns = ['tmp*.zip', 'tmp*.dump', 'tmp*.sql', 'tmp*.tar', 'tmp*.gz']
+        now = time.time()
+        max_age_seconds = max_age_hours * 3600
+        freed_bytes = 0
+        cleaned_count = 0
+
+        for pattern in patterns:
+            for file_path in glob.glob(os.path.join(temp_dir, pattern)):
+                try:
+                    if not os.path.isfile(file_path):
+                        continue
+                    stat = os.stat(file_path)
+                    file_age = now - stat.st_mtime
+                    if file_age >= max_age_seconds:
+                        file_size = stat.st_size
+                        os.unlink(file_path)
+                        freed_bytes += file_size
+                        cleaned_count += 1
+                        _logger.info(
+                            "Seguridad de respaldo: archivo temporal huérfano eliminado: %s (%.2f MB)",
+                            file_path, file_size / (1024 * 1024))
+                except Exception as e:
+                    _logger.debug("No se pudo eliminar archivo temporal %s: %s", file_path, e)
+
+        if cleaned_count > 0:
+            _logger.info(
+                "Seguridad de respaldo: limpieza preventiva completada. %d archivos eliminados, %.2f GB liberados en %s.",
+                cleaned_count, freed_bytes / (1024 ** 3), temp_dir)
+        return cleaned_count, freed_bytes
+
+    def _check_disk_space_security(self, required_gb=15):
+        """Mecanismo de seguridad: valida que exista suficiente espacio disponible en disco
+        en el directorio temporal antes de proceder con el volcado y compresión."""
+        temp_dir = tempfile.gettempdir()
+        try:
+            stat = os.statvfs(temp_dir)
+            free_bytes = stat.f_bavail * stat.f_frsize
+            free_gb = free_bytes / (1024 ** 3)
+            if free_gb < required_gb:
+                _logger.warning(
+                    "Seguridad de respaldo: espacio bajo en %s (%.2f GB libres, requeridos %.2f GB). "
+                    "Intentando limpieza de emergencia de archivos temporales antiguos...",
+                    temp_dir, free_gb, required_gb)
+                self._cleanup_orphaned_backup_files(max_age_hours=0.5)
+                stat = os.statvfs(temp_dir)
+                free_bytes = stat.f_bavail * stat.f_frsize
+                free_gb = free_bytes / (1024 ** 3)
+
+            if free_gb < required_gb:
+                _logger.error(
+                    "Seguridad de respaldo: espacio crítico en disco en %s (%.2f GB disponibles, mínimo requerido %.2f GB). "
+                    "Se aborta la operación para evitar saturación del sistema.",
+                    temp_dir, free_gb, required_gb)
+                raise ValidationError(
+                    _("Espacio insuficiente en disco para generar el respaldo: %.2f GB disponibles en %s, "
+                      "se requieren al menos %.2f GB.") % (free_gb, temp_dir, required_gb))
+        except Exception as e:
+            if isinstance(e, ValidationError):
+                raise
+            _logger.warning("No se pudo verificar el espacio en disco en %s: %s", temp_dir, e)
+
     def _schedule_auto_backup(self):
         """Function for generating and storing backup.
            Database backup for all the active records in backup configuration
            model will be created."""
+        # Seguridad: purga preventiva de temporales huérfanos antes de iniciar el ciclo de respaldos
+        self._cleanup_orphaned_backup_files(max_age_hours=1)
         records = self.search([])
         mail_template_success = self.env.ref(
             'auto_database_backup.mail_template_data_db_backup_successful')
@@ -791,54 +861,75 @@ class DbBackupConfigure(models.Model):
                         raise ValidationError('Please check connection')
             # Dropbox backup
             elif rec.backup_destination == 'dropbox':
+                self._check_disk_space_security(required_gb=15)
                 temp = tempfile.NamedTemporaryFile(
-                    suffix='.%s' % rec.backup_format)
-                with open(temp.name, "wb+") as tmp:
-                    self.dump_data(rec.db_name, tmp, rec.backup_format)
+                    suffix='.%s' % rec.backup_format, delete=False)
+                temp_path = temp.name
+                temp.close()
                 try:
-                    dbx = dropbox.Dropbox(
-                        app_key=rec.dropbox_client_key,
-                        app_secret=rec.dropbox_client_secret,
-                        oauth2_refresh_token=rec.dropbox_refresh_token,
-                        timeout=1800)
-                    dropbox_destination = (rec.dropbox_folder + '/' +
-                                           backup_filename)
-                    #  Subida en fragmentos
-                    CHUNK_SIZE = 8 * 1024 * 1024  # 8MB
-                    with open(temp.name, "rb") as f:
-                        first_chunk = f.read(CHUNK_SIZE)
-                        session_start = dbx.files_upload_session_start(first_chunk)
-                        session_id = session_start.session_id
-                        cursor = dropbox.files.UploadSessionCursor(session_id=session_id, offset=f.tell())
+                    with open(temp_path, "wb+") as tmp:
+                        self.dump_data(rec.db_name, tmp, rec.backup_format)
+                    try:
+                        dbx = dropbox.Dropbox(
+                            app_key=rec.dropbox_client_key,
+                            app_secret=rec.dropbox_client_secret,
+                            oauth2_refresh_token=rec.dropbox_refresh_token,
+                            timeout=1800)
+                        dropbox_destination = (rec.dropbox_folder + '/' +
+                                               backup_filename)
+                        # Subida optimizada en fragmentos de 64MB (reemplaza los 8MB para acelerar transferencia)
+                        CHUNK_SIZE = 64 * 1024 * 1024  # 64MB
+                        file_size = os.path.getsize(temp_path)
+                        file_size_mb = file_size / (1024 * 1024)
+                        _logger.info("Iniciando subida a Dropbox de '%s' (%.2f MB)...",
+                                     backup_filename, file_size_mb)
+                        with open(temp_path, "rb") as f:
+                            first_chunk = f.read(CHUNK_SIZE)
+                            session_start = dbx.files_upload_session_start(first_chunk)
+                            session_id = session_start.session_id
+                            cursor = dropbox.files.UploadSessionCursor(session_id=session_id, offset=f.tell())
+                            uploaded = f.tell()
 
-                        while True:
-                            chunk = f.read(CHUNK_SIZE)
-                            if not chunk:
-                                break
-                            dbx.files_upload_session_append_v2(chunk, cursor)
-                            cursor.offset = f.tell()
+                            while True:
+                                chunk = f.read(CHUNK_SIZE)
+                                if not chunk:
+                                    break
+                                dbx.files_upload_session_append_v2(chunk, cursor)
+                                cursor.offset = f.tell()
+                                uploaded = f.tell()
+                                _logger.info("Dropbox upload progress: %.1f MB / %.1f MB (%.1f%%)",
+                                             uploaded / (1024 * 1024), file_size_mb, (uploaded / file_size) * 100)
 
-                        commit = dropbox.files.CommitInfo(path=dropbox_destination)
-                        dbx.files_upload_session_finish(chunk, cursor, commit)
+                            commit = dropbox.files.CommitInfo(path=dropbox_destination)
+                            dbx.files_upload_session_finish(b'', cursor, commit)
 
-                    if rec.auto_remove:
-                        files = dbx.files_list_folder(rec.dropbox_folder)
-                        file_entries = files.entries
-                        expired_files = list(filter(
-                            lambda fl: (fields.datetime.now() -
-                                        fl.client_modified).days >=
-                                       rec.days_to_remove,
-                            file_entries))
-                        for file in expired_files:
-                            dbx.files_delete_v2(file.path_display)
-                    if rec.notify_user:
-                        mail_template_success.send_mail(rec.id,
-                                                        force_send=True)
-                except Exception as error:
-                    rec.generated_exception = error
-                    _logger.info('Dropbox Exception: %s', error)
-                    if rec.notify_user:
-                        mail_template_failed.send_mail(rec.id, force_send=True)
+                        _logger.info("Subida a Dropbox completada exitosamente: %s", dropbox_destination)
+
+                        if rec.auto_remove:
+                            files = dbx.files_list_folder(rec.dropbox_folder)
+                            file_entries = files.entries
+                            expired_files = list(filter(
+                                lambda fl: (fields.datetime.now() -
+                                            fl.client_modified).days >=
+                                           rec.days_to_remove,
+                                file_entries))
+                            for file in expired_files:
+                                dbx.files_delete_v2(file.path_display)
+                        if rec.notify_user:
+                            mail_template_success.send_mail(rec.id,
+                                                            force_send=True)
+                    except Exception as error:
+                        rec.generated_exception = error
+                        _logger.info('Dropbox Exception: %s', error)
+                        if rec.notify_user:
+                            mail_template_failed.send_mail(rec.id, force_send=True)
+                finally:
+                    if os.path.exists(temp_path):
+                        try:
+                            os.unlink(temp_path)
+                            _logger.info("Seguridad de respaldo: archivo temporal eliminado con éxito: %s", temp_path)
+                        except Exception as cleanup_err:
+                            _logger.warning("Error al eliminar temporal %s: %s", temp_path, cleanup_err)
             # Onedrive Backup
             elif rec.backup_destination == 'onedrive':
                 if rec.onedrive_token_validity <= fields.Datetime.now():
